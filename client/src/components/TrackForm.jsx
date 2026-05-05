@@ -1,4 +1,5 @@
 import { useState } from "react";
+import './TrackForm.css'
 
 export default function TrackForm() { 
     const [crn, setCRN] = useState('')
@@ -19,10 +20,10 @@ export default function TrackForm() {
 
     return (
         <>
-            <div className="form-Header">
-                <h2>Add a course to track</h2>       
-            </div>
-            <div className="form-containter">
+            <div className="form-container">
+                <div className="form-Header">
+                    <h2>Add a course to track</h2>
+                </div>
                 <form>
                     <label className="form-label">CRN</label>
                     <input
@@ -36,7 +37,7 @@ export default function TrackForm() {
                     
                     <label className="form-label">Term</label>
                     <select
-                    className="form-input"
+                    className="form-select"
                     id="term"
                     value={term}
                     onChange={(e) => setTerm(e.target.value)}
@@ -50,11 +51,14 @@ export default function TrackForm() {
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    placeholder="ex. test@gmail.com"
                     />
-                    <button
-                    className="form-btn"
-                    name="submit"
-                    onClick={(e) => handleSubmit(e)}>Submit</button>
+                    <div className="buttons">
+                        <button
+                        className="form-btn"
+                        name="submit"
+                        onClick={(e) => handleSubmit(e)}>Submit</button>
+                    </div>
                 </form>
             </div>
         </>
