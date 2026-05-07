@@ -22,31 +22,9 @@ form {
     padding: 0 1.5rem 1.5rem;
 }
 
-.buttons{
-    display: flex;
-    justify-content: center;
-}
-.form-btn {
-    margin-top: 30px;
-    align-items: center;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
+.main-btn {
     width: 85%;
-    height: 35px;
-    background: linear-gradient(135deg, #0c2340, #1a4a7a);
-    color: #a0c4e8;
-    font-size: 0.9rem;
-    font-weight: 0.9rem;
-    box-shadow: 0 0 0 12px rgba(26, 74, 122, 0,5);
-    transition: all 0.2s ease;
 }
-
-.form-btn:hover {
-    background: linear-gradient(135deg, #1a4a7a, #2a6aaa);
-    color: #ffffff;
-    box-shadow: 0 0 20px rgba(26, 74, 122, 0.8);
-  }
 
 .form-label {
     margin-bottom: 2px;

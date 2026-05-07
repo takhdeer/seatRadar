@@ -6,8 +6,26 @@ export default function TrackForm() {
     const [term , setTerm] = useState('')
     const [email, setEmail] = useState('')
 
+
+    let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    let crnRegex = /^\d{5}$/;
+
+    function validateForm() {
+        if(!mailRegex.test(email)) {
+            console.log("Incorrect email")
+        }
+        if (!crnRegex.test(crn)) {
+            console.log("Incorrect CRN")
+        }
+        if (!term) {
+            console.log("Incorrect term")
+        }
+    }
+
+    
     async function handleSubmit(e) {
         e.preventDefault();
+        if (!validateForm()) return
         const res = await fetch("http://localhost:3001/api/submit", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -42,6 +60,7 @@ export default function TrackForm() {
                     value={term}
                     onChange={(e) => setTerm(e.target.value)}
                     >
+                        <option></option>
                         <option>Fall 2026</option>
                         <option>Winter 2027</option>
                     </select>
@@ -55,7 +74,7 @@ export default function TrackForm() {
                     />
                     <div className="buttons">
                         <button
-                        className="form-btn"
+                        className="main-btn"
                         name="submit"
                         onClick={(e) => handleSubmit(e)}>Submit</button>
                     </div>
