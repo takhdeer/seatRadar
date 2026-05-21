@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import './TrackForm.css'
 
 export default function TrackForm() { 
@@ -22,6 +23,7 @@ export default function TrackForm() {
         }
     }
 
+    const navigate = useNavigate();
     
     async function handleSubmit(e) {
         e.preventDefault();
@@ -32,6 +34,7 @@ export default function TrackForm() {
             body: JSON.stringify({crn, term, email})
         });
 
+        navigate('/done')
         const data = await res.json();
         console.log(data);
     };
