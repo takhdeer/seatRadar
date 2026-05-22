@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { validateForm } from "../utils/validation";
 import './TrackForm.css'
 
 export default function TrackForm() { 
@@ -7,27 +8,11 @@ export default function TrackForm() {
     const [term , setTerm] = useState('')
     const [email, setEmail] = useState('')
 
-
-    let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    let crnRegex = /^\d{5}$/;
-
-    function validateForm() {
-        if(!mailRegex.test(email)) {
-            console.log("Incorrect email")
-        }
-        if (!crnRegex.test(crn)) {
-            console.log("Incorrect CRN")
-        }
-        if (!term) {
-            console.log("Incorrect term")
-        }
-    }
-
     const navigate = useNavigate();
     
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!validateForm()) return
+        if (!validateForm(email,crn,term)) return
         const res = await fetch("http://localhost:3001/api/submit", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
