@@ -1,42 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { validateForm } from "../utils/validation";
 import './TrackForm.css'
 
 export default function TrackForm() { 
     const [crn, setCRN] = useState('')
     const [term , setTerm] = useState('')
     const [email, setEmail] = useState('')
-
-
-    let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    let crnRegex = /^\d{5}$/;
-
-    function validateForm() {
-        if(!mailRegex.test(email)) {
-            console.log("Incorrect email")
-        }
-        if (!crnRegex.test(crn)) {
-            console.log("Incorrect CRN")
-        }
-        if (!term) {
-            console.log("Incorrect term")
-        }
-    }
+    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
     
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!validateForm()) return
+        const validErrors = validateForm({email,crn,term, requireMRU: false});
+        if (Object.keys(validErrors).length >0) {
+            setErrors(validErrors)
+            return
+        }
         const res = await fetch("http://localhost:3001/api/submit", {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({crn, term, email})
         });
-
-        navigate('/done')
         const data = await res.json();
         console.log(data);
+        navigate('/done')
+
     };
 
     return (
@@ -55,6 +45,7 @@ export default function TrackForm() {
                     type = "text"
                     placeholder="ex. 123456"
                     />
+                    {errors.crn && <p className="error">{errors.crn}</p>}
                     
                     <label className="form-label">Term</label>
                     <select
@@ -67,6 +58,8 @@ export default function TrackForm() {
                         <option>Fall 2026</option>
                         <option>Winter 2027</option>
                     </select>
+                    {errors.term && <p className="error">{errors.term}</p>}
+
                     <label className="form-label">Email</label>
                     <input 
                     className="form-input"
@@ -75,6 +68,8 @@ export default function TrackForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="ex. test@gmail.com"
                     />
+                    {errors.email && <p className="error">{errors.email}</p>}
+
                     <div className="buttons">
                         <button
                         className="main-btn"
