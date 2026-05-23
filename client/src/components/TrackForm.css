@@ -16,6 +16,7 @@
     margin-bottom: 1.5rem;
     margin-top: 1.5rem;
 }
+
 form { 
     display: flex;
     flex-direction: column;
@@ -47,4 +48,9 @@ form {
 .form-select {
     height: 2rem;
     width: fit-content;
+}
+
+.error {
+    color: red;
+    font-size: 0.6rem;
 }

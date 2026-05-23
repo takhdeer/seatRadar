@@ -14,3 +14,51 @@ p {
     font-style: italic;
     font-size: 0.7rem;
 }
+
+h2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-btn {
+    width: 85%;
+}
+
+.form-label {
+    margin-bottom: 2px;
+    color: #a0c4e8;
+}
+
+.form-input {
+    margin-bottom: 2px;
+    height: 2.3rem;
+    border-radius: 12px;
+    border: none;
+    background-color: rgba(255,255,255,0.03);
+    padding: 0px 8px; 
+}
+
+.form-input:focus::placeholder{
+    color: transparent;
+}
+
+.form-select {
+    height: 2rem;
+    width: fit-content;
+}
+
+.form-input:focus::placeholder{
+    color: transparent;
+}
+
+.error {
+    color: red;
+    font-size: 0.6rem;
+}

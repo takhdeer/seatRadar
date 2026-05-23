@@ -30,7 +30,7 @@ export default function LandingPage(){
 
     return (
         <>
-        <div className="page-login">
+        <div className="form-container">
             <h2>Connect Your MRU Account</h2>
             <form>
                 <label className='form-label'>MRU Email</label>
@@ -54,11 +54,15 @@ export default function LandingPage(){
                 onChange={(e) => setMRUPass(e.target.value)}
                 />
 
-                <button 
-                className='main-btn'
-                onClick={(e) => handleSubmit(e)}
-                >Submit</button>
+                <div className='buttons'>
+                    <button 
+                    className='main-btn'
+                    onClick={(e) => handleSubmit(e)}
+                    >Submit</button>
+                </div>
                 <p>Why we need this?</p>
+
+
             </form>
 
         </div>
