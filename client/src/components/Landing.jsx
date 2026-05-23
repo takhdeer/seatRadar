@@ -6,21 +6,26 @@ import './Landing.css'
 export default function LandingPage(){
     const [mruEmail, setMRUEmail] = useState('')
     const [mruPassword, setMRUPass] = useState('')
+    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
-        if (!validateForm(mruEmail, mruPassword)) return
-            const res = await fetch('http://localhost:3001/api/mru-login', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({mruEmail, mruPassword})
-            });
+        const validErrors = validateForm({email: mruEmail,mruPassword,requireMRU: true});
+        if (Object.keys(validErrors).length >0) {
+            setErrors(validErrors)
+            return
+        }
+        const res = await fetch('http://localhost:3001/api/mru-login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({mruEmail, mruPassword})
+        });
             
-        navigate('/form')
         const data = await res.json();
         console.log(data)
+        navigate('/form')
     }
 
     return (
@@ -37,6 +42,7 @@ export default function LandingPage(){
                 placeholder='example@mtroyal.ca'
                 onChange={(e) => setMRUEmail(e.target.value)}
                 />
+                {errors.email && <p className="error">{errors.email}</p>}
 
                 <label className='form-label'>MRU Password</label>
                 <input

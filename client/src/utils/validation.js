@@ -3,19 +3,21 @@ export const MRU_DOMAIN= ['@mtroyal.ca']
 let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 let crnRegex = /^\d{5}$/;
 
-export const validateEmail = (email) => {
+export const validateEmail = (email, requireMRU) => {
     if (!email) return 'Email is requried'
     const syntaxvalid = mailRegex.test(email)
     if (!syntaxvalid) return 'Email syntax is not valid'
-    const hasMRUDomain = MRU_DOMAIN.some(d => email.endsWith(d))
-    if (!hasMRUDomain) return 'Must be a MRU Email (@mtroyal.ca)'
+    if (requireMRU) {
+        const hasMRUDomain = MRU_DOMAIN.some(d => email.endsWith(d))
+        if (!hasMRUDomain) return 'Must be a MRU Email (@mtroyal.ca)'
+    }
     return null;
 }
 
 export const validateForm = (fields) => {
     const errors = {};
     if ('email' in fields) {
-        const emailErr = validateEmail(fields.email);
+        const emailErr = validateEmail(fields.email, fields.requireMRU);
         if (emailErr) errors.email = emailErr;
     }
 

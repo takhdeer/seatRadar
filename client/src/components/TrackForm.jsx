@@ -13,7 +13,7 @@ export default function TrackForm() {
     
     async function handleSubmit(e) {
         e.preventDefault();
-        const validErrors = validateForm({email,crn,term});
+        const validErrors = validateForm({email,crn,term, requireMRU: false});
         if (Object.keys(validErrors).length >0) {
             setErrors(validErrors)
             return
