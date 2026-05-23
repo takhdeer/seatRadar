@@ -18,13 +18,19 @@ export const validateForm = (fields) => {
         const emailErr = validateEmail(fields.email);
         if (emailErr) errors.email = emailErr;
     }
-    if (!fields.crn) {
-        errors.crn = 'CRN is required'
-    } else if (!crnRegex.test(crn)) {
-        errors.crn = 'Incorrect CRN'
+
+    if ('crn' in fields) {
+        if (!fields.crn) {
+            errors.crn = 'CRN is required'
+        } else if (!crnRegex.test(fields.crn)) {
+            errors.crn = 'Incorrect CRN'
+        }
     }
-    if (!fields.term) {
-        errors.term = 'Incorrect term'
+
+    if ('term' in fields) {
+        if (!fields.term) {
+            errors.term = 'Incorrect term'
+        }
     }
 
     return errors;

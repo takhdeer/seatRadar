@@ -9,6 +9,7 @@ router.post('/', async (req, res) => {
         return res.status(400).json({error: "Missing MRU Credentials"})
     }
 
+    res.json({mruEmail, mruPassword})
     // pass to playwright 
 });
 

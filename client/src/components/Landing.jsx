@@ -35,7 +35,9 @@ export default function LandingPage(){
                 value={mruEmail}
                 type='text'
                 placeholder='example@mtroyal.ca'
+                onChange={(e) => setMRUEmail(e.target.value)}
                 />
+
                 <label className='form-label'>MRU Password</label>
                 <input
                 className='form-input'
@@ -43,7 +45,9 @@ export default function LandingPage(){
                 value={mruPassword}
                 type='text'
                 placeholder='123456'
+                onChange={(e) => setMRUPass(e.target.value)}
                 />
+
                 <button 
                 className='main-btn'
                 onClick={(e) => handleSubmit(e)}
