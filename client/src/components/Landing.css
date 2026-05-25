@@ -62,3 +62,20 @@ form {
     color: red;
     font-size: 0.6rem;
 }
+
+.password-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.show-password {
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #0c2340, #1a4a7a);
+    color: #a0c4e8;
+    font-size: 0.9rem;
+    font-weight: 0.9rem;
+    box-shadow: 0 0 0 12px rgba(26, 74, 122, 0,5);
+    
+}

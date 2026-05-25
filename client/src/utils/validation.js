@@ -31,9 +31,15 @@ export const validateForm = (fields) => {
 
     if ('term' in fields) {
         if (!fields.term) {
-            errors.term = 'Incorrect term'
+            errors.term = 'Select a term'
         }
     }
 
+    if ('password' in fields) {
+        if (!fields.password) {
+            errors.password = 'Password is required'
+        }
+    }
+    
     return errors;
 }

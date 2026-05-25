@@ -7,6 +7,7 @@ export default function LandingPage(){
     const [mruEmail, setMRUEmail] = useState('')
     const [mruPassword, setMRUPass] = useState('')
     const [errors, setErrors] = useState({})
+    const [showPassword, setShowPassword] = useState(false)
 
     const navigate = useNavigate();
     const userAgent = navigator.userAgent
@@ -34,7 +35,7 @@ export default function LandingPage(){
         }
 
         e.preventDefault();
-        const validErrors = validateForm({email: mruEmail,mruPassword,requireMRU: true});
+        const validErrors = validateForm({email: mruEmail, password: mruPassword,requireMRU: true});
         if (Object.keys(validErrors).length >0) {
             setErrors(validErrors)
             return
@@ -70,16 +71,24 @@ export default function LandingPage(){
                 {errors.email && <p className="error">{errors.email}</p>}
 
                 <label className='form-label'>MRU Password</label>
-                <input
-                className='form-input'
-                id='mruPassword'
-                value={mruPassword}
-                type='text'
-                placeholder='123456'
-                onChange={(e) => setMRUPass(e.target.value)}
-                />
+                <div className='password-wrapper'>
+                    <input
+                    className='form-input password'
+                    id='mruPassword'
+                    value={mruPassword}
+                    type={showPassword ? 'text' : 'password'}
+                    onChange={(e) => setMRUPass(e.target.value)}
+                    />
 
-                <div className='buttons'>
+                    <button
+                    type='button'
+                    className='show-password'
+                    onClick={() => setShowPassword(!showPassword)}
+                    >{ showPassword ? 'Hide' : 'Show'}</button>
+                </div>
+                {errors.password && <p className="error">{errors.password}</p>}
+
+               <div className='buttons'>
                     <button 
                     className='main-btn'
                     onClick={(e) => handleSubmit(e)}
