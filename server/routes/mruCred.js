@@ -6,14 +6,14 @@ const router = express.Router();
 const browsers = { chromium, firefox, webkit }
 
 async function logIntoMRU(browserType, mruEmail, mruPassword) {
-    const browser = await browsers[browserType].launch()
+    const browser = await browsers[browserType].launch({ headless: false })
     const page = await browser.newPage()
 
     await page.goto('https://www.mymru.ca/',)
     const title = await page.title()
     console.log(`On Page: ${title}`)
 
-    /*
+    
     // Remove domain from email
     const username = mruEmail.split('@')[0]
     console.log(`${username}`)
@@ -25,7 +25,7 @@ async function logIntoMRU(browserType, mruEmail, mruPassword) {
 
     await page.waitForLoadState('networkidle')
 
-    */
+    
     await browser.close()
     console.log('browser closed')
 }
