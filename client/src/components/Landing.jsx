@@ -9,8 +9,30 @@ export default function LandingPage(){
     const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
+    const userAgent = navigator.userAgent
+
+    //timeout logic
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000) 
 
     async function handleSubmit(e) {
+
+        // Finding browser for Playwright
+        let browserType
+
+        if (userAgent.includes('Firefox')) {
+            browserType = 'firefox'
+        }
+        else if (userAgent.includes('Chrome')) {
+            browserType = 'chromium'
+        }
+        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
+            browserType = 'webkit'
+        }
+        else {
+            browserType = null
+        }
+
         e.preventDefault();
         const validErrors = validateForm({email: mruEmail,mruPassword,requireMRU: true});
         if (Object.keys(validErrors).length >0) {
@@ -20,8 +42,11 @@ export default function LandingPage(){
         const res = await fetch('http://localhost:3001/api/mru-login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({mruEmail, mruPassword})
+            body: JSON.stringify({mruEmail, mruPassword, browserType}),
+            signal: controller.signal
         });
+
+        clearTimeout(timeout)
             
         const data = await res.json();
         console.log(data)
