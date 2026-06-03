@@ -77,5 +77,12 @@ form {
     font-size: 0.9rem;
     font-weight: 0.9rem;
     box-shadow: 0 0 0 12px rgba(26, 74, 122, 0,5);
+    cursor: pointer;
     
+}
+
+.show-password:hover {
+    background: linear-gradient(135deg, #1a4a7a, #2a6aaa);
+    color: #ffffff;
+    box-shadow: 0 0 20px rgba(26, 74, 122, 0.8);   
 }

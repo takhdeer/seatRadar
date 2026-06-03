@@ -40,6 +40,16 @@ export const validateForm = (fields) => {
             errors.password = 'Password is required'
         }
     }
+
+    if ('confirmPassword' in fields) {
+        if (!fields.confirmPassword) {
+            errors.confirmPassword = 'Confirm Password is required'
+        }
+
+        if (fields.password !== fields.confirmPassword) {
+            errors.confirmPassword = 'Passwords do not match'
+        }
+    }
     
     return errors;
 }

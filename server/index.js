@@ -5,7 +5,8 @@ const cors = require('cors');
 
 // Routes
 const submitRoute = require('./routes/submit')
-const mruCredRoute = require('./routes/mruCred')
+const signUpRoute = require('./routes/signup')
+const logInRoute = require('./routes/login')
 
 const app = express();
 const port = 3001;
@@ -18,7 +19,8 @@ app.get('/api/test', (req, res) => {
 })
 
 app.use('/api/submit',submitRoute);
-app.use('/api/mru-login',mruCredRoute);
+app.use('/api/usr-signup',signUpRoute);
+app.use('/api/usr-login',logInRoute);
 
 app.listen(port, () => {
     console.log(`Server is running on PORT: ${port}`)

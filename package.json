@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix client\" \"node server/index.js\""
+    "dev": "concurrently \"npm run dev --prefix client\" \"nodemon server/index.js\""
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.1",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.14"
   }
 }
