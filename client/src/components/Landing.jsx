@@ -3,103 +3,100 @@ import { useState } from 'react';
 import { validateForm } from '../utils/validation';
 import './Landing.css'
 
-export default function LandingPage(){
-    const [mruEmail, setMRUEmail] = useState('')
-    const [mruPassword, setMRUPass] = useState('')
-    const [errors, setErrors] = useState({})
+export default function LandingPage() {
+    const [email, setMRUEmail] = useState('')
+    const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
+    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
-    const userAgent = navigator.userAgent
-
-    //timeout logic
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 30000) 
 
     async function handleSubmit(e) {
 
-        // Finding browser for Playwright
-        let browserType
-
-        if (userAgent.includes('Firefox')) {
-            browserType = 'firefox'
-        }
-        else if (userAgent.includes('Chrome')) {
-            browserType = 'chromium'
-        }
-        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-            browserType = 'webkit'
-        }
-        else {
-            browserType = null
-        }
-
         e.preventDefault();
-        const validErrors = validateForm({email: mruEmail, password: mruPassword,requireMRU: true});
+        const validErrors = validateForm({email: email, password: password,requireMRU: true});
         if (Object.keys(validErrors).length >0) {
             setErrors(validErrors)
             return
         }
-        const res = await fetch('http://localhost:3001/api/mru-login', {
+
+        //timeout logic
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 30000) 
+
+        const res = await fetch('http://localhost:3001/api/usr-login', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({mruEmail, mruPassword, browserType}),
+            body: JSON.stringify({email, password}),
             signal: controller.signal
         });
-
+        
         clearTimeout(timeout)
-            
+
         const data = await res.json();
         console.log(data)
-        navigate('/form')
+
+        if (res.status === 200) {
+            navigate('/form')
+        }
+
+        else if (res.status === 400) {
+            setErrors({server: 'User Does Not Exist'})
+        }
+        
     }
 
     return (
         <>
-        <div className="form-container">
-            <h2>Connect Your MRU Account</h2>
-            <form>
-                <label className='form-label'>MRU Email</label>
-                <input
-                className='form-input'
-                id='mruEmail'
-                value={mruEmail}
-                type='text'
-                placeholder='example@mtroyal.ca'
-                onChange={(e) => setMRUEmail(e.target.value)}
-                />
-                {errors.email && <p className="error">{errors.email}</p>}
+            <div className='form-container'>
+                <h2>Login to your SeatRadar Account</h2>
+                <form>
+                    <label className='form-label'>Email</label>
+                    <input
+                    className='form-input'
+                    id='email'
+                    value={email}
+                    type='text'
+                    placeholder='example@mtroyal.ca'
+                    onChange={(e) => setMRUEmail(e.target.value)}
+                    />
+                    {errors.email && <p className="error">{errors.email}</p>}
 
-                <label className='form-label'>MRU Password</label>
-                <div className='password-wrapper'>
+                    <label className='form-label'>Password</label>
+                    <div className='password-wrapper'>
                     <input
                     className='form-input password'
-                    id='mruPassword'
-                    value={mruPassword}
+                    id='password'
+                    value={password}
                     type={showPassword ? 'text' : 'password'}
-                    onChange={(e) => setMRUPass(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                     />
-
                     <button
                     type='button'
                     className='show-password'
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(!showPassword)} 
                     >{ showPassword ? 'Hide' : 'Show'}</button>
-                </div>
-                {errors.password && <p className="error">{errors.password}</p>}
-
-               <div className='buttons'>
-                    <button 
-                    className='main-btn'
-                    onClick={(e) => handleSubmit(e)}
-                    >Submit</button>
-                </div>
-                <p>Why we need this?</p>
+                    </div>  
+                    {errors.password && <p className="error">{errors.password}</p>}
 
 
-            </form>
+                    <div className='buttons'>
+                        <button 
+                        className='main-btn'
+                        onClick={(e) => handleSubmit(e)}
+                        >LogIn</button>
+                    </div>
+                    {errors.server && <p className='error'>{errors.server}</p>}
 
-        </div>
+                    <div className='buttons'>
+                        <button
+                        type='button'
+                        className='main-btn'
+                        onClick={() => navigate('/signup')}
+                        >SignUp</button>
+                    </div> 
+                </form>
+            </div>
         </>
     )
 }
