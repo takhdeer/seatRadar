@@ -11,26 +11,8 @@ export default function SignUpPage(){
     const [showPassword, setShowPassword] = useState(false)
 
     const navigate = useNavigate();
-    const userAgent = navigator.userAgent
-
 
     async function handleSubmit(e) {
-
-        // Finding browser for Playwright
-        let browserType
-
-        if (userAgent.includes('Firefox')) {
-            browserType = 'firefox'
-        }
-        else if (userAgent.includes('Chrome')) {
-            browserType = 'chromium'
-        }
-        else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-            browserType = 'webkit'
-        }
-        else {
-            browserType = null
-        }
 
         //timeout logic
         const controller = new AbortController()
