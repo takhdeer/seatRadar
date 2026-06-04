@@ -6,7 +6,8 @@ const cors = require('cors');
 // Routes
 const submitRoute = require('./routes/submit')
 const signUpRoute = require('./routes/signup')
-const logInRoute = require('./routes/login')
+const logInRoute = require('./routes/login');
+const cookieExtract = require('./utils/cookieExtract')
 
 const app = express();
 const port = 3001;
@@ -21,6 +22,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/submit',submitRoute);
 app.use('/api/usr-signup',signUpRoute);
 app.use('/api/usr-login',logInRoute);
+app.use('/api/cookies', cookieExtract);
 
 app.listen(port, () => {
     console.log(`Server is running on PORT: ${port}`)
