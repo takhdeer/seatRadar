@@ -21,11 +21,19 @@ export default function TrackForm() {
         return;
       }
 
+      const termCodes = {
+        'Fall 2026': '202604',
+        'Winter 2027': '202701'
+      }
+
+      const termCode = termCodes[term]
+
       const res1 = await fetch("http://localhost:3001/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, courseNum, term }),
+        body: JSON.stringify({ subject, courseNum, termCode }),
       });
+
       const data1 = await res1.json();
       console.log(data1);
 

@@ -4,15 +4,15 @@ const pool = require('../db');
 
 router.post('/', async (req, res) => {
     console.log(req.body);
-    const {subject, courseNum, term } = req.body;
+    const {subject, courseNum, termCode } = req.body;
 
-    if (!subject || !courseNum || !term) {
+    if (!subject || !courseNum || !termCode) {
         return res.status(400).json({ error: "Missing Fields"});
     }
 
     try{
         await pool.query(
-            'INSERT INTO tracked_courses (subject, course_num, term) VALUES ($1,$2,$3)', [subject,courseNum,term]
+            'INSERT INTO tracked_courses (subject, course_num, term) VALUES ($1,$2,$3)', [subject,courseNum,termCode]
         );
         return res.json({message: "Courses added sucessfully!"})
     } catch (err) {
