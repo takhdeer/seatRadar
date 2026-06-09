@@ -4,7 +4,8 @@ import { validateForm } from '../utils/validation';
 import './TrackForm.css'
 
 export default function TrackForm() { 
-    const [crn, setCRN] = useState('')
+    const [subject, setSubject] = useState('')
+    const [courseNum, setCourseNum] = useState('')
     const [term , setTerm] = useState('')
     const [errors, setErrors] = useState({})
 
@@ -14,15 +15,16 @@ export default function TrackForm() {
     
     async function handleSubmit(e) {
       e.preventDefault();
-      const validErrors = validateForm({ crn, term, requireMRU: false });
+      const validErrors = validateForm({ subject, courseNum, term, requireMRU: false });
       if (Object.keys(validErrors).length > 0) {
         setErrors(validErrors);
         return;
       }
+
       const res1 = await fetch("http://localhost:3001/api/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crn, term }),
+        body: JSON.stringify({ subject, courseNum, term }),
       });
       const data1 = await res1.json();
       console.log(data1);
@@ -61,16 +63,29 @@ export default function TrackForm() {
                     <h2>Add a course to track</h2>
                 </div>
                 <form>
-                    <label className="form-label">CRN</label>
+                    <label className='form-label'>Subject</label>
+                    <select
+                    className='course-name'
+                    id='subject'
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    >
+                      <option></option>
+                      <option>COMP</option>
+                      <option>MATH</option>
+                    </select>
+                    {errors.subject && <p className="error">{errors.subject}</p>}
+                    
+                    <label className="form-label">Course Number</label>
                     <input
                     className="form-input" 
-                    id="crn"
-                    value={crn}
-                    onChange={(e) => setCRN(e.target.value)}
+                    id="courseNum"
+                    value={courseNum}
+                    onChange={(e) => setCourseNum(e.target.value)}
                     type = "text"
-                    placeholder="ex. 123456"
+                    placeholder="ex. 2659"
                     />
-                    {errors.crn && <p className="error">{errors.crn}</p>}
+                    {errors.courseNum && <p className="error">{errors.courseNum}</p>}
                     
                     <label className="form-label">Term</label>
                     <select

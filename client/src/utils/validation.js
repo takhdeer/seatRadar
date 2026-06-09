@@ -1,7 +1,7 @@
 export const MRU_DOMAIN= ['@mtroyal.ca']
 
 let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-let crnRegex = /^\d{5}$/;
+let numRegex = /^\d{4}$/;
 
 export const validateEmail = (email, requireMRU) => {
     if (!email) return 'Email is requried'
@@ -21,11 +21,15 @@ export const validateForm = (fields) => {
         if (emailErr) errors.email = emailErr;
     }
 
-    if ('crn' in fields) {
-        if (!fields.crn) {
-            errors.crn = 'CRN is required'
-        } else if (!crnRegex.test(fields.crn)) {
-            errors.crn = 'Incorrect CRN'
+    if ('subject' in fields) {
+        if (!fields.subject) {
+            errors.subject = 'Select a course'
+        }
+    }
+
+    if ('courseNum' in fields) {
+        if (!(numRegex.test(fields.courseNum))) {
+            errors.courseNum = 'Invalid Course Number'
         }
     }
 
