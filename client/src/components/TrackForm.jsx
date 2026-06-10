@@ -61,14 +61,24 @@ export default function TrackForm() {
       const cookies = await res2.json();
       console.log(cookies)
 
+      
       const res3 = await fetch('http://localhost:3001/api/scrapper', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({subject, courseNum, termCode, cookies})
       });
-
       const courseData = await res3.json();
       console.log('Course Data:', JSON.stringify(courseData, null, 2))
+
+
+      const res4 = await fetch('http://localhost:3001/api/track', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({courseData})
+      });
+
+      await res4.json();
+
       navigate("/done");
     };
 

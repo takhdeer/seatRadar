@@ -21,12 +21,15 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     return data
 }
 
-async function parseJSON(courseData) {
+function parseJSON(courseData) {
     const parsedData = {
         totalCount: courseData.totalCount,
-        seatsAvailable: courseData.data[0].seatsAvailable,
-        waitAvailable: courseData.data[0].waitAvailable
     };
+
+    courseData.data.forEach((section, index) => {
+        parsedData[`seatsAvailableS${index + 1}`] = section.seatsAvailable
+        parsedData[`waitAvailableS${index + 1}`] = section.waitAvailable
+    })
     console.log(parsedData)
     return parsedData
 }
