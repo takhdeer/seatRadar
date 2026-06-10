@@ -4,9 +4,9 @@ import { validateForm } from '../utils/validation';
 import './TrackForm.css'
 
 export default function TrackForm() { 
-    const [subject, setSubject] = useState('')
-    const [courseNum, setCourseNum] = useState('')
-    const [term , setTerm] = useState('')
+    const [subject, setSubject] = useState('COMP')
+    const [courseNum, setCourseNum] = useState('3612')
+    const [term , setTerm] = useState('Fall 2026')
     const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
@@ -58,9 +58,17 @@ export default function TrackForm() {
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({browserType})
       });
-      const data2 = await res2.json();
-      console.log(data2)
-      
+      const cookies = await res2.json();
+      console.log(cookies)
+
+      const res3 = await fetch('http://localhost:3001/api/scrapper', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({subject, courseNum, termCode, cookies})
+      });
+
+      const courseData = await res3.json();
+      console.log('Course Data:', JSON.stringify(courseData, null, 2))
       navigate("/done");
     };
 

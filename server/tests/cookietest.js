@@ -1,12 +1,9 @@
-const express = require('express');
-const router = express.Router();
-
 const { chromium, firefox, webkit } = require("playwright");
 const browsers = { chromium, firefox, webkit };
 
 async function cookieExtract(browserType) {
 
-    const browser = await browsers[browserType].launch({ headless: true });
+    const browser = await browsers[browserType].launch({ headless: false });
 
     //Creating context and page
     const context = await browser.newContext();
@@ -31,26 +28,13 @@ async function cookieExtract(browserType) {
     const JSESSIONID = (allCookies.find(cookie => cookie.name === 'JSESSIONID')).value
     const MRUcookie = (allCookies.find(cookie => cookie.name === 'MRUB9SSBPRODREGHA')).value
 
+
     const cookies = [JSESSIONID, MRUcookie]
     console.log(cookies)
 
-    await browser.close();
+
     console.log("browser closed");
     return cookies
 }
 
-router.post('/', async (req,res) => {
-    console.log(req.body)
-    const { browserType } = req.body
-
-    if (!(browserType in browsers)) {
-      const error = "Browser Not Supported";
-      console.log(error);
-      return res.status(403).json({ error: "Unsupported Browser" });
-    }
-
-    const cookies = await cookieExtract(browserType);
-    res.json(cookies)
-});
-
-module.exports = router;
+cookieExtract('firefox');

@@ -5,6 +5,8 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     const url = 
     `https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_subject=${subject}&txt_keywordlike=${courseNum}&txt_term=${termCode}&startDatepicker=&endDatepicker=&pageOffset=0&pageMaxSize=10&sortColumn=subjectDescription&sortDirection=asc`
 
+    console.log(`Fetching at url: ${url}`)
+
     const res = await fetch(url,{
         method: 'GET',
         headers: {
@@ -16,9 +18,17 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     });
 
     const data = await res.json();
-    console.log(data)
-
     return data
+}
+
+async function parseJSON(courseData) {
+    const parsedData = {
+        totalCount: courseData.totalCount,
+        seatsAvailable: courseData.data[0].seatsAvailable,
+        waitAvailable: courseData.data[0].waitAvailable
+    };
+    console.log(parsedData)
+    return parsedData
 }
 
 router.post('/', async (req, res) => {
@@ -30,7 +40,8 @@ router.post('/', async (req, res) => {
     }
 
     const courseData = await getCourseData(subject,courseNum,termCode,cookies);
-    res.json(courseData)
+    const filteredData = parseJSON(courseData)
+    res.json(filteredData)
 
 });
 
