@@ -30,7 +30,6 @@ function parseJSON(courseData) {
         parsedData[`seatsAvailableS${index + 1}`] = section.seatsAvailable
         parsedData[`waitAvailableS${index + 1}`] = section.waitAvailable
     })
-    console.log(parsedData)
     return parsedData
 }
 
