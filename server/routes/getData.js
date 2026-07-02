@@ -36,14 +36,13 @@ router.get('/', async (req,res) => {
         }
 
         console.log(courseData)
-        return res.status(201).json({ message: 'Course Data was found'})
+        return res.status(201).json({ message: 'Course Data was found', courseData})
 
     } catch (err) {
         console.log(err)
         return res.status(404).json({ error: 'Course Data not found'})
     }
 
-    
 })
 
 module.exports= router
