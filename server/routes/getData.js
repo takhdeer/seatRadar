@@ -1,8 +1,40 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const pool = require('../db')
+const pool = require('../db');
 
 router.get('/', async (req,res) => {
-});
+    console.log(req.body)
+    const { subject, courseNum } = req.query
+
+    if (!subject || !courseNum) {
+        console.log('No course to track')
+        return res.status(401).json( {error: 'Invalid Course Credentails'})
+    }
+
+    try {
+        const result = await pool.query(
+            'SELECT * FROM tracked_courses WHERE (subject, course_num) = ($1,$2)', [subject,courseNum]
+        );
+        const id = result.rows[0].id
+        console.log(`Course ID ${id}`)
+
+        const result2 = await pool.query(
+            `SELECT * FROM course_data WHERE (tracked_courses_id) = ($1)`, [id]
+        );
+        
+        const seats = result2.rows[0].seats
+        const waitlist = result2.rows[0].waitlist
+        const checked = result2.rows[0].last_checked
+
+        console.log(seats,waitlist,checked)
+        return res.status(201).json({ message: 'Course Data was found'})
+
+    } catch (err) {
+        console.log(err)
+        return res.status(404).json({ error: 'Course Data not found'})
+    }
+
+    
+})
 
 module.exports= router

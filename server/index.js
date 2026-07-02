@@ -10,6 +10,7 @@ const logInRoute = require('./routes/login');
 const cookieExtract = require('./utils/cookieExtract')
 const scrapper = require('./utils/scrapper')
 const tracker = require('./routes/trackCourse')
+const storedData = require('./routes/getData')
 
 const app = express();
 const port = 3001;
@@ -27,6 +28,7 @@ app.use('/api/usr-login',logInRoute);
 app.use('/api/cookies', cookieExtract);
 app.use('/api/scrapper', scrapper);
 app.use('/api/track', tracker)
+app.use('/api/getData', storedData)
 
 app.listen(port, () => {
     console.log(`Server is running on PORT: ${port}`)
