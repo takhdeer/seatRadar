@@ -16,17 +16,26 @@ router.get('/', async (req,res) => {
             'SELECT * FROM tracked_courses WHERE (subject, course_num) = ($1,$2)', [subject,courseNum]
         );
         const id = result.rows[0].id
-        console.log(`Course ID ${id}`)
+        console.log(`Course ID: ${id}`)
 
         const result2 = await pool.query(
             `SELECT * FROM course_data WHERE (tracked_courses_id) = ($1)`, [id]
         );
         
-        const seats = result2.rows[0].seats
-        const waitlist = result2.rows[0].waitlist
-        const checked = result2.rows[0].last_checked
+        const courseData = result2.rows.map( row => {
+            return {
+                seats: row.seats,
+                waitlist: row.waitlist,
+                checked: row.last_checked
+            };
+        });
 
-        console.log(seats,waitlist,checked)
+        if (courseData.length === 0) {
+            console.log('Data not stored')
+            return res.status(404).json({ error: 'Course Data not found'})
+        }
+
+        console.log(courseData)
         return res.status(201).json({ message: 'Course Data was found'})
 
     } catch (err) {
