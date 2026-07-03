@@ -3,7 +3,6 @@ const router = express.Router();
 const pool = require('../db');
 
 router.get('/', async (req,res) => {
-    console.log(req.body)
     const { subject, courseNum } = req.query
 
     if (!subject || !courseNum) {
@@ -26,7 +25,8 @@ router.get('/', async (req,res) => {
             return {
                 seats: row.seats,
                 waitlist: row.waitlist,
-                checked: row.last_checked
+                checked: row.last_checked,
+                id: id
             };
         });
 
@@ -36,7 +36,7 @@ router.get('/', async (req,res) => {
         }
 
         console.log(courseData)
-        return res.status(201).json({ message: 'Course Data was found', courseData})
+        return res.status(201).json({ message: 'Course Data was found'})
 
     } catch (err) {
         console.log(err)
