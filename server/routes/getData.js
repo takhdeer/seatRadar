@@ -24,6 +24,7 @@ router.get('/', async (req,res) => {
         const courseData = result2.rows.map( row => {
             return {
                 seats: row.seats,
+                total_seats: row.total_seats,
                 waitlist: row.waitlist,
                 checked: row.last_checked,
                 id: id
@@ -36,7 +37,7 @@ router.get('/', async (req,res) => {
         }
 
         console.log(courseData)
-        return res.status(201).json({ message: 'Course Data was found'})
+        return res.status(201).json({ message: 'Course Data was found', courseData})
 
     } catch (err) {
         console.log(err)
