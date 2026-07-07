@@ -37,7 +37,7 @@ export default function LandingPage() {
         console.log(data)
 
         if (res.status === 200) {
-            navigate('/form')
+            navigate('/dashboard')
         }
 
         else if (res.status === 400) {

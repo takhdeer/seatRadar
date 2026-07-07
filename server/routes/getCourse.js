@@ -17,7 +17,7 @@ router.get('/', async (req,res) => {
         const subject = result.rows[0].subject
         const courseNum = result.rows[0].course_num
         console.log(subject,courseNum)
-        return res.json({message: 'Subject and CourseNumber found',subject,courseNum})
+        return res.json({subject,courseNum})
 
     }catch (err) {
         console.log(err)
