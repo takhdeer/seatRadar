@@ -16,8 +16,9 @@ router.get('/', async (req,res) => {
         );
         const subject = result.rows[0].subject
         const courseNum = result.rows[0].course_num
-        console.log(subject,courseNum)
-        return res.json({subject,courseNum})
+        const course = subject.concat('', courseNum)
+        console.log(course)
+        return res.json({course})
 
     }catch (err) {
         console.log(err)
