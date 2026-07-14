@@ -23,8 +23,8 @@ router.get('/', async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'Query Param prof not of type: string'})
     }
 
-    const profRating = findProfessor(UNI, prof);
-    return res.status(201), profRating
+    const profRating = await findProfessor(UNI, prof);
+    return res.status(201).json({ profRating })
 });
 
 module.exports = router
