@@ -43,6 +43,15 @@ export default function Dashboard() {
 
     }, [courseChart])
 
+    useEffect(() => {
+        async function getProfRatings() {
+            const res = await fetch(`http://localhost:3001/api/profRatings?prof=ADDSTRINGHHERE`, {
+                method: 'GET',
+                headers: {'Accept': 'application/json'}
+            })
+        }
+    })
+
     
     function SeatsChart( {chartData}) {
         return (
@@ -87,7 +96,7 @@ export default function Dashboard() {
         <>
         <div className='chart-container'>
             <button 
-                className='main-btn'
+                className='seat-btn'
                 name='waitlist'
                 onClick={ () => setActiveChart(activeChart === 'seats' ? 'waitlist' : 'seats')}
                 >{activeChart === 'seats' ? 'Waitlist': 'Seats'}</button>

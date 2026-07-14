@@ -1,0 +1,10 @@
+diff --git a/node_modules/rate-my-professor-api-ts/dist/index.js b/node_modules/rate-my-professor-api-ts/dist/index.js
+index 2ec5c7c..3e6e00f 100644
+--- a/node_modules/rate-my-professor-api-ts/dist/index.js
++++ b/node_modules/rate-my-professor-api-ts/dist/index.js
+@@ -1,4 +1,4 @@
+-import { search_school, retrieve_school_id, filter_school, search_teacher, get_professor_rating, get_professor_list_by_school, API_LINK, TEACHER_BODY_QUERY, TEACHER_COMMENTS, TEACHER_RATING, TEACHER_RATING_QUERY, TEACHER_LIST_QUERY, GET_TEACHER_ID_QUERY, SCHOOL_BODY_QUERY, TEACHER_LIST, HEADERS, } from "./features";
++import { search_school, retrieve_school_id, filter_school, search_teacher, get_professor_rating, get_professor_list_by_school, API_LINK, TEACHER_BODY_QUERY, TEACHER_COMMENTS, TEACHER_RATING, TEACHER_RATING_QUERY, TEACHER_LIST_QUERY, GET_TEACHER_ID_QUERY, SCHOOL_BODY_QUERY, TEACHER_LIST, HEADERS, } from "./features.js";
+ import * as fs from "fs";
+ export { search_school, retrieve_school_id, filter_school, search_teacher, get_professor_rating, get_professor_list_by_school, API_LINK, TEACHER_BODY_QUERY, TEACHER_COMMENTS, TEACHER_RATING, TEACHER_RATING_QUERY, TEACHER_LIST_QUERY, GET_TEACHER_ID_QUERY, SCHOOL_BODY_QUERY, TEACHER_LIST, HEADERS, };
+ export class RateMyProfessor {
