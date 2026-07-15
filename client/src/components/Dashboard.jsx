@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
+import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
+import { ScatterChart, Scatter } from 'recharts';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -8,6 +9,8 @@ export default function Dashboard() {
     const [courseInfo, setCourseInfo] = useState([])
     const [courseChart, setCourseChart] = useState([])
     const [activeChart, setActiveChart] = useState('seats')
+    const [profName, setProfName] = useState("Jordan Kidney")
+    const [profMetrics, setProfMetrics] = useState({})
 
     useEffect(() => {
         async function fetchData() {
@@ -45,15 +48,22 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getProfRatings() {
-            const res = await fetch(`http://localhost:3001/api/profRatings?prof=ADDSTRINGHHERE`, {
+            const res = await fetch(`http://localhost:3001/api/profRatings?prof=${profName}`, {
                 method: 'GET',
                 headers: {'Accept': 'application/json'}
-            })
+            });
+            const data = await res.json();
+            setProfMetrics(data)
         }
-    })
+        getProfRatings()
+    }, [])
+
+    useEffect(() => {
+        console.log(profMetrics)
+    }, [profMetrics])
 
     
-    function SeatsChart( {chartData}) {
+    function SeatsChart( {chartData} ) {
         return (
             <ResponsiveContainer width='100%' height={300}>
                 <BarChart data = {chartData}>
@@ -67,7 +77,7 @@ export default function Dashboard() {
         )
     }
 
-    function WaitlistChart( {chartData}) {
+    function WaitlistChart( {chartData} ) {
         return (
             <ResponsiveContainer width='100%' height={300}>
                 <BarChart data = {chartData}>
@@ -79,6 +89,21 @@ export default function Dashboard() {
                 </BarChart>
             </ResponsiveContainer>
         )
+    }
+
+    function ProfRatingChart({ chartData }) {
+        return (
+          <ResponsiveContainer width='100%' height={300}>
+            <ScatterChart>
+              <XAxis dataKey="avgDifficulty" name="Difficulty" axisLine={false} tickLine={false} />
+              <YAxis dataKey="avgRating" name="Rating" axisLine={false} tickLine={false} />
+              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+              <CartesianGrid stroke="none" />
+              <Scatter data={chartData} fill="#4f9dde" />
+                <LabelList dataKey='lastName' position='top' fill='#ffffff' />
+            </ScatterChart>
+          </ResponsiveContainer>
+        );
     }
 
     function renderChart() {
@@ -104,6 +129,10 @@ export default function Dashboard() {
                 {renderChart()} 
         </div>
 
+        <div className='chart-container'>
+            <ProfRatingChart chartData={[profMetrics.profRating]}/>
+
+        </div>
         </>
     )
 }  

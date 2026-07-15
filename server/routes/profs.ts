@@ -10,10 +10,10 @@ async function findProfessor(schoolName: string, professorName: string) {
 }
 
 router.get('/', async (req: Request, res: Response) => {
-    const {subject, courseNum, prof} = req.query
+    const { prof } = req.query
     const UNI = "Mount Royal University";
 
-    if (!subject || !courseNum || !prof) {
+    if (!prof) {
         console.log('Missing Query Params')
         return res.status(404).json({ error: 'Missing Query Params'})
     }
@@ -24,7 +24,11 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const profRating = await findProfessor(UNI, prof);
+    if (Object.keys(profRating).length === 0) {
+        return res.status(404).json({ error: 'Professor not found' })
+    }
+
     return res.status(201).json({ profRating })
 });
-
+ 
 module.exports = router
