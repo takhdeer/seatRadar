@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
-import { ScatterChart, Scatter } from 'recharts';
+import { ScatterChart, Scatter, Legend } from 'recharts';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -13,16 +13,16 @@ export default function Dashboard() {
     const [profMetrics, setProfMetrics] = useState([])
 
     useEffect(() => {
-        async function fetchData() {
+        async function fetchData() { 
             const res1 = await fetch(`http://localhost:3001/api/getData?subject=COMP&courseNum=3612`, {
-                method: 'GET',
+                method: 'GET',  // returns course data: seats,waitlist,etc.
                 headers: {'Accept': 'application/json'}
             });
             const data1 = await res1.json();
             setCourseData(data1)
         
             const res2 = await fetch(`http://localhost:3001/api/getCourse?courseID=cfe1312a-5fea-46b8-b190-5f10e2f7954b`, {
-                method: 'GET',
+                method: 'GET', // returns course: subject and num
                 headers: {'Accept': 'application/json'} 
             })
             
@@ -32,6 +32,8 @@ export default function Dashboard() {
             const newArray = data1.courseData.map( row => {
                 return {
                     ...row,
+                    seatsTaken: row.total_seats - row.seats,
+                    waitlistTaken: row.total_waitlist - row.waitlist,
                     ...data2
                 }
             })
@@ -86,11 +88,13 @@ export default function Dashboard() {
         return (
             <ResponsiveContainer width='100%' height={300}>
                 <BarChart data = {chartData}>
-                    <XAxis dataKey = 'course' axisLine={false} tickLine={false}/>
-                    <YAxis dataKey = 'total_seats' axisLine={false} tickLine={false}/>
+                    <XAxis dataKey = 'course' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
+                    <YAxis dataKey = 'total_seats' axisLine={false} tickLine={false} tick={{ fill: '#ffff' }} />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
-                    <Bar dataKey = "total_seats" fill='#4f9dde'/>
+                    <Legend wrapperStyle={{ color: '#ffffff' }} />
+                    <Bar dataKey = 'seats' stackId='a' fill='#90EE90' name='Available' />
+                    <Bar dataKey='seatsTaken' stackId='a' fill='#FF474C' name='Taken' />
                 </BarChart>
             </ResponsiveContainer>
         )
@@ -100,11 +104,12 @@ export default function Dashboard() {
         return (
             <ResponsiveContainer width='100%' height={300}>
                 <BarChart data = {chartData}>
-                    <XAxis dataKey = 'course' axisLine={false} tickLine={false}/>
-                    <YAxis dataKey = 'waitlist' axisLine={false} tickLine={false}/>
+                    <XAxis dataKey = 'course' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }}/>
+                    <YAxis dataKey = 'waitlist' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }}/>
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
-                    <Bar dataKey = "waitlist" fill='#4f9dde'/>
+                    <Bar dataKey = "waitlist" stackId='a' fill='#90EE90' name='Available' />
+                    <Bar dataKey = "waitlistTaken" stackId='a' fill='#FF474C' name='Taken' />
                 </BarChart>
             </ResponsiveContainer>
         )
@@ -114,8 +119,8 @@ export default function Dashboard() {
         return (
           <ResponsiveContainer width='100%' height={300}>
             <ScatterChart>
-              <XAxis dataKey="avgDifficulty" name="Difficulty" axisLine={false} tickLine={false} />
-              <YAxis dataKey="avgRating" name="Rating" axisLine={false} tickLine={false} />
+              <XAxis dataKey="avgDifficulty" name="Difficulty" axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
+              <YAxis dataKey="avgRating" name="Rating" axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
               <CartesianGrid stroke="none" />
               <Scatter data={chartData} fill="#4f9dde" />

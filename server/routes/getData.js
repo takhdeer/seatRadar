@@ -25,6 +25,7 @@ router.get('/', async (req,res) => {
             return {
                 seats: row.seats,
                 total_seats: row.total_seats,
+                total_waitlist: row.total_waitlist,
                 waitlist: row.waitlist,
                 checked: row.last_checked,
                 id: id
