@@ -4,7 +4,7 @@ export default function TrackedPage() {
 
     const navigate = useNavigate();
     setTimeout(() => {
-        navigate('/form')
+        navigate('/dashboard')
     }, 3000);
     
     return (
