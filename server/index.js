@@ -12,7 +12,9 @@ const scrapper = require('./utils/scrapper')
 const tracker = require('./routes/trackCourse')
 const storedData = require('./routes/getData')
 const course = require('./routes/getCourse')
-const prof = require('./routes/profs')
+const profRatings = require('./routes/getProfRating')
+const profCourses = require('./routes/getProfCourses')
+
 
 const app = express();
 const port = 3001;
@@ -32,7 +34,8 @@ app.use('/api/scrapper', scrapper);
 app.use('/api/track', tracker);
 app.use('/api/getData', storedData);
 app.use('/api/getCourse', course);
-app.use('/api/profRatings', prof);
+app.use('/api/profRatings', profRatings);
+app.use('/api/profCourses', profCourses);
 
 app.listen(port, () => {
     console.log(`Server is running on PORT: ${port}`)

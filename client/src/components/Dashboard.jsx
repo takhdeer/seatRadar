@@ -9,8 +9,8 @@ export default function Dashboard() {
     const [courseInfo, setCourseInfo] = useState([])
     const [courseChart, setCourseChart] = useState([])
     const [activeChart, setActiveChart] = useState('seats')
-    const [profName, setProfName] = useState("Jordan Kidney")
-    const [profMetrics, setProfMetrics] = useState({})
+    const [profName, setProfName] = useState([])
+    const [profMetrics, setProfMetrics] = useState([])
 
     useEffect(() => {
         async function fetchData() {
@@ -46,17 +46,36 @@ export default function Dashboard() {
 
     }, [courseChart])
 
+
     useEffect(() => {
-        async function getProfRatings() {
-            const res = await fetch(`http://localhost:3001/api/profRatings?prof=${profName}`, {
+        async function getProfs() {
+            const res = await fetch('http://localhost:3001/api/profCourses?courseID=cfe1312a-5fea-46b8-b190-5f10e2f7954b', {
                 method: 'GET',
                 headers: {'Accept': 'application/json'}
             });
             const data = await res.json();
-            setProfMetrics(data)
+            setProfName(data)
+        }
+        getProfs()
+    }, [])
+    
+    useEffect(() => {  
+        console.log(profName)
+    }, [profName])
+
+    useEffect(() => {
+        async function getProfRatings() {
+            for(let i = 0; i < profName.length; i++){
+                const res = await fetch(`http://localhost:3001/api/profRatings?profs=${profName[i]}`, {
+                    method: 'GET',
+                    headers: {'Accept': 'application/json'}
+                });
+                const data = await res.json();
+                setProfMetrics(prev => [...prev, data[0]]);
+            }
         }
         getProfRatings()
-    }, [])
+    }, [profName])
 
     useEffect(() => {
         console.log(profMetrics)
@@ -130,7 +149,7 @@ export default function Dashboard() {
         </div>
 
         <div className='chart-container'>
-            <ProfRatingChart chartData={[profMetrics.profRating]}/>
+            <ProfRatingChart chartData={profMetrics}/>
 
         </div>
         </>
