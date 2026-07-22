@@ -1,23 +1,32 @@
+.dashboard-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
 .chart-container {
     width: 100%;
     max-width: 600px;
     height: fit-content;
-    margin-right: auto;
-    margin-left: 1.5rem;
     background-color: rgba(255,255,255,0.03);
+}
+
+.chart-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .scatter-container {
     width: 100%;
     max-width: 600px;
     height: fit-content;
-    margin-left: auto;
-    margin-right: 1.5rem;
     background-color: rgba(255,255,255,0.03);
 }
 
 .seat-btn { 
-    margin-top: 30px;
+    margin-top: 8px;
+    margin-bottom:5px;    
     align-items: center;
     border-radius: 8px;
     border: none;
@@ -31,6 +40,5 @@
     transition: all 0.2s ease;
     width: 4rem; 
     display: block;
-    margin-left: 83%;
 }
 

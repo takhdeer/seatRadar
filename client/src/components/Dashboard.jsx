@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
 import { ScatterChart, Scatter, Legend } from 'recharts';
+import { useNavigate } from 'react-router-dom';
+
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -11,6 +13,9 @@ export default function Dashboard() {
     const [activeChart, setActiveChart] = useState('seats')
     const [profName, setProfName] = useState([])
     const [profMetrics, setProfMetrics] = useState([])
+    const [trackedCourses, setTrackedCourses] = useState([])
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         async function fetchData() { 
@@ -143,20 +148,48 @@ export default function Dashboard() {
     }
     return (
         <>
-        <div className='chart-container'>
-            <button 
-                className='seat-btn'
-                name='waitlist'
-                onClick={ () => setActiveChart(activeChart === 'seats' ? 'waitlist' : 'seats')}
-                >{activeChart === 'seats' ? 'Waitlist': 'Seats'}</button>
+        <div className='dashboard-container'>
+            <div className='chart-container'>
+                <div className='chart-header'>
+                    <button 
+                        className='seat-btn'
+                        name='waitlist'
+                        onClick={ () => setActiveChart(activeChart === 'seats' ? 'waitlist' : 'seats')}
+                        >{activeChart === 'seats' ? 'Waitlist': 'Seats'}</button>
                     
-                {renderChart()} 
-        </div>
+                    <div className='left-children'>
+                        <button 
+                            className='course-btn'
+                            name='changeCourse'
+                            >Course 1</button>
+                        <button 
+                            className='course-btn'
+                            name='changeCourse'
+                            >Course 2</button>
+                        <button 
+                            className='course-btn'
+                            name='changeCourse'
+                            >Course 3</button>
+                    </div>
+                </div>
 
-        <div className='chart-container'>
-            <ProfRatingChart chartData={profMetrics}/>
+                    {renderChart()} 
+            </div>
 
+            <div className='chart-container'>
+                <ProfRatingChart chartData={profMetrics}/>
+
+            </div>
+
+            <button 
+            className='add-bnt'
+            name='addCourse'
+            onClick={() => navigate('/form')}
+            >Add course</button>
         </div>
+  
+
+
         </>
     )
 }  
