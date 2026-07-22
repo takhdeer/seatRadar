@@ -48,6 +48,7 @@ export default function LandingPage() {
 
     return (
         <>
+        <div className='page-login'>
             <div className='form-container'>
                 <h2>Login to your SeatRadar Account</h2>
                 <form>
@@ -97,6 +98,7 @@ export default function LandingPage() {
                     </div> 
                 </form>
             </div>
+        </div>
         </>
     )
 }

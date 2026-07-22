@@ -180,16 +180,14 @@ export default function Dashboard() {
                 <ProfRatingChart chartData={profMetrics}/>
 
             </div>
-
-            <button 
-            className='add-bnt'
-            name='addCourse'
-            onClick={() => navigate('/form')}
-            >Add course</button>
         </div>
-  
-
-
+        <div className='btn-container'>
+            <button 
+                className='add-btn'
+                name='addCourse'
+                onClick={() => navigate('/form')}
+                >Add course</button>
+        </div>
         </>
     )
 }  

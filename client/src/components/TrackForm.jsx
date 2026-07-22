@@ -84,6 +84,7 @@ export default function TrackForm() {
 
     return (
         <>
+        <div className='page-login'>
             <div className="form-container">
                 <div className="form-Header">
                     <h2>Add a course to track</h2>
@@ -134,6 +135,7 @@ export default function TrackForm() {
                     </div>
                 </form>
             </div>
+          </div>
         </>
     )
 }
