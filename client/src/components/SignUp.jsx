@@ -48,60 +48,63 @@ export default function SignUpPage(){
 
     return (
         <>
-        <div className="form-container">
-            <h2>Create your SeatRadar Account</h2>
-            <form>
-                <label className='form-label'>Email</label>
-                <input
-                className='form-input'
-                id='email'
-                value={email}
-                type='text'
-                placeholder='example@mtroyal.ca'
-                onChange={(e) => setMRUEmail(e.target.value)}
-                />
-                {errors.email && <p className="error">{errors.email}</p>}
-
-                <label className='form-label'>Password</label>
-                <div className='password-wrapper'>
+        <div className='page-login'>
+            <div className="form-container">
+                <h2>Create your SeatRadar Account</h2>
+                <form>
+                    <label className='form-label'>Email</label>
                     <input
-                    className='form-input password'
-                    id='password'
-                    value={password}
-                    type={showPassword ? 'text' : 'password'}
-                    onChange={(e) => setPassword(e.target.value)}
+                    className='form-input'
+                    id='email'
+                    value={email}
+                    type='text'
+                    placeholder='example@mtroyal.ca'
+                    onChange={(e) => setMRUEmail(e.target.value)}
                     />
+                    {errors.email && <p className="error">{errors.email}</p>}
 
-                    <button
-                    type='button'
-                    className='show-password'
-                    onClick={() => setShowPassword(!showPassword)}
-                    >{ showPassword ? 'Hide' : 'Show'}</button>
-                </div>
-                {errors.password && <p className="error">{errors.password}</p>}
+                    <label className='form-label'>Password</label>
+                    <div className='password-wrapper'>
+                        <input
+                        className='form-input password'
+                        id='password'
+                        value={password}
+                        type={showPassword ? 'text' : 'password'}
+                        onChange={(e) => setPassword(e.target.value)}
+                        />
 
-                <label className='form-label'>Confirm Password</label>
-                <div className='password-wrapper'>
-                    <input
-                    className='form-input password'
-                    id='confirmPassword'
-                    value={confirmPassword}
-                    type={showPassword ? 'text' : 'password'}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    />
-                </div>
-                {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
+                        <button
+                        type='button'
+                        className='show-password'
+                        onClick={() => setShowPassword(!showPassword)}
+                        >{ showPassword ? 'Hide' : 'Show'}</button>
+                    </div>
+                    {errors.password && <p className="error">{errors.password}</p>}
 
-               <div className='buttons'>
-                    <button 
-                    className='main-btn'
-                    onClick={(e) => handleSubmit(e)}
-                    >Create Account</button>
-                </div>
-                {errors.server && <p className='error'>{errors.server}</p>}
-            </form>
+                    <label className='form-label'>Confirm Password</label>
+                    <div className='password-wrapper'>
+                        <input
+                        className='form-input password'
+                        id='confirmPassword'
+                        value={confirmPassword}
+                        type={showPassword ? 'text' : 'password'}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                    </div>
+                    {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
 
+                <div className='buttons'>
+                        <button 
+                        className='main-btn'
+                        onClick={(e) => handleSubmit(e)}
+                        >Create Account</button>
+                    </div>
+                    {errors.server && <p className='error'>{errors.server}</p>}
+                </form>
+
+            </div>
         </div>
+
         </>
     )
 }

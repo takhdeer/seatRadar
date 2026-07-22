@@ -3,7 +3,7 @@ import TrackForm from './components/TrackForm'
 import SignUpPage from './components/SignUp'
 import TrackedPage from './components/tracked'
 import LandingPage from './components/Landing'
-import Dashboard from './components/dashboard'
+import Dashboard from './components/Dashboard'
 
 import './App.css'
 

@@ -9,7 +9,9 @@ export default function TrackedPage() {
     
     return (
         <>
+        <div className="page-login">
             <p>Course added to tracked coruses</p>
+        </div>
         </>
     )
 }
