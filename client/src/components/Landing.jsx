@@ -34,7 +34,6 @@ export default function LandingPage() {
         clearTimeout(timeout)
 
         const data = await res.json();
-        console.log(data)
 
         if (res.status === 200) {
             navigate('/dashboard')
