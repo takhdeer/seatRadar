@@ -1,6 +1,11 @@
 const express = require('express')
 const router = express.Router();
-const pool = require('../db');
+const { createClient } = require('@supabase/supabase-js')
+
+const supabaseAnon = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY
+);
 
 router.post('/', async (req, res) => {
     console.log(req.body)
@@ -12,18 +17,23 @@ router.post('/', async (req, res) => {
     }
 
     try{
-        const result = await pool.query(
-            'SELECT * FROM users WHERE user_email = $1', [email]
-        )
+        const {data, error} = await supabaseAnon.auth.signInWithPassword({
+            email,
+            password
+        });
 
-        if (result.rows.length > 0) {
-            console.log('user exists')
-            return res.status(200).json({message: 'User exists'})
+        if (error) {
+            console.log(error)
+            return res.status(401).json({ message: 'Invalid Credentials'})
         }
-        else {
-            console.log('user does not exist')
-            return res.status(400).json({message: 'User does not exist'})
-        }
+
+        return res.status(200).json({
+            message: 'Login Successful',
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+            user_id: data.user.id
+        });
+
     }catch(err) {
         console.log(err)
         res.status(500).json({error: 'Database error'})
