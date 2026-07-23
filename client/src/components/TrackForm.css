@@ -3,7 +3,7 @@
     border-radius: 12px;
     max-width: 400px;
     width: 400px;
-    height: 400px;
+    height: 460px;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -13,7 +13,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.0rem;
     margin-top: 1.5rem;
 }
 

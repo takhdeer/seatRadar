@@ -9,6 +9,7 @@ export default function SignUpPage(){
     const [confirmPassword, setConfirmPassword] = useState('')
     const [errors, setErrors] = useState({})
     const [showPassword, setShowPassword] = useState(false)
+    const [username, setusername] = useState('')
 
     const navigate = useNavigate();
 
@@ -28,7 +29,7 @@ export default function SignUpPage(){
         const res = await fetch('http://localhost:3001/api/usr-signup', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email, password}),
+            body: JSON.stringify({email, password, username}),
             signal: controller.signal
         });
 
@@ -89,6 +90,18 @@ export default function SignUpPage(){
                         value={confirmPassword}
                         type={showPassword ? 'text' : 'password'}
                         onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                    </div>
+                    {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
+
+                    <label className='form-label'>Username</label>
+                    <div>
+                        <input
+                        className='form-input'
+                        id='username'
+                        value={username}
+                        type='text'
+                        onChange={(e) => setusername(e.target.value)}
                         />
                     </div>
                     {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
