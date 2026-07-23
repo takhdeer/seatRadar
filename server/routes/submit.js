@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const requireAuth = require('../middleware/requireAuth')
 
-router.post('/', async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
     console.log(req.body);
     const {subject, courseNum, termCode } = req.body;
 

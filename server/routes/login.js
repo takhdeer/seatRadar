@@ -1,11 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js')
-
-const supabaseAnon = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
+const supabaseAnon = require('../utils/anonClient')
 
 router.post('/', async (req, res) => {
     console.log(req.body)
