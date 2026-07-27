@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db')
-const { createClient } = require('@supabase/supabase-js')
-
-const supabaseAdmin = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseAdmin = require('../utils/serviceRoleClient')
 
 
 router.post('/', async (req, res) => {
