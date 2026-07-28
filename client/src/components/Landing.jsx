@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { validateForm } from '../utils/validation';
+import { supabase } from '../utils/supabaseClient';
 import './Landing.css'
 
 export default function LandingPage() {
@@ -36,6 +37,16 @@ export default function LandingPage() {
         const data = await res.json();
 
         if (res.status === 200) {
+            const { error } = await supabase.auth.setSession({
+                access_token: data.access_token,
+                refresh_token: data.refresh_token
+            });
+
+            if (error) {
+                console.log('Could not set session', error)
+                return
+            }
+            
             navigate('/dashboard')
         }
 
