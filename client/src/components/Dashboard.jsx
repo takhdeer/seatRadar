@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
 import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
-
+import { supabase } from '../utils/supabaseClient';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -85,7 +85,16 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getUserCourses() {
-            const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=709de8f0-548b-4859-82ed-582210ade9fd`, {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                console.log('Current user Found')
+            }
+            else {
+                console.log('User not found')
+            }
+
+            const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=${user.id}`, {
                 method: 'GET',
                 headers: {'Accept': 'application/json'}
             });
