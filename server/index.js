@@ -14,7 +14,7 @@ const storedData = require('./routes/getData')
 const course = require('./routes/getCourse')
 const profRatings = require('./routes/getProfRating')
 const profCourses = require('./routes/getProfCourses')
-const userCourses = require('./routes/userCourses')
+const userCourses = require('./routes/getUserCourses')
 
 
 const app = express();

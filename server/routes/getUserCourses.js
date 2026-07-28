@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
             };
         });
         
-        return res.status(201).json(course)
+        return res.status(201).json(course) 
 
     } catch (err) {
         console.log(err)
