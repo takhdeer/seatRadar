@@ -7,46 +7,40 @@ import { useNavigate } from 'react-router-dom';
 import './Dashboard.css'
 export default function Dashboard() {
 
-    const [courseData, setCourseData] = useState([])
-    const [courseInfo, setCourseInfo] = useState([])
     const [courseChart, setCourseChart] = useState([])
     const [activeChart, setActiveChart] = useState('seats')
     const [profName, setProfName] = useState([])
     const [profMetrics, setProfMetrics] = useState([])
     const [trackedCourses, setTrackedCourses] = useState([])
+    const [activeCourse, setActveCourse] = useState()
 
     const navigate = useNavigate()
 
     useEffect(() => {
         async function fetchData() { 
-            const res1 = await fetch(`http://localhost:3001/api/getData?subject=COMP&courseNum=3612`, {
+            const split = activeCourse.split(' ')
+            const subject = split[0]
+            const number = split[1]
+            const res1 = await fetch(`http://localhost:3001/api/getData?subject=${subject}&courseNum=${number}`, {
                 method: 'GET',  // returns course data: seats,waitlist,etc.
                 headers: {'Accept': 'application/json'}
             });
             const data1 = await res1.json();
-            setCourseData(data1)
         
-            const res2 = await fetch(`http://localhost:3001/api/getCourse?courseID=cfe1312a-5fea-46b8-b190-5f10e2f7954b`, {
-                method: 'GET', // returns course: subject and num
-                headers: {'Accept': 'application/json'} 
-            })
-            
-            const data2 = await res2.json();
-            setCourseInfo(data2)
 
             const newArray = data1.courseData.map( row => {
                 return {
                     ...row,
                     seatsTaken: row.total_seats - row.seats,
                     waitlistTaken: row.total_waitlist - row.waitlist,
-                    ...data2
+                    course: activeCourse
                 }
             })
             setCourseChart(newArray)
 
         }
         fetchData()
-    }, []) // dependency array for re-fetching on change
+    }, [activeCourse]) // dependency array for re-fetching on change
 
     useEffect(() => {
         console.log(courseChart)
@@ -88,6 +82,24 @@ export default function Dashboard() {
         console.log(profMetrics)
     }, [profMetrics])
 
+
+    useEffect(() => {
+        async function getUserCourses() {
+            const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=709de8f0-548b-4859-82ed-582210ade9fd`, {
+                method: 'GET',
+                headers: {'Accept': 'application/json'}
+            });
+            const data = await res.json();
+            setTrackedCourses(data)
+            const data2 = data[0].course
+            setActveCourse(data2)
+        }
+        getUserCourses()
+    }, [])
+
+    useEffect(() => {
+        console.log(trackedCourses)
+    }, [trackedCourses])
     
     function SeatsChart( {chartData} ) {
         return (
@@ -147,47 +159,47 @@ export default function Dashboard() {
         }
     }
     return (
-        <>
-        <div className='dashboard-container'>
-            <div className='chart-container'>
-                <div className='chart-header'>
-                    <button 
-                        className='seat-btn'
-                        name='waitlist'
-                        onClick={ () => setActiveChart(activeChart === 'seats' ? 'waitlist' : 'seats')}
-                        >{activeChart === 'seats' ? 'Waitlist': 'Seats'}</button>
-                    
-                    <div className='left-children'>
-                        <button 
-                            className='course-btn'
-                            name='changeCourse'
-                            >Course 1</button>
-                        <button 
-                            className='course-btn'
-                            name='changeCourse'
-                            >Course 2</button>
-                        <button 
-                            className='course-btn'
-                            name='changeCourse'
-                            >Course 3</button>
-                    </div>
-                </div>
+      <>
+        <div className="dashboard-container">
+          <div className="chart-container">
+            <div className="chart-header">
+              <button
+                className="seat-btn"
+                name="waitlist"
+                onClick={() =>
+                  setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
+                }
+              >
+                {activeChart === "seats" ? "Waitlist" : "Seats"}
+              </button>
 
-                    {renderChart()} 
+              <div className="left-children">
+                <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                  {trackedCourses.map((item, index) => (
+                    <option key={index} value={item.course}>
+                      {item.course}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className='chart-container'>
-                <ProfRatingChart chartData={profMetrics}/>
+            {renderChart()}
+          </div>
 
-            </div>
+          <div className="chart-container">
+            <ProfRatingChart chartData={profMetrics} />
+          </div>
         </div>
-        <div className='btn-container'>
-            <button 
-                className='add-btn'
-                name='addCourse'
-                onClick={() => navigate('/form')}
-                >Add course</button>
+        <div className="btn-container">
+          <button
+            className="add-btn"
+            name="addCourse"
+            onClick={() => navigate("/form")}
+          >
+            Add course
+          </button>
         </div>
-        </>
-    )
+      </>
+    );
 }  
