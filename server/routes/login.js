@@ -1,11 +1,6 @@
 const express = require('express')
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js')
-
-const supabaseAnon = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY
-);
+const supabaseAdmin = require('../utils/serviceRoleClient')
 
 router.post('/', async (req, res) => {
     console.log(req.body)
@@ -17,7 +12,7 @@ router.post('/', async (req, res) => {
     }
 
     try{
-        const {data, error} = await supabaseAnon.auth.signInWithPassword({
+        const {data, error} = await supabaseAdmin.auth.signInWithPassword({
             email,
             password
         });
