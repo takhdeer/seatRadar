@@ -50,7 +50,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getProfs() {
-            const res = await fetch('http://localhost:3001/api/profCourses?courseID=cfe1312a-5fea-46b8-b190-5f10e2f7954b', {
+            const res = await fetch(`http://localhost:3001/api/profCourses?courseID=${courseChart[0].id}`, {
                 method: 'GET',
                 headers: {'Accept': 'application/json'}
             });
@@ -58,7 +58,7 @@ export default function Dashboard() {
             setProfName(data)
         }
         getProfs()
-    }, [])
+    }, [courseChart])
     
     useEffect(() => {  
         console.log(profName)
