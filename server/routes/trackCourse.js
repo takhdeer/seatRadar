@@ -1,7 +1,6 @@
 const express = require('express')
 const router = express.Router();
 const pool = require('../db')
-const requireAuth = require('../middleware/requireAuth')
 
 router.post('/', async (req,res) => {
     console.log(req.body)
@@ -21,6 +20,8 @@ router.post('/', async (req,res) => {
             console.log(err);
         }
     }
+
+    return res.status(201).json({ message: 'Course data saved successfully'})
 }); 
 
 module.exports = router

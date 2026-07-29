@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validateForm } from '../utils/validation';
+import { supabase } from '../utils/supabaseClient';
+
 import './TrackForm.css'
 
 export default function TrackForm() { 
@@ -28,9 +30,21 @@ export default function TrackForm() {
 
       const termCode = termCodes[term]
 
+      const { data, error } = await supabase.auth.getSession()
+
+      if (error) {
+        console.log('Could not set session', error)
+        return
+      }
+
+      const access_token = data.session.access_token;
+
       const res1 = await fetch("http://localhost:3001/api/submit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${access_token}`
+        },
         body: JSON.stringify({ subject, courseNum, termCode }),
       });
 
