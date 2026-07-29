@@ -88,7 +88,7 @@ export default function TrackForm() {
       const res4 = await fetch('http://localhost:3001/api/track', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({courseData})
+        body: JSON.stringify({subject, courseNum, courseData})
       });
 
       await res4.json();
