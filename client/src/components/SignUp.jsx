@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { validateForm } from '../utils/validation';
 import './Landing.css'
+import { supabase } from '../utils/supabaseClient';
 
 export default function SignUpPage(){
     const [email, setMRUEmail] = useState('')
@@ -36,13 +37,21 @@ export default function SignUpPage(){
         clearTimeout(timeout)
             
         const data = await res.json();
-        console.log(data)
 
         if (res.status === 409) {
             setErrors({server: 'User Already Exists'})
         }
 
         if (res.status === 201) {
+            const { error } = await supabase.auth.setSession({
+                access_token: data.access_token,
+                refresh_token: data.refresh_token
+            });
+
+            if (error) {
+                console.log('Could not set session', error)
+                return
+            }
             navigate('/form')
         }
     }

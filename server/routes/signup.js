@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db')
 const supabaseAdmin = require('../utils/serviceRoleClient')
+const supabase = require('../utils/anonClient')
 
 
 router.post('/', async (req, res) => {
@@ -35,7 +36,22 @@ router.post('/', async (req, res) => {
             'INSERT INTO users (id,user_email,user_password,username) VALUES ($1,$2,$3,$4)', [authUserID, email, password, username]
         );
 
-        return res.status(201).json({ message: 'User created sucessfully'});
+        const { data: signInData, error: signInError }  = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+
+        if (signInError) {
+            console.log(signInError)
+            return res.status(500).json({ error: 'Sign in Database error' })
+        }
+
+        return res.status(201).json({
+            message: 'Signup Successful',
+            access_token: signInData.session.access_token,
+            refresh_token: signInData.session.refresh_token,
+            user_id: signInData.user.id
+        })
 
     }catch(err) {
         console.log(err.message)
