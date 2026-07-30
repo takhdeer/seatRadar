@@ -51,6 +51,12 @@ export default function TrackForm() {
       const data1 = await res1.json();
       console.log(data1);
 
+      if (!res1.ok) {
+        console.log('Submit failed: ', data1.error)
+        // show error on UI
+        return
+      }
+
       // Finding browser for Playwright
       let browserType;
 
