@@ -20,7 +20,7 @@ router.post('/', requireAuth, async (req, res) => {
         return res.json({message: "Courses added sucessfully!"})
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Database error"})
+        res.status(500).json({ error: "Database error"})
     }
 });
 
