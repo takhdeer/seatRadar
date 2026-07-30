@@ -199,15 +199,16 @@ export default function Dashboard() {
           <div className="chart-container">
             <ProfRatingChart chartData={profMetrics} />
           </div>
-        </div>
-        <div className="btn-container">
-          <button
-            className="add-btn"
-            name="addCourse"
-            onClick={() => navigate("/form")}
-          >
-            Add course
-          </button>
+        
+          <div className="btn-container">
+            <button
+              className="add-btn"
+              name="addCourse"
+              onClick={() => navigate("/form")}
+            >
+              Add course
+            </button>
+          </div>
         </div>
       </>
     );
