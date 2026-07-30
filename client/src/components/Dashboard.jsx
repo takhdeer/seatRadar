@@ -66,6 +66,7 @@ export default function Dashboard() {
 
     useEffect(() => {
         async function getProfRatings() {
+          setProfMetrics([]) 
             for(let i = 0; i < profName.length; i++){
                 const res = await fetch(`http://localhost:3001/api/profRatings?profs=${profName[i]}`, {
                     method: 'GET',
@@ -112,10 +113,20 @@ export default function Dashboard() {
     
     function SeatsChart( {chartData} ) {
         return (
-            <ResponsiveContainer width='100%' height={300}>
+            <ResponsiveContainer width='100%' height='80%'>
                 <BarChart data = {chartData}>
-                    <XAxis dataKey = 'course' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
-                    <YAxis dataKey = 'total_seats' axisLine={false} tickLine={false} tick={{ fill: '#ffff' }} />
+                    <XAxis 
+                      dataKey = 'course' 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#ffffff' }}
+                     />
+                    <YAxis 
+                      dataKey = 'total_seats' 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#ffff' }} 
+                    />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
                     <Legend wrapperStyle={{ color: '#ffffff' }} />
@@ -128,10 +139,20 @@ export default function Dashboard() {
 
     function WaitlistChart( {chartData} ) {
         return (
-            <ResponsiveContainer width='100%' height={300}>
+            <ResponsiveContainer width='100%' height='75%'>
                 <BarChart data = {chartData}>
-                    <XAxis dataKey = 'course' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }}/>
-                    <YAxis dataKey = 'waitlist' axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }}/>
+                    <XAxis 
+                      dataKey = 'course' 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#ffffff' }}
+                    />
+                    <YAxis 
+                      dataKey = 'waitlist' 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#ffffff' }}
+                    />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
                     <Bar dataKey = "waitlist" stackId='a' fill='#90EE90' name='Available' />
@@ -143,10 +164,39 @@ export default function Dashboard() {
 
     function ProfRatingChart({ chartData }) {
         return (
-          <ResponsiveContainer width='100%' height={300}>
-            <ScatterChart>
-              <XAxis dataKey="avgDifficulty" name="Difficulty" axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
-              <YAxis dataKey="avgRating" name="Rating" axisLine={false} tickLine={false} tick={{ fill: '#ffffff' }} />
+          <ResponsiveContainer width='100%' height='100%'>
+            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 20}}>
+              <XAxis 
+                dataKey="avgDifficulty" 
+                type='number'
+                domain={[1,5]}
+                ticks={[1,2,3,4,5]}
+                name="Difficulty" 
+                axisLine={false} 
+                tickLine={false} tick={{ fill: '#ffffff' }} 
+                label={
+                  { value: 'Difficulty', 
+                  position: 'insideBottom', 
+                  offset: -10, 
+                  fill: '#ffffff' }
+                  } />
+              <YAxis 
+                dataKey="avgRating" 
+                type='number'
+                domain={[1,5]}
+                ticks={[1,2,3,4,5]}
+                tickMargin={12}
+                name="Rating" 
+                axisLine={false} 
+                tickLine={false} 
+                tick={{ fill: '#ffffff' }} 
+                label={
+                  { value: 'Rating', 
+                  angle: -90, 
+                  position: 'insideLeft', 
+                  offset: 10,
+                  fill: '#ffffff' }
+                  } />
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
               <CartesianGrid stroke="none" />
               <Scatter data={chartData} fill="#4f9dde" />
