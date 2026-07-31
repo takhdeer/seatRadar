@@ -17,17 +17,51 @@ router.post('/', async (req,res) => {
     console.log(`Course ID: ${id}`)
     
 
-    for (let i = 0; i < courseData.totalCount; i++) {
+    for (const section of courseData.sections) {
+        const sectionID = section.sectionID
+
         try {
-            await pool.query(
-                `INSERT INTO course_data (tracked_courses_id,total_count,seats,waitlist) VALUES ($1,$2,$3,$4)`, [id,courseData.totalCount,courseData[`seatsAvailableS${i + 1}`],courseData[`waitAvailableS${i + 1}`]]
+            await pool.query (
+                `INSERT INTO course_data (
+                    tracked_courses_id,
+                    total_count,
+                    seats,
+                    waitlist,
+                    section_id,
+                    total_seats,
+                    total_waitlist) 
+                    VALUES ($1,$2,$3,$4,$5,$6,$7)`, 
+                    [
+                        id,
+                        courseData.totalCount,
+                        section.seatsAvailable,
+                        section.waitAvailable,
+                        sectionID,
+                        section.total_seats,
+                        section.total_waitlist
+                    ]
             );
-            console.log('Course Saved in database');
-        } catch (err) {
-            console.log(err);
+            console.log(`Course Saved in database`)
+
+            await pool.query (
+                `INSERT INTO professors (
+                    course_id,
+                    section_id,
+                    prof)
+                    VALUES ($1,$2,$3)`,
+                    [
+                        id,
+                        sectionID,
+                        section.prof
+                    ]
+            );
+            console.log(`Prof saved in database`)
+        }catch(err){
+            console.log(err)
+            return res.status(500).json({ error: 'Database error' })
         }
     }
-
+    
     return res.status(201).json({ message: 'Course data saved successfully'})
 }); 
 

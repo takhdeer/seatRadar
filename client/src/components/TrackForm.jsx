@@ -7,7 +7,7 @@ import './TrackForm.css'
 
 export default function TrackForm() { 
     const [subject, setSubject] = useState('COMP')
-    const [courseNum, setCourseNum] = useState('3612')
+    const [courseNum, setCourseNum] = useState('2659')
     const [term , setTerm] = useState('Fall 2026')
     const [errors, setErrors] = useState({})
 
