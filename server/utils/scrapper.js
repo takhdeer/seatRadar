@@ -24,12 +24,22 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
 function parseJSON(courseData) {
     const parsedData = {
         totalCount: courseData.totalCount,
+        sections: []
     };
 
-    courseData.data.forEach((section, index) => {
-        parsedData[`seatsAvailableS${index + 1}`] = section.seatsAvailable
-        parsedData[`waitAvailableS${index + 1}`] = section.waitAvailable
-    })
+    // for each shorthand instead of for loop
+    // slice sets the domain for indexing
+    courseData.data.slice(0, courseData.totalCount).forEach((section) => {
+        parsedData.sections.push({
+            sectionID: section.id,
+            seatsAvailable: section.seatsAvailable,
+            waitAvailable: section.waitAvailable,
+            total_seats: section.maximumEnrollment,
+            total_waitlist: section.waitCapacity,
+            prof: section.faculty[0].displayName
+        });
+
+    });
     return parsedData
 }
 
