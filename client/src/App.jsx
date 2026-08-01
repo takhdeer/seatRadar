@@ -6,16 +6,30 @@ import LandingPage from './components/Landing'
 import Dashboard from './components/Dashboard'
 
 import './App.css'
+import ProtectedRoute from './components/ProtectedRoute'
+import PublicRoute from './components/PublicRoute'
 
 export default function App() {
     return (
         <BrowserRouter>
         <Routes>
-            <Route path='/' element={<LandingPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+            <Route path='/' element={
+                <PublicRoute>
+                    <LandingPage />
+                </PublicRoute>
+            } />
+            <Route path="/signup" element={
+                <PublicRoute>
+                    <SignUpPage />
+                </PublicRoute>
+            } />
             <Route path='/form' element={<TrackForm />} />
             <Route path='/done' element={<TrackedPage />} />
-            <Route path='/dashboard' element={<Dashboard />} />
+            <Route path='/dashboard' element={
+                <ProtectedRoute>
+                    <Dashboard />
+                </ProtectedRoute>
+            } />
         </Routes>
         </BrowserRouter>
     )
