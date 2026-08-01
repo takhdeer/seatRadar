@@ -9,18 +9,12 @@ export default function ProtectedRoute({ children }) {
     const navigate = useNavigate()
 
     useEffect(() => {
-        async function checkSession() {
-            const { data, error } = await supabase.auth.getSession()
-            if (error) {
-                console.log(error)
-                return
-            }
-            else {
-                setSession(data.session)
-            }
-        }
-        checkSession()
+            const { data: listener } = supabase.auth.onAuthStateChange((currentEvent, newSession) => {
+                    console.log(currentEvent)
+                    setSession(newSession)
+            })
 
+        return () => listener.subscription.unsubscribe()
     }, [])
 
     useEffect(() => {
@@ -32,7 +26,7 @@ export default function ProtectedRoute({ children }) {
 
     if (session == 'Checking') {
         console.log('Still checking') 
-        return 'Loading'
+        return 'Loading' // replace with Loading Spinner
     }
 
     if (session == null) {
