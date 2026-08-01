@@ -217,6 +217,17 @@ export default function Dashboard() {
             )
         }
     }
+
+
+    async function handleLogOut() {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.log(error)
+      }
+      else {
+        navigate('/')
+      }
+    } 
     return (
       <>
         <div className="dashboard-container">
@@ -259,7 +270,17 @@ export default function Dashboard() {
               Add course
             </button>
           </div>
+
+          <div className='btn-container'>
+            <button
+                className="add-btn"
+                name="addCourse"
+                onClick={() => handleLogOut()}
+              >
+                Log Out
+              </button>
+          </div>
         </div>
       </>
     );
-}  
+}
