@@ -1,0 +1,325 @@
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+   :root {
+    /* Surfaces */
+    --bg-glass: rgba(255, 255, 255, 0.05);
+    --bg-glass-hover: rgba(255, 255, 255, 0.08);
+    --border-glass: rgba(255, 255, 255, 0.1);
+    --border-glass-strong: rgba(160, 196, 232, 0.4);
+
+    /* Text */
+    --text-primary: #eaf2fb;
+    --text-secondary: #a0c4e8;
+    --text-muted: #7d94ab;
+
+    /* Brand / chart accents — mirrors the Bar/Scatter fill colors in Dashboard.jsx */
+    --accent-blue: #4f9dde;
+    --accent-blue-dark: #1a4a7a;
+    --accent-navy: #0c2340;
+    --accent-available: #90EE90;
+    --accent-taken: #FF474C;
+
+    /* Elevation */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+    --shadow-hover-sm: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-hover-lg: 0 20px 48px rgba(0, 0, 0, 0.4);
+    --inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+    /* Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 18px;
+
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 40px;
+
+    /* Motion */
+    --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 0.15s;
+    --duration-base: 0.25s;
+
+    /* Blur */
+    --blur-card: blur(14px) saturate(150%);
+    --blur-tooltip: blur(8px);
+}
+
+/* =========================================================
+   RESET / BASE
+   ========================================================= */
+* {
+    box-sizing: border-box;
+}
+
+::selection {
+    background: var(--accent-blue);
+    color: #0c1a2b;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+.dashboard-wrapper {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--space-xl) var(--space-lg);
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    gap: 32px;
+    align-items: start;
+}
+
+/* =========================================================
+   GLASS CARD
+   ========================================================= */
+.chart-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-glass);
+    backdrop-filter: var(--blur-card);
+    -webkit-backdrop-filter: var(--blur-card);
+    box-shadow: var(--shadow-sm), var(--shadow-lg), var(--inset-highlight);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    opacity: 0;
+    animation: card-in var(--duration-base) var(--ease-standard) forwards;
+    transition: transform var(--duration-base) var(--ease-standard),
+        box-shadow var(--duration-base) var(--ease-standard),
+        border-color var(--duration-base) var(--ease-standard);
+}
+
+.chart-container:nth-of-type(2) {
+    animation-delay: 0.08s;
+}
+
+.chart-container:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-glass-strong);
+    box-shadow: var(--shadow-hover-sm), var(--shadow-hover-lg), var(--inset-highlight);
+}
+
+@keyframes card-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Toggle this class on while courseChart / profMetrics are still empty */
+.chart-container.is-loading {
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0.03) 40%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 60%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+}   
+
+@keyframes skeleton-sweep {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 var(--space-xs);
+    margin-bottom: var(--space-sm);
+    flex-shrink: 0;
+}
+
+.left-children select {
+    background: var(--bg-glass-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-glass);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-standard),
+        background var(--duration-fast) var(--ease-standard);
+}
+
+.left-children select:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.left-children select:focus-visible {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(79, 157, 222, 0.25);
+}
+
+.left-children select option {
+    background: #0c1a2b;
+    color: var(--text-secondary);
+}
+
+/* =========================================================
+   TOGGLE BUTTON
+   ========================================================= */
+.seat-btn {
+    margin: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    height: 35px;
+    width: 4rem;
+    background: linear-gradient(135deg, var(--accent-navy), var(--accent-blue-dark));
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard),
+        box-shadow var(--duration-fast) var(--ease-standard),
+        transform var(--duration-fast) var(--ease-standard);
+}
+
+.seat-btn:hover {
+    background: linear-gradient(135deg, #123058, #2560a0);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--border-glass-strong);
+}
+
+.seat-btn:active {
+    transform: scale(0.97);
+}
+
+.seat-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 157, 222, 0.35);
+}
+
+/* =========================================================
+   ADD COURSE BUTTON
+   ========================================================= */
+.btn-container {
+    display: flex;
+    justify-content: center;
+    margin-top: var(--space-sm);
+}
+
+.add-btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-md);
+    background: var(--bg-glass);
+    color: var(--text-secondary);
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: background var(--duration-fast) var(--ease-standard),
+        border-color var(--duration-fast) var(--ease-standard),
+        transform var(--duration-fast) var(--ease-standard),
+        color var(--duration-fast) var(--ease-standard);
+}
+
+.add-btn:hover {
+    background: rgba(160, 196, 232, 0.15);
+    border-color: var(--border-glass-strong);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.add-btn:active { transform: translateY(0); }
+
+.add-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 157, 222, 0.35);
+}
+
+/* =========================================================
+   RECHARTS OVERRIDES
+   ========================================================= */
+.recharts-default-tooltip {
+    background: rgba(12, 26, 43, 0.9) !important;
+    border: 1px solid var(--border-glass) !important;
+    border-radius: var(--radius-sm) !important;
+    backdrop-filter: var(--blur-tooltip);
+    color: var(--text-primary) !important;
+}
+
+.recharts-tooltip-label,
+.recharts-tooltip-item {
+    color: var(--text-primary) !important;
+}
+
+.recharts-legend-item-text {
+    color: var(--text-secondary) !important;
+}
+
+.recharts-cartesian-axis-tick text {
+    fill: var(--text-muted);
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+    .chart-container,
+    .chart-container.is-loading,
+    .seat-btn,
+    .add-btn {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-wrapper { padding: var(--space-lg) var(--space-md); }
+
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+
+    .chart-container { aspect-ratio: 4 / 3; }
+}   
