@@ -4,7 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-      "dev": "concurrently \"npm run dev --prefix client\" \"nodemon --exec 'npx ts-node' server/index.js\""
+      "dev": "concurrently \"cd client && bun run dev\" \"nodemon --exec 'npx ts-node' server/index.js\""
     },
     "keywords": [],
     "author": "",
