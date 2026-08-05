@@ -7,31 +7,40 @@ async function fetchCourseData(courses) {
     const updateCourse = []
 
     // get tc_ID from subject and courseNum
-    const queryPrimses = courses.map(async (course) => {
+    const queryPromises = courses.map(async (course) => {
         const res = await pool.query(
             'SELECT id FROM tracked_courses WHERE subject = $1 AND course_num = $2', [course.subject, course.courseNum]
         );
         return res.rows[0]
     });
 
-    const results = await Promise.all(queryPrimses)
+    const courseId = await Promise.all(queryPromises)
 
-    return results
+    console.log(courseId)
 
-    /*
-    const result = await pool.query(
-        'SELECT DISTINCT section_id, tracked_courses_id FROM course_data'
-    );
 
-    const courseData = result.rows.map( row => {
-        return {
-            courseId: row.tracked_courses_id,
-            seats: row.seats,
-            waitlist: row.waitlist,
-            checked: row.last_checked
-        }
+    const queryPromises2 = courseId.map(async (section, index) => {
+        const result = await pool.query(
+            'SELECT * FROM course_data WHERE tracked_courses_id = $1', [section.id]
+        );
+
+        const res = result.rows.map( row => {
+            return {
+                index,
+                id: section.id,
+                seats: row.seats,
+                waitlist: row.waitlist,
+                checked: row.last_checked
+            }
+        });
+        return res
     });
 
+    const courseData = await Promise.all(queryPromises2)
+
+    return courseData
+
+    /*
     const now = new Date();
 
     courseData.forEach((section) => {
@@ -42,10 +51,6 @@ async function fetchCourseData(courses) {
         else {
             return diff
         }
-    });
-
-    updateCourse.forEach((course) => {
-        
     });
 
     */

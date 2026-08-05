@@ -10,10 +10,10 @@ const {fetchCourseData } = require('../server/engine/fetchCourseData');
 
     console.log(courses)
 
-    console.log('----- Fetching Course Id -----')
-    const courseId = await fetchCourseData(courses)
+    console.log('----- Fetching Course Data -----')
+    const courseData = await fetchCourseData(courses)
 
-    console.log(courseId)
+    console.log(courseData)
 
     const elapsed = Date.now() - start
 
