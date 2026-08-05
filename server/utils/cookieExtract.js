@@ -53,4 +53,4 @@ router.post('/', async (req,res) => {
     res.json(cookies)
 });
 
-module.exports = router;
+module.exports = { cookieExtract, router};
