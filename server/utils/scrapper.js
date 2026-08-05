@@ -52,6 +52,12 @@ router.post('/', async (req, res) => {
     }
 
     const courseData = await getCourseData(subject,courseNum,termCode,cookies);
+
+    if (courseData.totalCount == 0) {
+        console.log('Course not found')
+        return res.status(404).json({ error: 'Course not found' })
+    }
+    
     const filteredData = parseJSON(courseData)
     res.json(filteredData)
 
