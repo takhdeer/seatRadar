@@ -47,12 +47,11 @@ async function handleCookieExpiration() {
              SET jsession = $1, mru = $2, updated_at = now()
              WHERE id = 1`, [newCookies[0], newCookies[1]]
         );
-        console.log(`----- New cookies upgraded -----`)
+        console.log(`----- New cookies updated -----`)
     }
     else {
         console.log(`------ Cookies are still valid ------`)
-        return 'Cookues are still valid' // cookies are still valid
-    }
+        return 'Cookies are still valid'}
 
 }  
 
