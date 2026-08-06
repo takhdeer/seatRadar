@@ -40,7 +40,7 @@ async function handleCookieExpiration() {
         
         console.log('----- Cookies Expired: Refreshing... ------')
         // returns: JSESSIONID first then MRUCookie
-        const newCookies = await cookieExtract(browserType); 
+        const newCookies = await cookieExtract(browserType);
 
         await pool.query (
             `UPDATE cookies
@@ -48,11 +48,13 @@ async function handleCookieExpiration() {
              WHERE id = 1`, [newCookies[0], newCookies[1]]
         );
         console.log(`----- New cookies updated -----`)
+        return newCookies
     }
     else {
         console.log(`------ Cookies are still valid ------`)
-        return 'Cookies are still valid'}
+        return [jsessionValue, mruValue]
+    }
 
 }  
 
-module.exports = handleCookieExpiration
+module.exports = { handleCookieExpiration }
