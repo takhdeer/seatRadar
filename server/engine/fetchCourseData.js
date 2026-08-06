@@ -1,3 +1,4 @@
+
 require('dotenv').config({ path: `server/` + '/.env' });
 const pool = require('../db')
 
@@ -26,7 +27,8 @@ async function fetchCourseData(courses) {
 
         const res = result.rows.map( row => {
             return {
-                index,
+                subject: courses[index].subject,
+                courseNum: courses[index].courseNum,
                 id: section.id,
                 seats: row.seats,
                 waitlist: row.waitlist,
@@ -37,10 +39,18 @@ async function fetchCourseData(courses) {
     });
 
     const courseData = await Promise.all(queryPromises2)
+    console.log(courseData)
 
-    return courseData
+    courseData.forEach((section) => {
+        if(section.id == null) {
+            console.log('No course data Available')
+            console.log('---- Fetching New Course Data ----')
 
-    /*
+            // fetch new Course data and add it to the database
+        } 
+    }) ;
+
+
     const now = new Date();
 
     courseData.forEach((section) => {
@@ -53,7 +63,7 @@ async function fetchCourseData(courses) {
         }
     });
 
-    */
+
 }
 
 module.exports = { fetchCourseData }
