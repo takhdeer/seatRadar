@@ -1,4 +1,4 @@
-const { handleCookieExpiration } = require('../server/engine/cookieExpiration')
+const { handleCookieExpiration } = require('../server/engine/cookieExpiration');
 
 (async () => {
     console.log(`----- Testing cookieExpiration ------`)
@@ -7,7 +7,7 @@ const { handleCookieExpiration } = require('../server/engine/cookieExpiration')
         const start = Date.now()
         const cookie = await handleCookieExpiration()
 
-        const elapsed = Date.now - start
+        const elapsed = Date.now() - start
         console.log(`Result: ${cookie}`)
         console.log(`Time taken: ${elapsed}ms`)
 
@@ -22,4 +22,4 @@ const { handleCookieExpiration } = require('../server/engine/cookieExpiration')
     }
 
     process.exit(0)
-});
+})();
