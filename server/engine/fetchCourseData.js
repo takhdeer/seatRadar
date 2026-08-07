@@ -36,41 +36,53 @@ async function fetchCourseData(courses) {
         };
     });
 
-    const courseData = await Promise.all(queryPromises2)
-    console.log(JSON.stringify(courseData, null, 2))
+    const oldCourseData = await Promise.all(queryPromises2)
+    // console.log(JSON.stringify(oldCourseData, null, 2))
 
+    // getting cookies
+    const cookies = await handleCookieExpiration()
+    console.log(cookies)
+
+    
     const now = new Date();
 
-    for (let i = 0; i < courseData.length; i++) {
-        const diffMs = now - courseData[i].data[0].last_checked;
+    console.log('---- Fetching New Course Data ----')
+    for (let i = 0; i < oldCourseData.length; i++) {
+        const diffMs = now - oldCourseData[i].data[0].last_checked;
         const diffMins = diffMs / 1000 / 60;
 
-        if(courseData[i].data.length === 0 || diffMins > THRESHOLD_MINS) {
-            if (courseData[i].data.length === 0){
-                console.log(`No course data Available for ${courseData[i].subject} ${courseData[i].courseNum}`)
+        if(oldCourseData[i].data.length === 0 || diffMins > THRESHOLD_MINS) {
+            if (oldCourseData[i].data.length === 0){
+                console.log(`No course data Available for ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`)
             }
             else {
-                console.log(`Refreshing ${courseData[i].subject} ${courseData[i].courseNum}: `)
+                console.log(`Refreshing ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}: `)
             }
 
-            console.log('---- Fetching New Course Data ----')
-
-            // getting cookies
-            const cookies = await handleCookieExpiration()
-            console.log(cookies)
-
             // getting & inserting CourseData
-            const newCourseData = await getCourseData(courseData[i].subject,courseData[i].courseNum,courseData[i].term,cookies)
-            const filteredData = parseJSON(newCourseData);
+            console.log(`Running GCD() with Cookie: ${cookies[1]}`)
+            const { courseData, resMruCookie } = await getCourseData(
+                oldCourseData[i].subject,
+                oldCourseData[i].courseNum,
+                oldCourseData[i].term,
+                cookies
+            )
+            if (resMruCookie){
+                cookies[1] = resMruCookie
+                console.log(`Cookies is now: ${cookies[1]}`)
+            }
+            const filteredData = parseJSON(courseData);
             console.log(filteredData)
 
+            /*
             await pool.query(
-                'DELETE FROM course_data WHERE tracked_courses_id = $1', [courseData[i].data[0].id]
+                'DELETE FROM course_data WHERE tracked_courses_id = $1', [oldCourseData[i].data[0].id]
             )
-            const error = await insertCourseData(filteredData, courseData[i].subject, courseData[i].courseNum)
+            const error = await insertCourseData(filteredData, oldCourseData[i].subject, oldCourseData[i].courseNum)
             if (error){
                 console.log(error)
             }
+            */
         }
         else {
             console.log('Course Data is up to date')
