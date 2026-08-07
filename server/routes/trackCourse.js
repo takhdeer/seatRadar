@@ -2,14 +2,7 @@ const express = require('express')
 const router = express.Router();
 const pool = require('../db')
 
-router.post('/', async (req,res) => {
-    console.log(req.body)
-    const {courseData, subject, courseNum} = req.body
-
-    if (!courseData || !subject || !courseNum) {
-        return res.status(400).json({error: 'Missing Fields'})
-    }
-
+async function insertCourseData(courseData, subject, courseNum) {
     const result = await pool.query(
         'SELECT * FROM tracked_courses WHERE (subject, course_num) = ($1,$2)', [subject,courseNum]
     );
@@ -57,12 +50,28 @@ router.post('/', async (req,res) => {
             );
             console.log(`Prof saved in database`)
         }catch(err){
-            console.log(err)
-            return res.status(500).json({ error: 'Database error' })
+            return err
         }
     }
-    
-    return res.status(201).json({ message: 'Course data saved successfully'})
+
+}
+
+router.post('/', async (req,res) => {
+    console.log(req.body)
+    const {courseData, subject, courseNum} = req.body
+
+    if (!courseData || !subject || !courseNum) {
+        return res.status(400).json({error: 'Missing Fields'})
+    }
+
+    const error = await insertCourseData(courseData, subject, courseNum)
+    if (!error) {
+        return res.status(201).json({ message: 'Course data saved successfully'})
+    }
+    else {
+        console.log(error)
+        return res.status(500).json({ error: 'Database error' })
+    }
 }); 
 
-module.exports = router
+module.exports = {insertCourseData, router }

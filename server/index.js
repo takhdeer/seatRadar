@@ -7,11 +7,9 @@ const cors = require('cors');
 const submitRoute = require('./routes/submit')
 const signUpRoute = require('./routes/signup')
 const logInRoute = require('./routes/login');
-
-const { router } = require('./utils/cookieExtract') // cookieExtract
-
-const scrapper = require('./utils/scrapper')
-const tracker = require('./routes/trackCourse')
+const { router: cookieExtract } = require('./utils/cookieExtract')
+const { router: scrapper } = require('./utils/scrapper')
+const { router: tracker } = require('./routes/trackCourse')
 const storedData = require('./routes/getData')
 const course = require('./routes/getCourse')
 const profRatings = require('./routes/getProfRating')
@@ -32,8 +30,8 @@ app.get('/api/test', (req, res) => {
 app.use('/api/submit',submitRoute);
 app.use('/api/usr-signup',signUpRoute);
 app.use('/api/usr-login',logInRoute);
-app.use('/api/cookies', router);
-app.use('/api/scrapper', scrapper);
+app.use('/api/cookies', cookieExtract);
+app.use('/api/scrapper', scrapper); 
 app.use('/api/track', tracker);
 app.use('/api/getData', storedData);
 app.use('/api/getCourse', course);

@@ -13,7 +13,7 @@ async function fetchTrackedCourses() {
         }
     });
     
-    console.log(courses)
+    return courses
 }
 
-module.exports = fetchTrackedCourses
+module.exports = { fetchTrackedCourses }
