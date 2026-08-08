@@ -27,12 +27,6 @@ async function cookieExtract(browserType) {
 
     await page.waitForLoadState('networkidle');
 
-    const syncToken = await page.$eval(
-      'meta[name="synchronizerToken"]',
-      (el) => el.content
-    );
-    console.log('Synchronizer Token: ', syncToken)
-
     const allCookies = await context.cookies();
     const JSESSIONID = (allCookies.find(cookie => cookie.name === 'JSESSIONID')).value
     const MRUcookie = (allCookies.find(cookie => cookie.name === 'MRUB9SSBPRODREGHA')).value
@@ -42,7 +36,7 @@ async function cookieExtract(browserType) {
 
     await browser.close();
     console.log("browser closed");
-    return { cookies, syncToken }
+    return cookies
 }
 
 router.post('/', async (req,res) => {

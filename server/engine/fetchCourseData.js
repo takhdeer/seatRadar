@@ -1,6 +1,7 @@
 const { getCourseData } = require('../utils/scrapper')
 const { parseJSON } = require('../utils/scrapper')
 const { handleCookieExpiration} = require('./CookieExpiration')
+const { resetBanner } = require('../utils/resetBanner')
 const { insertCourseData } = require('../routes/trackCourse')
 require('dotenv').config({ path: `server/` + '/.env' });
 const pool = require('../db')
@@ -40,7 +41,7 @@ async function fetchCourseData(courses) {
     // console.log(JSON.stringify(oldCourseData, null, 2))
 
     // getting cookies
-    const cookies = await handleCookieExpiration()
+    const { cookies } = await handleCookieExpiration()
     console.log(cookies)
 
     
@@ -61,18 +62,22 @@ async function fetchCourseData(courses) {
 
             // getting & inserting CourseData
             console.log(`Running GCD() with Cookie: ${cookies[1]}`)
-            const { courseData, resMruCookie } = await getCourseData(
+            const courseData = await getCourseData(
                 oldCourseData[i].subject,
                 oldCourseData[i].courseNum,
                 oldCourseData[i].term,
                 cookies
             )
-            if (resMruCookie){
-                cookies[1] = resMruCookie
-                console.log(`Cookies is now: ${cookies[1]}`)
-            }
             const filteredData = parseJSON(courseData);
             console.log(filteredData)
+
+            const isReset = await resetBanner(cookies)
+            if (isReset === true) {
+                continue
+            }
+            else {
+                return
+            }
 
             /*
             await pool.query(

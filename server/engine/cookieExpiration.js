@@ -17,7 +17,6 @@ async function handleCookieExpiration() {
 
     const jsessionValue = cookieData.rows[0].jsession
     const mruValue = cookieData.rows[0].mru
-    const oldSyncToken = cookieData.rows[0].sync_token
     const updatedAt = cookieData.rows[0].updated_at
     const oldCookies = [jsessionValue, mruValue]
 
@@ -28,12 +27,12 @@ async function handleCookieExpiration() {
 
     const THRESHOLD_MINS = 10;
     
-    console.log(`Cookies: JSESSION: ${jsessionValue}, MRU: ${mruValue}, SyncToken: ${oldSyncToken} Last Checked: ${updatedAt}`)
+    console.log(`Cookies: JSESSION: ${jsessionValue}, MRU: ${mruValue}, Last Checked: ${updatedAt}`)
 
     const res = await fetch('http://localhost:3001/api/scrapper', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({subject, courseNum, termCode, oldCookies, oldSyncToken})
+        body: JSON.stringify({subject, courseNum, termCode, oldCookies})
     });
 
 
@@ -41,19 +40,19 @@ async function handleCookieExpiration() {
         
         console.log('----- Cookies Expired: Refreshing... ------')
         // returns: JSESSIONID first then MRUCookie
-        const { cookies, syncToken } = await cookieExtract(browserType);
+        const cookies = await cookieExtract(browserType);
 
         await pool.query (
-            `UPDATE oldCookies
+            `UPDATE cookies
              SET jsession = $1, mru = $2, sync_token = $3, updated_at = now()
-             WHERE id = 1`, [cookies[0], cookies[1]], syncToken
+             WHERE id = 1`, [cookies[0], cookies[1]]
         );
         console.log(`----- New oldCookies updated -----`)
-        return { cookies, syncToken }
+        return cookies
     }
     else {
         console.log(`------ Cookies are still valid ------`)
-        return [jsessionValue, mruValue]
+        return { cookies: oldCookies}
     }
 
 }  
