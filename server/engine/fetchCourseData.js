@@ -61,7 +61,6 @@ async function fetchCourseData(courses) {
             }
 
             // getting & inserting CourseData
-            console.log(`Running GCD() with Cookie: ${cookies[1]}`)
             const courseData = await getCourseData(
                 oldCourseData[i].subject,
                 oldCourseData[i].courseNum,

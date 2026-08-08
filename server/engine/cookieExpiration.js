@@ -44,7 +44,7 @@ async function handleCookieExpiration() {
 
         await pool.query (
             `UPDATE cookies
-             SET jsession = $1, mru = $2, sync_token = $3, updated_at = now()
+             SET jsession = $1, mru = $2, updated_at = now()
              WHERE id = 1`, [cookies[0], cookies[1]]
         );
         console.log(`----- New oldCookies updated -----`)
