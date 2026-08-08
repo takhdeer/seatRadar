@@ -72,21 +72,18 @@ async function fetchCourseData(courses) {
 
             const isReset = await resetBanner(cookies)
             if (isReset === true) {
-                continue
+                await pool.query(
+                    'DELETE FROM course_data WHERE tracked_courses_id = $1', [oldCourseData[i].data[0].tracked_courses_id]
+                )
+                const error = await insertCourseData(filteredData, oldCourseData[i].subject, oldCourseData[i].courseNum)
+                if (error){
+                    console.log(error)
+                    return
+                }
             }
             else {
                 return
             }
-
-            /*
-            await pool.query(
-                'DELETE FROM course_data WHERE tracked_courses_id = $1', [oldCourseData[i].data[0].id]
-            )
-            const error = await insertCourseData(filteredData, oldCourseData[i].subject, oldCourseData[i].courseNum)
-            if (error){
-                console.log(error)
-            }
-            */
         }
         else {
             console.log('Course Data is up to date')
