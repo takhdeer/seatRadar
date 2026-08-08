@@ -5,7 +5,7 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     const url = 
     `https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_subject=${subject}&txt_keywordlike=${courseNum}&txt_term=${termCode}&startDatepicker=&endDatepicker=&pageOffset=0&pageMaxSize=10&sortColumn=subjectDescription&sortDirection=asc`
 
-    console.log(`Fetching at url: ${url}`)
+    // console.log(`Fetching at url: ${url}`)
 
     const res = await fetch(url,{
         method: 'GET',
@@ -13,12 +13,12 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
             'Cookie': `JSESSIONID=${cookies[0]}; MRUB9SSBPRODREGHA=${cookies[1]}`,
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'Accept': 'application/json',
-            'Referer': 'https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/classSearch/classSearch'
+            'Referer': 'https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/classSearch/classSearch',
         },
     });
 
-    const data = await res.json();
-    return data
+    const courseData = await res.json();
+    return courseData
 }
 
 function parseJSON(courseData) {
@@ -44,7 +44,7 @@ function parseJSON(courseData) {
 }
 
 router.post('/', async (req, res) => {
-    console.log(req.body)
+    // console.log(req.body)
     const { subject, courseNum, termCode, cookies} = req.body
 
     if (!subject || !courseNum || !termCode || !cookies) {
