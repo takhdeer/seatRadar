@@ -80,6 +80,12 @@ async function fetchCourseData(courses) {
                     console.log(error)
                     return
                 }
+                else {
+                    const seats = filteredData.sections[0].seatsAvailable
+                    console.log(`Seats: ${seats}`)
+                    const waitlist = filteredData.sections[0].waitAvailable
+                    console.log(`Waitlist: ${waitlist}`)
+                }
             }
             else {
                 return
