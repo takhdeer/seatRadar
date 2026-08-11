@@ -24,7 +24,7 @@ router.post('/', requireAuth, async (req, res) => {
 
         if (err.code === '23505') {
             const res2 = await pool.query(
-                'SELECT FROM tracked_courses WHERE (subject, course_num, term) = ($1,$2,$3)', [subject,courseNum,termCode]
+                'SELECT id FROM tracked_courses WHERE (subject, course_num, term) = ($1,$2,$3)', [subject,courseNum,termCode]
             )
             courseID = res2.rows[0].id;
         }
@@ -46,7 +46,7 @@ router.post('/', requireAuth, async (req, res) => {
         }
         else {    
             console.error(err);
-            res.status(500).json({ error: "Database error in table user_courses"})
+            return res.status(500).json({ error: "Database error in table user_courses"})
         }
     }
 });
