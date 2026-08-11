@@ -13,7 +13,8 @@ async function fetchCourseData(courses) {
     // get tc_ID from subject and courseNum
     const queryPromises = courses.map(async (course) => {
         const res = await pool.query(
-            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2', [course.subject, course.courseNum]
+            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2', 
+            [course.subject, course.courseNum]
         );
         return res.rows[0]
     });
@@ -22,7 +23,7 @@ async function fetchCourseData(courses) {
 
     console.log(courseInfo)
 
-
+    
     const queryPromises2 = courseInfo.map(async (section, index) => {
         const result = await pool.query(
             'SELECT * FROM course_data WHERE tracked_courses_id = $1', [section.id]
@@ -48,6 +49,7 @@ async function fetchCourseData(courses) {
     const now = new Date();
 
     console.log('---- Fetching New Course Data ----')
+    const data = []
     for (let i = 0; i < oldCourseData.length; i++) {
         const diffMs = now - oldCourseData[i].data[0].last_checked;
         const diffMins = diffMs / 1000 / 60;
@@ -73,29 +75,43 @@ async function fetchCourseData(courses) {
             const isReset = await resetBanner(cookies)
             if (isReset === true) {
                 await pool.query(
-                    'DELETE FROM course_data WHERE tracked_courses_id = $1', [oldCourseData[i].data[0].tracked_courses_id]
+                    'DELETE FROM course_data WHERE tracked_courses_id = $1', 
+                    [oldCourseData[i].data[0].tracked_courses_id]
                 )
-                const error = await insertCourseData(filteredData, oldCourseData[i].subject, oldCourseData[i].courseNum)
+                const error = await insertCourseData(
+                    filteredData,
+                    oldCourseData[i].subject,
+                    oldCourseData[i].courseNum
+                )
                 if (error){
                     console.log(error)
-                    return
                 }
                 else {
                     const seats = filteredData.sections[0].seatsAvailable
-                    console.log(`Seats: ${seats}`)
                     const waitlist = filteredData.sections[0].waitAvailable
-                    console.log(`Waitlist: ${waitlist}`)
+                    const subject = oldCourseData[i].subject
+                    const courseNum = oldCourseData[i].courseNum
+                    data.push({
+                        course: `${subject} ${courseNum}`,
+                        seats: seats,
+                        wiatlist: waitlist
+                    })
                 }
             }
             else {
-                return
+                continue
             }
         }
         else {
             console.log('Course Data is up to date')
+            data.push({
+                course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                seats: oldCourseData[i].data[0].seats,
+                waitlist: oldCourseData[i].data[0].waitlist
+            })
         }
     };
-
+    return data
 }
 
 module.exports = { fetchCourseData }
