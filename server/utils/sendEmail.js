@@ -39,7 +39,7 @@ async function sendEmail(recipients, courseInfo) {
         }
         else {
             return {
-                
+                // return summary object
             }
         }
 

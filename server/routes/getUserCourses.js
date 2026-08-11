@@ -12,7 +12,7 @@ router.get('/', async (req, res) => {
 
     try{
         const result = await pool.query(
-            `SELECT * FROM tracked_courses WHERE (user_id) = ($1)`, [userID]
+            `SELECT * FROM user_courses WHERE (user_id) = ($1)`, [userID]
         );
         const course = result.rows.map( row => {
             return {
