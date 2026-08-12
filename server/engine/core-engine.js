@@ -1,6 +1,7 @@
 const { fetchCourseData } = require('./fetchCourseData')
 const { fetchTrackedCourses } = require('./fetchTrackedCourses')
 const { getUserEmails } = require('./getUserEmails')
+const { sendEmail } = require('../utils/sendEmail')
 require('dotenv').config({ path: `server/` + '/.env' });
 
 
@@ -34,7 +35,7 @@ async function coreEngine() {
         const emails = await getUserEmails(notifyCourses[i])
         userEmails.push(...emails)
         console.log(userEmails)
-        // sendEmail
+        // await sendEmail(userEmails, notifyCourses)
         userEmails = []
     }
 }
