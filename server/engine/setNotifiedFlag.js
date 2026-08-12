@@ -3,14 +3,14 @@ const pool = require('../db');
 
 /**
  * Checks if a slot has opened/closed and sets notified flag in database accordingly.
- * @param {Array} notifyCourses - Array of courses that must be notified.
+ * @param {Array} emails - Array of obj containing emails, courseId and course that must be notified.
  * @param {0/1} setFlag - Current seat count from the latest scrape.
  * @returns {Promise<void>}
  */
-async function setNotifiedFlag(notifyCourses, setFlag) {
+async function setNotifiedFlag(emails, setFlag) {
     if (setFlag === 1) {
         try {
-            const queryPromises = notifyCourses.map(async (course) => {
+            const queryPromises = emails.map(async (course) => {
                 await pool.query(
                     'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [true, course.courseId]
                 );
@@ -26,7 +26,7 @@ async function setNotifiedFlag(notifyCourses, setFlag) {
     }
     if (setFlag === 0) {
         try {
-            const queryPromises = notifyCourses.map(async (course) => {
+            const queryPromises = emails.map(async (course) => {
                 await pool.query(
                     'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [false, course.courseId]
                 );

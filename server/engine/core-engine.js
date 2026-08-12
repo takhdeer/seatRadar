@@ -9,8 +9,8 @@ require('dotenv').config({ path: `server/` + '/.env' });
 async function coreEngine() {
     const notifyCourses = []
     const checkNotified = []
-    const userEmails = []
-    const resetCourses = []
+    let userEmails = []
+    let resetCourses = []
 
     const trackedCourses = await fetchTrackedCourses()
     const courseData = await fetchCourseData(trackedCourses)
@@ -32,7 +32,7 @@ async function coreEngine() {
         else {
             checkNotified.push(courseData[i])
         }
-        console.log(checkNotified)
+        console.log(checkNotified, null, 2)
     }
     if (notifyCourses.length === 0) {
         console.log('No notifications to send')
@@ -40,23 +40,23 @@ async function coreEngine() {
     console.log(notifyCourses)
 
     for (let i = 0; i < notifyCourses.length; i++) {
-        const emails = await getUserEmails(notifyCourses[i])
-        userEmails.push(...emails)
-        console.log(userEmails)
-        // const {response} = await sendEmail(userEmails, notifyCourses)
-        const status = setNotifiedFlag(notifyCourses, 1) // set notified = true
+        const res = await getUserEmails(notifyCourses[i])
+        const emails = res.filter(user => user.notified === false) 
+        console.log(emails)
+        const status = await setNotifiedFlag(emails, 1) // set notified = true
         console.log(status)
+        // const {response} = await sendEmail(userEmails, notifyCourses)
         userEmails = []
     }
 
     for (let i = 0; i < checkNotified.length; i++) {
         const courseInfo = await getUserEmails(checkNotified[i])
-        if (courseInfo.notified === false) {
+        if (courseInfo.notified === true) {
             const courseId = courseInfo.courseId
             resetCourses.push(...courseId)
         }
     }
-    const status = setNotifiedFlag(resetCourses, 0) // set notified = flase
+    const status = await setNotifiedFlag(resetCourses, 0) // set notified = flase
     console.log(status)
 }
 
