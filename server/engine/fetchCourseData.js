@@ -88,11 +88,12 @@ async function fetchCourseData(courses) {
                 }
                 else {
                     const seats = filteredData.sections[0].seatsAvailable
-                    const waitlist = filteredData.sections[0].waitAvailable
+                    const waitlist = filteredData.sections[0].waitlistAvailable
                     const subject = oldCourseData[i].subject
                     const courseNum = oldCourseData[i].courseNum
                     data.push({
                         course: `${subject} ${courseNum}`,
+                        courseId: oldCourseData[i].data[0].tracked_courses_id,
                         seats: seats,
                         wiatlist: waitlist
                     })
@@ -106,6 +107,7 @@ async function fetchCourseData(courses) {
             console.log('Course Data is up to date')
             data.push({
                 course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                courseId: oldCourseData[i].data[0].tracked_courses_id,
                 seats: oldCourseData[i].data[0].seats,
                 waitlist: oldCourseData[i].data[0].waitlist
             })
