@@ -9,24 +9,35 @@ const pool = require('../db');
  */
 async function setNotifiedFlag(notifyCourses, setFlag) {
     if (setFlag === 1) {
-        const queryPromises = notifyCourses.map(async (course) => {
-            await pool.query(
-                'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [true, course.courseId]
-            );
-            console.log(`Notified All users for ${course.course}`)
-        })
-        await Promise.all(queryPromises)
-        return 'Notification set successful'
+        try {
+            const queryPromises = notifyCourses.map(async (course) => {
+                await pool.query(
+                    'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [true, course.courseId]
+                );
+                console.log(`Notified All users for ${course.course}`)
+            })
+            await Promise.all(queryPromises)
+            return 'Notification set successful'
+        } catch (err) {
+            console.log(err)
+            return 'Notification set unsucessful'
+        }
+
     }
     if (setFlag === 0) {
-        const queryPromises = notifyCourses.map(async (course) => {
-            await pool.query(
-                'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [false, course.courseId]
-            );
-            console.log(`Rest nofications for ${course.course}`)
-        })
-        await Promise.all(queryPromises)
-        return `Notification reset successful`
+        try {
+            const queryPromises = notifyCourses.map(async (course) => {
+                await pool.query(
+                    'UPDATE user_courses SET notified = $1 WHERE course_id = $2', [false, course.courseId]
+                );
+                console.log(`Rest nofications for ${course.course}`)
+            })
+            await Promise.all(queryPromises)
+            return `Notification reset successful`
+        } catch (err) {
+            console.log(err)
+            return 'Notification reset unsucessful'
+        }
     }
 }
 
