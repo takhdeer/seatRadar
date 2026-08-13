@@ -17,13 +17,14 @@ export default function TrackForm() {
 
     
     async function handleSubmit(e) {
-      setIsSubmitting(true)
       e.preventDefault();
       const validErrors = validateForm({ subject, courseNum, term, requireMRU: false });
       if (Object.keys(validErrors).length > 0) {
         setErrors(validErrors);
         return;
       }
+
+      setIsSubmitting(true)
 
       const termCodes = {
         'Fall 2026': '202604',
