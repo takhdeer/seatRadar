@@ -14,6 +14,7 @@ async function coreEngine() {
 
     const trackedCourses = await fetchTrackedCourses()
     const courseData = await fetchCourseData(trackedCourses)
+    console.log(JSON.stringify(courseData, null, 2))
     for (let i = 0; i < courseData.length; i++) {
         if (courseData[i].seats > 0) {
             notifyCourses.push({
@@ -32,13 +33,16 @@ async function coreEngine() {
         else {
             checkNotified.push(courseData[i])
         }
-        console.log(checkNotified, null, 2)
     }
     if (notifyCourses.length === 0) {
         console.log('No notifications to send')
     }
-    console.log(notifyCourses)
+    console.log('------ Notify Courses ------')
+    console.log(JSON.stringify(notifyCourses, null, 2))
+    console.log('------ Check Notified ------')
+    console.log(JSON.stringify(checkNotified, null, 2))
 
+    /*
     for (let i = 0; i < notifyCourses.length; i++) {
         const res = await getUserEmails(notifyCourses[i])
         const emails = res.filter(user => user.notified === false) 
@@ -58,6 +62,7 @@ async function coreEngine() {
     }
     const status = await setNotifiedFlag(resetCourses, 0) // set notified = flase
     console.log(status)
+    */
 }
 
 coreEngine()

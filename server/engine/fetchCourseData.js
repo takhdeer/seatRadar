@@ -40,7 +40,7 @@ async function fetchCourseData(courses) {
     });
 
     const oldCourseData = await Promise.all(queryPromises2)
-    console.log(JSON.stringify(oldCourseData, null, 2))
+    // console.log(JSON.stringify(oldCourseData, null, 2))
 
     // getting cookies
     const { cookies } = await handleCookieExpiration()
@@ -54,7 +54,8 @@ async function fetchCourseData(courses) {
     for (let i = 0; i < oldCourseData.length; i++) {
         // Check if data exists before accessing it
         const shouldFetch = oldCourseData[i].data.length === 0 ||
-                           (now - oldCourseData[i].data[0].last_checked) / 1000 / 60 > THRESHOLD_MINS;
+                           (now - oldCourseData[i].data[0].last_checked) / 1000 / 60 > THRESHOLD_MINS ||
+                           oldCourseData[i].data.length === 1;
 
         if(shouldFetch) {
             if (oldCourseData[i].data.length === 0){
@@ -67,7 +68,7 @@ async function fetchCourseData(courses) {
 
             const result = await resetBanner(cookies)
             console.log(`Reset status: ${result}`)
-            // getting & inserting CourseData
+            // getting CourseData
             const courseData = await getCourseData(
                 oldCourseData[i].subject,
                 oldCourseData[i].courseNum,
@@ -121,7 +122,6 @@ async function fetchCourseData(courses) {
         else {
             console.log('Course Data is up to date')
             if (dataDeleted === 0) {
-                // Each item in oldCourseData[i].data is already a section object
                 oldCourseData[i].data.forEach(section => {
                     data.push({
                         course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
