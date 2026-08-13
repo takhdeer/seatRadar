@@ -23,7 +23,15 @@ async function insertCourseData(courseData, subject, courseNum) {
                     section_id,
                     total_seats,
                     total_waitlist)
-                    VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+                    VALUES ($1,$2,$3,$4,$5,$6,$7)
+                    ON CONFLICT (tracked_courses_id, section_id) 
+                    DO UPDATE SET 
+                        total_count = EXCLUDED.total_count,
+                        seats = EXCLUDED.seats,
+                        waitlist = EXCLUDED.waitlist,
+                        total_seats = EXCLUDED.total_seats,
+                        total_waitlist = EXCLUDED.total_waitlist,
+                        last_checked = now()`,
                     [
                         id,
                         courseData.totalCount,
