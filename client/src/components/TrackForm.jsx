@@ -10,12 +10,14 @@ export default function TrackForm() {
     const [courseNum, setCourseNum] = useState('2659')
     const [term , setTerm] = useState('Fall 2026')
     const [errors, setErrors] = useState({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate();
     const userAgent = navigator.userAgent
 
     
     async function handleSubmit(e) {
+      setIsSubmitting(true)
       e.preventDefault();
       const validErrors = validateForm({ subject, courseNum, term, requireMRU: false });
       if (Object.keys(validErrors).length > 0) {
@@ -39,17 +41,24 @@ export default function TrackForm() {
 
       const access_token = data.session.access_token;
 
-      const res1 = await fetch("http://localhost:3001/api/submit", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${access_token}`
-        },
-        body: JSON.stringify({ subject, courseNum, termCode }),
-      });
+      try {
+        const res1 = await fetch("http://localhost:3001/api/submit", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${access_token}`
+          },
+          body: JSON.stringify({ subject, courseNum, termCode }),
+        });
+        const data1 = await res1.json();
+        console.log(data1);
 
-      const data1 = await res1.json();
-      console.log(data1);
+        if (!res1.ok) {
+          console.log('Submit failed: ', data1.error)
+          // show error on UI
+          return
+        }
+
 
       if (!res1.ok) {
         console.log('Submit failed: ', data1.error)
@@ -73,32 +82,36 @@ export default function TrackForm() {
         browserType = null;
       }
 
-      const res2 = await fetch('http://localhost:3001/api/cookies', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({browserType})
-      });
-      const cookies = await res2.json();
-      console.log(cookies)
-
+        const res2 = await fetch('http://localhost:3001/api/cookies', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({browserType})
+        });
+        const cookies = await res2.json();
+        console.log(cookies)
       
-      const res3 = await fetch('http://localhost:3001/api/scrapper', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({subject, courseNum, termCode, cookies})
-      });
-      const courseData = await res3.json();
-      console.log('Course Data:', JSON.stringify(courseData, null, 2))
-
-
-      const res4 = await fetch('http://localhost:3001/api/track', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({subject, courseNum, courseData})
-      });
-
-      await res4.json();
-
+        const res3 = await fetch('http://localhost:3001/api/scrapper', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({subject, courseNum, termCode, cookies})
+        });
+        const courseData = await res3.json();
+        console.log('Course Data:', JSON.stringify(courseData, null, 2))
+      
+        
+        const res4 = await fetch('http://localhost:3001/api/track', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({subject, courseNum, courseData})
+        });  
+        await res4.json();
+      } catch (err) {
+        console.log(err)
+        return
+      }
+      finally {
+        setIsSubmitting(false)
+      }
       navigate("/done");
     };
 
@@ -151,7 +164,10 @@ export default function TrackForm() {
                         <button
                         className="main-btn"
                         name="submit"
-                        onClick={(e) => handleSubmit(e)}>Submit</button>
+                        disabled={isSubmitting}
+                        onClick={(e) => handleSubmit(e)}>
+                          {isSubmitting ? `Submitting...` : 'Submit'} 
+                        </button>
                     </div>
                 </form>
             </div>
