@@ -2,7 +2,7 @@ require('dotenv').config({ path: `server/` + '/.env' });
 const pool = require('../db')
 
 async function getUserEmails(courseInfo) {
-    courseId = courseInfo.courseId
+    const courseId = courseInfo.courseId
     let emails = []
     try {
         const res = await pool.query(
