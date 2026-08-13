@@ -49,8 +49,10 @@ async function insertCourseData(courseData, subject, courseNum) {
                     ]
             );
             console.log(`Prof saved in database`)
+            
+            return { id, err: null }
         }catch(err){
-            return err
+            return { id: null, err }
         }
     }
 
@@ -64,12 +66,12 @@ router.post('/', async (req,res) => {
         return res.status(400).json({error: 'Missing Fields'})
     }
 
-    const error = await insertCourseData(courseData, subject, courseNum)
-    if (!error) {
+    const { err } = await insertCourseData(courseData, subject, courseNum)
+    if (!err) {
         return res.status(201).json({ message: 'Course data saved successfully'})
     }
     else {
-        console.log(error)
+        console.log(err)
         return res.status(500).json({ error: 'Database error' })
     }
 }); 

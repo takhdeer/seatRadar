@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 async function getCourseData(subject,courseNum,termCode,cookies) {
-    const url = 
+    const url =
     `https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_subject=${subject}&txt_keywordlike=${courseNum}&txt_term=${termCode}&startDatepicker=&endDatepicker=&pageOffset=0&pageMaxSize=10&sortColumn=subjectDescription&sortDirection=asc`
 
     // console.log(`Fetching at url: ${url}`)
@@ -22,6 +22,12 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
 }
 
 function parseJSON(courseData) {
+    // Validate courseData structure
+    if (!courseData || !courseData.data) {
+        console.error('Invalid courseData structure:', courseData);
+        throw new Error('courseData.data is null or undefined');
+    }
+
     const parsedData = {
         totalCount: courseData.totalCount,
         sections: []
