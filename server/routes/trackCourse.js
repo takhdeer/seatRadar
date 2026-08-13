@@ -41,7 +41,8 @@ async function insertCourseData(courseData, subject, courseNum) {
                     course_id,
                     section_id,
                     prof)
-                    VALUES ($1,$2,$3)`,
+                    VALUES ($1,$2,$3)
+                    ON CONFLICT (course_id, section_id, prof) DO NOTHING`,
                     [
                         id,
                         sectionID,
