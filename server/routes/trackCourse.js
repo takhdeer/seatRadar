@@ -8,9 +8,9 @@ async function insertCourseData(courseData, subject, courseNum) {
     );
     const id = result.rows[0].id
     console.log(`Course ID: ${id}`)
-    
 
-    for (const section of courseData.sections) {
+
+    const queryPromise = courseData.sections.map(async (section) => {
         const sectionID = section.sectionID
 
         try {
@@ -22,8 +22,8 @@ async function insertCourseData(courseData, subject, courseNum) {
                     waitlist,
                     section_id,
                     total_seats,
-                    total_waitlist) 
-                    VALUES ($1,$2,$3,$4,$5,$6,$7)`, 
+                    total_waitlist)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7)`,
                     [
                         id,
                         courseData.totalCount,
@@ -49,11 +49,21 @@ async function insertCourseData(courseData, subject, courseNum) {
                     ]
             );
             console.log(`Prof saved in database`)
-        }catch(err){
-            return err
-        }
-    }
 
+            return { id, err: null }
+        }catch(err){
+            return { id: null, err }
+        }
+    })
+
+    const results = await Promise.all(queryPromise)
+
+    // Check if any insertion failed
+    const failedResult = results.find(r => r.err !== null)
+    if (failedResult) {
+        return { id: null, err: failedResult.err }
+    }
+    return { id, err: null }
 }
 
 router.post('/', async (req,res) => {
@@ -64,12 +74,12 @@ router.post('/', async (req,res) => {
         return res.status(400).json({error: 'Missing Fields'})
     }
 
-    const error = await insertCourseData(courseData, subject, courseNum)
-    if (!error) {
+    const { err } = await insertCourseData(courseData, subject, courseNum)
+    if (!err) {
         return res.status(201).json({ message: 'Course data saved successfully'})
     }
     else {
-        console.log(error)
+        console.log(err)
         return res.status(500).json({ error: 'Database error' })
     }
 }); 

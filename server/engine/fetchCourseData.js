@@ -9,6 +9,7 @@ const pool = require('../db')
 async function fetchCourseData(courses) {
 
     const THRESHOLD_MINS = 15
+    let dataDeleted = 0
 
     // get tc_ID from subject and courseNum
     const queryPromises = courses.map(async (course) => {
@@ -51,52 +52,67 @@ async function fetchCourseData(courses) {
     console.log('---- Fetching New Course Data ----')
     const data = []
     for (let i = 0; i < oldCourseData.length; i++) {
-        const diffMs = now - oldCourseData[i].data[0].last_checked;
-        const diffMins = diffMs / 1000 / 60;
+        // Check if data exists before accessing it
+        const shouldFetch = oldCourseData[i].data.length === 0 ||
+                           (now - oldCourseData[i].data[0].last_checked) / 1000 / 60 > THRESHOLD_MINS ||
+                           oldCourseData[i].data.length === 1;
 
-        if(oldCourseData[i].data.length === 0 || diffMins > THRESHOLD_MINS) {
+        if(shouldFetch) {
             if (oldCourseData[i].data.length === 0){
                 console.log(`No course data Available for ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`)
+                dataDeleted = 1
             }
             else {
                 console.log(`Refreshing ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}: `)
             }
 
-            // getting & inserting CourseData
+            const result = await resetBanner(cookies)
+            console.log(`Reset status: ${result}`)
+            // getting CourseData
             const courseData = await getCourseData(
                 oldCourseData[i].subject,
                 oldCourseData[i].courseNum,
                 oldCourseData[i].term,
                 cookies
             )
+
+            // Validate courseData before parsing
+            if (!courseData || !courseData.data) {
+                console.error(`Failed to fetch valid course data for ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`);
+                console.error('Response received:', courseData);
+                continue; // Skip to next course
+            }
+
             const filteredData = parseJSON(courseData);
             console.log(filteredData)
 
             const isReset = await resetBanner(cookies)
             if (isReset === true) {
-                await pool.query(
-                    'DELETE FROM course_data WHERE tracked_courses_id = $1', 
-                    [oldCourseData[i].data[0].tracked_courses_id]
-                )
-                const error = await insertCourseData(
+                if (dataDeleted === 0) {
+                    await pool.query(
+                        'DELETE FROM course_data WHERE tracked_courses_id = $1', 
+                        [oldCourseData[i].data[0].tracked_courses_id]
+                    )
+                }
+
+                const { id, err } = await insertCourseData(
                     filteredData,
                     oldCourseData[i].subject,
                     oldCourseData[i].courseNum
                 )
-                if (error){
-                    console.log(error)
+                if (err){
+                    console.log(err)
                 }
                 else {
-                    const seats = filteredData.sections[0].seatsAvailable
-                    const waitlist = filteredData.sections[0].waitlistAvailable
-                    const subject = oldCourseData[i].subject
-                    const courseNum = oldCourseData[i].courseNum
-                    data.push({
-                        course: `${subject} ${courseNum}`,
-                        courseId: oldCourseData[i].data[0].tracked_courses_id,
-                        seats: seats,
-                        wiatlist: waitlist
+                    filteredData.sections.map(section => {
+                        data.push({
+                            course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                            courseId: id,
+                            seats: section.seatsAvailable,
+                            waitlist: section.waitAvailable
+                        })
                     })
+
                 }
             }
             else {
@@ -105,12 +121,17 @@ async function fetchCourseData(courses) {
         }
         else {
             console.log('Course Data is up to date')
-            data.push({
-                course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
-                courseId: oldCourseData[i].data[0].tracked_courses_id,
-                seats: oldCourseData[i].data[0].seats,
-                waitlist: oldCourseData[i].data[0].waitlist
-            })
+            if (dataDeleted === 0) {
+                oldCourseData[i].data.forEach(section => {
+                    data.push({
+                        course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                        courseId: section.tracked_courses_id,
+                        seats: section.seats,
+                        waitlist: section.waitlist
+                    })
+                });
+            }
+            dataDeleted = 0
         }
     };
     return data
