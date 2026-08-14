@@ -35,19 +35,18 @@ router.post('/', requireAuth, async (req, res) => {
 
     }
     try{
-        await pool.query(
-            'INSERT INTO user_courses (user_id, course_id, subject, course_num, term) VALUES ($1,$2,$3,$4,$5)', [userID,courseID,subject,courseNum,termCode]
+        const result = await pool.query(
+            'INSERT INTO user_courses (user_id, course_id, subject, course_num, term) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (user_id, course_id) DO NOTHING RETURNING *', 
+            [userID,courseID,subject,courseNum,termCode]
         );
-        return res.json({message: "Courses added sucessfully!"})
-    } catch (err) {
-        if (err.code === '23505') {
+        if (result.rows.length === 0) {
             console.log('User is already tracking this course')
             res.status(409).json({ error: 'User is already tracking this course'})
         }
-        else {    
-            console.error(err);
-            return res.status(500).json({ error: "Database error in table user_courses"})
-        }
+        return res.json({message: "Courses added sucessfully!"})
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Database error in table user_courses"})
     }
 });
 
