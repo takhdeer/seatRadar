@@ -68,12 +68,14 @@ export default function Dashboard() {
         async function getProfRatings() {
           setProfMetrics([]) 
             for(let i = 0; i < profName.length; i++){
+              if (profName[i] !== 'TBA' && profName[i] !== 'tba' && profName[i] !== 'Tba'){
                 const res = await fetch(`http://localhost:3001/api/profRatings?profs=${profName[i]}`, {
                     method: 'GET',
                     headers: {'Accept': 'application/json'}
                 });
                 const data = await res.json();
                 setProfMetrics(prev => [...prev, data[0]]);
+              }
             }
         }
         getProfRatings()
