@@ -18,7 +18,6 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     });
 
     const courseData = await res.json();
-    console.log(JSON.stringify(courseData, null, 2))
     return courseData
 }
 
