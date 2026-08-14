@@ -37,11 +37,17 @@ export default function SignUpPage(){
         clearTimeout(timeout)
             
         const data = await res.json();
+        console.log(data)
 
         if (res.status === 409) {
             setErrors({server: 'User Already Exists'})
         }
-
+        if (res.status === 400) {
+            setErrors({server: 'Please confrim email'})
+        } 
+        if (res.status === 500) {
+            setErrors({server: 'Can not send Confirmation Email'})
+        }
         if (res.status === 201) {
             const { error } = await supabase.auth.setSession({
                 access_token: data.access_token,
