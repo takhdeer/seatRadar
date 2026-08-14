@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
         res.status(500).json({message: "Database error"})
     }
     setTimeout(() => {
-        navigate('/dashboard')
+        navigate('/')
     }, 3000);
 });
 
