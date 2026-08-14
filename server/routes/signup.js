@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db')
-const supabaseAdmin = require('../utils/serviceRoleClient')
 const supabase = require('../utils/anonClient')
 
+const navigate = useNavigate();
 
 router.post('/', async (req, res) => {
     console.log(req.body)
@@ -18,49 +18,48 @@ router.post('/', async (req, res) => {
          const {data, error} = await supabase.auth.signUp({
             email,
             password,
-            email_confirm: false
+            options: {
+                emailRedirectTo: process.env.FRONTEND_URL
+            }
          });
 
          if (error) {
-            if (error.status === 422 || error.code === 'email_exists') {
-                console.log('User exists');
-                return res.status(409).json({ error: 'User Exists'})
+            if (error.status === 422 || error.code === 'weak_password') {
+                console.log('Password is not secure')
+                return res.status(500).json({ error: 'Password error', detail: error.message})
             }
+
             if (error.status === 400 || error.code === 'email_not_confirmed') {
                 console.log('Email not confirmed')
                 return res.status(400).json({ error: 'Email not confirmed'})
             }
             console.log(error);
-            return res.status(500).json({ message: 'Auth error', detail: error.message})
-         }
+            return res.status(500).json({ error: 'Auth error', detail: error.message})
+        }
+
+        if (data.user.identities.length === 0) {
+            console.log('User exists');
+            return res.status(409).json({ error: 'User Exists'})
+        }
 
          const authUserID = data.user.id
+         console.log(authUserID)
 
         await pool.query(
             'INSERT INTO users (id,user_email,user_password,username) VALUES ($1,$2,$3,$4)', [authUserID, email, password, username]
         );
 
-        const { data: signInData, error: signInError }  = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        })
-
-        if (signInError) {
-            console.log(signInError)
-            return res.status(500).json({ error: 'Sign in Database error' })
-        }
-
         return res.status(201).json({
-            message: 'Signup Successful',
-            access_token: signInData.session.access_token,
-            refresh_token: signInData.session.refresh_token,
-            user_id: signInData.user.id
+            message: 'Signup Successful'
         })
 
     }catch(err) {
         console.log(err.message)
         res.status(500).json({message: "Database error"})
     }
+    setTimeout(() => {
+        navigate('/')
+    }, 3000);
 });
 
 module.exports = router;
