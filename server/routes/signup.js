@@ -15,16 +15,20 @@ router.post('/', async (req, res) => {
     }
 
     try {
-         const {data, error} = await supabaseAdmin.auth.admin.createUser({
+         const {data, error} = await supabase.auth.signUp({
             email,
             password,
-            email_confirm: true
+            email_confirm: false
          });
 
          if (error) {
             if (error.status === 422 || error.code === 'email_exists') {
-                console.log('user exists');
-                return res.status(409).json({ message: 'User Exists'})
+                console.log('User exists');
+                return res.status(409).json({ error: 'User Exists'})
+            }
+            if (error.status === 400 || error.code === 'email_not_confirmed') {
+                console.log('Email not confirmed')
+                return res.status(400).json({ error: 'Email not confirmed'})
             }
             console.log(error);
             return res.status(500).json({ message: 'Auth error', detail: error.message})
