@@ -3,8 +3,6 @@ const router = express.Router();
 const pool = require('../db')
 const supabase = require('../utils/anonClient')
 
-const navigate = useNavigate();
-
 router.post('/', async (req, res) => {
     console.log(req.body)
     const { email, password, username} = req.body;
@@ -57,9 +55,6 @@ router.post('/', async (req, res) => {
         console.log(err.message)
         res.status(500).json({message: "Database error"})
     }
-    setTimeout(() => {
-        navigate('/')
-    }, 3000);
 });
 
 module.exports = router;

@@ -58,7 +58,9 @@ export default function SignUpPage(){
                 console.log('Could not set session', error)
                 return
             }
-            navigate('/form')
+            setTimeout(() => {
+                navigate('/')
+            }, 3000);
         }
     }
 
