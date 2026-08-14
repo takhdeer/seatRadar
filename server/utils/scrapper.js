@@ -18,6 +18,7 @@ async function getCourseData(subject,courseNum,termCode,cookies) {
     });
 
     const courseData = await res.json();
+    console.log(JSON.stringify(courseData, null, 2))
     return courseData
 }
 
@@ -42,7 +43,7 @@ function parseJSON(courseData) {
             waitAvailable: section.waitAvailable,
             total_seats: section.maximumEnrollment,
             total_waitlist: section.waitCapacity,
-            prof: section.faculty[0].displayName
+            prof: section.faculty[0]?.displayName || 'TBA'
         });
 
     });
