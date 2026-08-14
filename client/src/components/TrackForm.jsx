@@ -15,7 +15,14 @@ export default function TrackForm() {
     const navigate = useNavigate();
     const userAgent = navigator.userAgent
 
-    
+    async function resetForm() {
+      setSubject('')
+      setCourseNum('')
+      setTerm('')
+      setErrors({})
+      setIsSubmitting(false)
+    }
+
     async function handleSubmit(e) {
       e.preventDefault();
       const validErrors = validateForm({ subject, courseNum, term, requireMRU: false });
@@ -113,7 +120,8 @@ export default function TrackForm() {
       finally {
         setIsSubmitting(false)
       }
-      navigate("/done");
+      
+      await resetForm()
     };
 
     return (
@@ -168,6 +176,14 @@ export default function TrackForm() {
                         disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}>
                           {isSubmitting ? `Submitting...` : 'Submit'} 
+                        </button>
+
+                        <button
+                        className="main-btn"
+                        name="dashboard"
+                        disabled={isSubmitting}
+                        onClick={() => navigate("/dashboard")}>
+                          Dashboard 
                         </button>
                     </div>
                 </form>
