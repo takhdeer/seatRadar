@@ -55,7 +55,8 @@ export default function Dashboard() {
                 headers: {'Accept': 'application/json'}
             });
             const data = await res.json();
-            setProfName(data)
+            const uniqueValues = [...new Set(data)];
+            setProfName(uniqueValues)
         }
         getProfs()
     }, [courseChart])
