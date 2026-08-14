@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db')
 const supabase = require('../utils/anonClient')
 
+const navigate = useNavigate();
 
 router.post('/', async (req, res) => {
     console.log(req.body)
