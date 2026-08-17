@@ -15,6 +15,8 @@ export default function TrackForm() {
     const navigate = useNavigate();
     const userAgent = navigator.userAgent
 
+    const undoStack = []  // push successful endpoints onto undoStack
+
     async function resetForm() {
       setSubject('')
       setCourseNum('')
@@ -67,12 +69,15 @@ export default function TrackForm() {
           return
         }
 
+        undoStack.push(() => fetch ('http://localhost:3001/api/submit', {
+          method: 'DELETE',
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${access_token}`
+          },
+          body: JSON.stringify({ subject, courseNum, termCode }),
+        }));
 
-      if (!res1.ok) {
-        console.log('Submit failed: ', data1.error)
-        // show error on UI
-        return
-      }
 
       // Finding browser for Playwright
       let browserType;
@@ -97,6 +102,18 @@ export default function TrackForm() {
         });
         const cookies = await res2.json();
         console.log(cookies)
+
+        if (!res2.ok) {
+          console.log('Cookie Getter Failed: ', data2.error)
+          // show error on UI
+          return
+        }
+
+        undoStack.push(() => fetch ('http://localhost:3001/api/cookies', {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({browserType})
+        }));
       
         const res3 = await fetch('http://localhost:3001/api/scrapper', {
           method: 'POST',
@@ -105,22 +122,47 @@ export default function TrackForm() {
         });
         const courseData = await res3.json();
         console.log('Course Data:', JSON.stringify(courseData, null, 2))
+
+        if (!res3.ok) {
+          console.log('Cookie Getter Failed: ', data3.error)
+          // show error on UI
+          return
+        }
+
+        undoStack.push(() => fetch ('http://localhost:3001/api/scrapper', {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({subject, courseNum, termCode, cookies})
+        }));
       
-        
         const res4 = await fetch('http://localhost:3001/api/track', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({subject, courseNum, courseData})
         });  
         await res4.json();
+
+        if (!res4.ok) {
+          console.log('Cookie Getter Failed: ', res4.error)
+          // show error on UI
+          return
+        }
+
+        undoStack.push(() => fetch ('http://localhost:3001/api/track', {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({subject, courseNum, courseData})
+        }));
+
+        setIsSubmitting(false)
+        
       } catch (err) {
         console.log(err)
-        return
+        console.log('------ Undoing Successful Endpints ------')
+        for (const undo of undoStack.reverse()) {
+          await undo().catch(e => console.error('Rollback Failed: ', e));
+        }
       }
-      finally {
-        setIsSubmitting(false)
-      }
-      
       await resetForm()
     };
 
