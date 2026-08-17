@@ -1,16 +1,16 @@
 {
     "name": "seatradar",
     "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-      "dev": "concurrently \"cd client && bun run dev\" \"nodemon --exec 'npx ts-node' server/index.js\""
-    },
-    "keywords": [],
     "author": "",
-    "license": "ISC",
+    "main": "index.js",
     "devDependencies": {
-      "concurrently": "^9.2.1",
-      "nodemon": "^3.1.14"
+        "concurrently": "^9.2.1",
+        "nodemon": "^3.1.14"
+    },
+    "description": "",
+    "keywords": [],
+    "license": "ISC",
+    "scripts": {
+        "dev": "concurrently \"cd client && bun run dev\" \"nodemon --exec 'npx ts-node' server/index.js\""
     }
-  }
+}
