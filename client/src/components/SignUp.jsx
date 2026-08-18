@@ -12,6 +12,7 @@ export default function SignUpPage(){
     const [errors, setErrors] = useState({})
     const [showPassword, setShowPassword] = useState(false)
     const [username, setusername] = useState('')
+    const [isSubmitting, setIsSubmitting] = useState(false)
     const { setShowOverlay, setMessage } = useOverlay()
 
     const navigate = useNavigate();
@@ -29,6 +30,8 @@ export default function SignUpPage(){
             return
         }
 
+        setIsSubmitting(true)
+
         const res = await fetch('http://localhost:3001/api/usr-signup', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -43,14 +46,17 @@ export default function SignUpPage(){
 
         if (res.status === 409) {
             setErrors({server: 'User Already Exists'})
+            setIsSubmitting(false)
         }
         if (res.status === 400) {
             setMessage('Please confirm email sent to inbox')
             setShowOverlay(true)
+            setIsSubmitting(false)
         } 
         if (res.status === 500) {
             setMessage('Can not send Confirmation Email')
             setShowOverlay(true)
+            setIsSubmitting(false)
         }
         if (res.status === 201) {
             const { error } = await supabase.auth.setSession({
@@ -60,12 +66,14 @@ export default function SignUpPage(){
 
             if (error) {
                 console.log('Could not set session', error)
+                setIsSubmitting(false)
                 return
             }
             setTimeout(() => {
                 navigate('/')
             }, 3000);
         }
+        setIsSubmitting(false)
     }
 
     return (
@@ -130,10 +138,12 @@ export default function SignUpPage(){
                 <div className='buttons'>
                         <button 
                         className='main-btn'
+                        disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >Create Account</button>
                         <button 
                         className='main-btn'
+                        disabled={isSubmitting}
                         onClick={() => navigate('/')}
                         >Log in</button>
                     </div>
