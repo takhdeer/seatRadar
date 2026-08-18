@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { validateForm } from '../utils/validation';
 import './Landing.css'
 import { supabase } from '../utils/supabaseClient';
+import { useOverlay } from '../context/OverlayContext';
 
 export default function SignUpPage(){
     const [email, setMRUEmail] = useState('')
@@ -11,6 +12,7 @@ export default function SignUpPage(){
     const [errors, setErrors] = useState({})
     const [showPassword, setShowPassword] = useState(false)
     const [username, setusername] = useState('')
+    const { setShowOverlay, setMessage } = useOverlay()
 
     const navigate = useNavigate();
 
@@ -43,10 +45,12 @@ export default function SignUpPage(){
             setErrors({server: 'User Already Exists'})
         }
         if (res.status === 400) {
-            setErrors({server: 'Please confrim email'})
+            setMessage('Please confirm email sent to inbox')
+            setShowOverlay(true)
         } 
         if (res.status === 500) {
-            setErrors({server: 'Can not send Confirmation Email'})
+            setMessage('Can not send Confirmation Email')
+            setShowOverlay(true)
         }
         if (res.status === 201) {
             const { error } = await supabase.auth.setSession({
@@ -129,7 +133,6 @@ export default function SignUpPage(){
                         onClick={(e) => handleSubmit(e)}
                         >Create Account</button>
                     </div>
-                    {errors.server && <p className='error'>{errors.server}</p>}
                 </form>
 
             </div>

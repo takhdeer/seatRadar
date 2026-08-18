@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { validateForm } from '../utils/validation';
 import { supabase } from '../utils/supabaseClient';
+import { useOverlay } from '../context/OverlayContext'
 
 import './TrackForm.css'
 
@@ -11,6 +12,7 @@ export default function TrackForm() {
     const [term , setTerm] = useState('Fall 2026')
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const { setShowOverlay, setMessage } = useOverlay()
 
     const navigate = useNavigate();
     const userAgent = navigator.userAgent
@@ -65,8 +67,13 @@ export default function TrackForm() {
 
         if (!res1.ok) {
           console.log('Submit failed: ', data1.error)
-          // show error on UI
+          setMessage(`Submit Failed: ${data1.error}`)
+          setShowOverlay(true)
+          setIsSubmitting(false)
           return
+        } else {
+          setMessage(`Tracking... ${subject} ${courseNum}`)
+          setShowOverlay(true)
         }
 
         undoStack.push(() => fetch ('http://localhost:3001/api/submit', {
@@ -105,7 +112,8 @@ export default function TrackForm() {
 
         if (!res2.ok) {
           console.log('Cookie Getter Failed: ', data2.error)
-          // show error on UI
+          setMessage('Error Occured from MRU database')
+          setShowOverlay(true)
           return
         }
 
@@ -124,8 +132,9 @@ export default function TrackForm() {
         console.log('Course Data:', JSON.stringify(courseData, null, 2))
 
         if (!res3.ok) {
-          console.log('Cookie Getter Failed: ', data3.error)
-          // show error on UI
+          console.log('Scrapping Data Failed: ', courseData.error)
+          setMessage('Could not get course data from MRU')
+          setShowOverlay(true)
           return
         }
 
@@ -143,8 +152,9 @@ export default function TrackForm() {
         await res4.json();
 
         if (!res4.ok) {
-          console.log('Cookie Getter Failed: ', res4.error)
-          // show error on UI
+          console.log('Database Error: ', res4.error)
+          setMessage('Database error')
+          setShowOverlay(true)
           return
         }
 
@@ -162,6 +172,7 @@ export default function TrackForm() {
         for (const undo of undoStack.reverse()) {
           await undo().catch(e => console.error('Rollback Failed: ', e));
         }
+        setIsSubmitting(false)
       }
       await resetForm()
     };
