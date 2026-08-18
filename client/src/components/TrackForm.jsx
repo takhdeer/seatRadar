@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { validateForm } from '../utils/validation';
 import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext'
+import LoadingSpinner from './loadingSpinner';
 
 import './TrackForm.css'
 
@@ -240,6 +241,7 @@ export default function TrackForm() {
                         </button>
                     </div>
                 </form>
+                {isSubmitting && <LoadingSpinner />}
             </div>
           </div>
         </>
