@@ -9,29 +9,62 @@ import './App.css'
 import ProtectedRoute from './components/ProtectedRoute'
 import PublicRoute from './components/PublicRoute'
 
-export default function App() {
+import { OverlayProvider } from './context/OverlayContext'
+import Overlay from './components/Overlay'
+import { useOverlay } from './context/OverlayContext'
+
+function AppContent() {
+    const { showOverlay, message, error, setShowOverlay } = useOverlay()
+
     return (
+      <>
+        {showOverlay && (
+          <Overlay
+            showOverlay={showOverlay}
+            message={message}
+            error={error}
+            onClose={() => setShowOverlay(false)}
+          />
+        )}
         <BrowserRouter>
         <Routes>
-            <Route path='/' element={
+            <Route
+              path="/"
+              element={
                 <PublicRoute>
-                    <LandingPage />
+                  <LandingPage />
                 </PublicRoute>
-            } />
-            <Route path="/signup" element={
+              }
+            />
+            <Route
+              path="/signup"
+              element={
                 <PublicRoute>
-                    <SignUpPage />
+                  <SignUpPage />
                 </PublicRoute>
-            } />
-            <Route path='/form' element={<TrackForm />} />
-            <Route path='/done' element={<TrackedPage />} />
-            <Route path='/dashboard' element={
+              }
+            />
+            <Route path="/form" element={<TrackForm />} />
+            <Route path="/done" element={<TrackedPage />} />
+            <Route
+              path="/dashboard"
+              element={
                 <ProtectedRoute>
-                    <Dashboard />
+                  <Dashboard />
                 </ProtectedRoute>
-            } />
-        </Routes>
+              }
+            />
+          </Routes>
         </BrowserRouter>
-    )
+      </>
+    );
 
 }
+
+export default function App() {
+    return (
+      <OverlayProvider>
+        <AppContent />
+      </OverlayProvider>
+    )
+  }

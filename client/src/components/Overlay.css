@@ -1,0 +1,19 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 100%;
+    z-index: 9999;  /* above everything */
+}
+
+.overlayCard {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.closeBtn {
+    display: block;
+    margin-left: auto;
+}

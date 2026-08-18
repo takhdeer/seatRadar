@@ -41,7 +41,7 @@ router.post('/', requireAuth, async (req, res) => {
         );
         if (result.rows.length === 0) {
             console.log('User is already tracking this course')
-            res.status(409).json({ error: 'User is already tracking this course'})
+            return res.status(409).json({ error: 'User is already tracking this course'})
         }
         return res.json({message: "Courses added sucessfully!"})
     } catch (err) {
