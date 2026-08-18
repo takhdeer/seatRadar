@@ -134,7 +134,7 @@ export default function SignUpPage(){
                         >Create Account</button>
                         <button 
                         className='main-btn'
-                        onClick={navigate('/')}
+                        onClick={() => navigate('/')}
                         >Log in</button>
                     </div>
                 </form>
