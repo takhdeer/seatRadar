@@ -9,6 +9,7 @@ export default function LandingPage() {
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     const navigate = useNavigate();
 
@@ -20,6 +21,8 @@ export default function LandingPage() {
             setErrors(validErrors)
             return
         }
+
+        setIsSubmitting(true)
 
         //timeout logic
         const controller = new AbortController()
@@ -44,6 +47,7 @@ export default function LandingPage() {
 
             if (error) {
                 console.log('Could not set session', error)
+                setIsSubmitting(false)
                 return
             }
             
@@ -52,8 +56,9 @@ export default function LandingPage() {
 
         else if (res.status === 400) {
             setErrors({server: 'User Does Not Exist'})
+            setIsSubmitting(false)
         }
-        
+        setIsSubmitting(false)
     }
 
     return (
@@ -94,15 +99,15 @@ export default function LandingPage() {
                     <div className='buttons'>
                         <button 
                         className='main-btn'
+                        disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >LogIn</button>
-                    </div>
                     {errors.server && <p className='error'>{errors.server}</p>}
 
-                    <div className='buttons'>
                         <button
                         type='button'
                         className='main-btn'
+                        disabled={isSubmitting}
                         onClick={() => navigate('/signup')}
                         >SignUp</button>
                     </div> 
