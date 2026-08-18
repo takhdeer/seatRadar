@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
+import LoadingSpinner from "./loadingSpinner";
 
 export default function PublicRoute({ children }) {
 
@@ -26,7 +27,7 @@ export default function PublicRoute({ children }) {
 
     if (session == 'Checking') {
         console.log('Still checking') 
-        return 'Loading' // Replace with loading spinner
+        return <LoadingSpinner />
     }
 
     return children
