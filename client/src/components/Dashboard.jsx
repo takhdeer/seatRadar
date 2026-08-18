@@ -168,7 +168,9 @@ export default function Dashboard() {
     function ProfRatingChart({ chartData }) {
         return (
           <ResponsiveContainer width='100%' height='100%'>
-            <ScatterChart margin={{ top: 20, right: 30, left: 20, bottom: 20}}>
+            <ScatterChart 
+              margin={{ top: 20, right: 30, left: 20, bottom: 20}}
+            >
               <XAxis 
                 dataKey="avgDifficulty" 
                 type='number'
@@ -177,12 +179,14 @@ export default function Dashboard() {
                 name="Difficulty" 
                 axisLine={false} 
                 tickLine={false} tick={{ fill: '#ffffff' }} 
-                label={
-                  { value: 'Difficulty', 
+                label={{ 
+                  value: 'Difficulty', 
                   position: 'insideBottom', 
                   offset: -10, 
-                  fill: '#ffffff' }
-                  } />
+                  fill: '#ffffff' 
+                }} 
+              />
+
               <YAxis 
                 dataKey="avgRating" 
                 type='number'
@@ -193,17 +197,26 @@ export default function Dashboard() {
                 axisLine={false} 
                 tickLine={false} 
                 tick={{ fill: '#ffffff' }} 
-                label={
-                  { value: 'Rating', 
+                label={{ 
+                  value: 'Rating', 
                   angle: -90, 
                   position: 'insideLeft', 
                   offset: 10,
-                  fill: '#ffffff' }
-                  } />
+                  fill: '#ffffff' 
+                }} 
+              />
+
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+
               <CartesianGrid stroke="none" />
-              <Scatter data={chartData} fill="#4f9dde" />
-                <LabelList dataKey='lastName' position='top' fill='#ffffff' />
+
+              <Scatter data={chartData} fill="#4f9dde">
+                <LabelList 
+                  dataKey='lastName'
+                  position='top'
+                  fill='#ffffff' 
+                />
+              </Scatter>
             </ScatterChart>
           </ResponsiveContainer>
         );
