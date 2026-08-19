@@ -13,6 +13,8 @@ export default function Dashboard() {
     const [profMetrics, setProfMetrics] = useState([])
     const [trackedCourses, setTrackedCourses] = useState([])
     const [activeCourse, setActveCourse] = useState()
+    const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
+    const [rankedSections, setRankedSections] = useState([])
 
     const navigate = useNavigate()
 
@@ -49,34 +51,38 @@ export default function Dashboard() {
 
 
     useEffect(() => {
-        async function getProfs() {
-            const res = await fetch(`http://localhost:3001/api/profCourses?courseID=${courseChart[0].id}`, {
-                method: 'GET',
-                headers: {'Accept': 'application/json'}
-            });
-            const data = await res.json();
-            const uniqueValues = [...new Set(data)];
-            setProfName(uniqueValues)
-        }
-        getProfs()
-    }, [courseChart])
+      async function getProfs() {
+          const res = await fetch(`http://localhost:3001/api/profCourses?courseID=${courseChart[0].id}`, {
+              method: 'GET',
+              headers: {'Accept': 'application/json'}
+          });
+          const data = await res.json();
+          setProfSections(data)
+  
+          const uniqueNames = [...new Set(data.map(d => d.prof))]
+              .filter(name => name && !['tba', 'TBA', 'Tba'].includes(name));
+          setProfName(uniqueNames)
+      }
+      if (courseChart.length > 0) {
+          getProfs()
+      }
+  }, [courseChart])
     
     useEffect(() => {  
         console.log(profName)
-    }, [profName])
+        console.log(profSections)
+    }, [profName, profSections])
 
     useEffect(() => {
         async function getProfRatings() {
           setProfMetrics([]) 
             for(let i = 0; i < profName.length; i++){
-              if (profName[i] !== 'TBA' && profName[i] !== 'tba' && profName[i] !== 'Tba'){
                 const res = await fetch(`http://localhost:3001/api/profRatings?profs=${profName[i]}`, {
                     method: 'GET',
                     headers: {'Accept': 'application/json'}
                 });
                 const data = await res.json();
                 setProfMetrics(prev => [...prev, data[0]]);
-              }
             }
         }
         getProfRatings()
@@ -85,6 +91,42 @@ export default function Dashboard() {
     useEffect(() => {
         console.log(profMetrics)
     }, [profMetrics])
+
+    useEffect(() => {
+      if (courseChart.length === 0 || profMetrics.length === 0 || profSections.length === 0) {
+          setRankedSections([]);
+          return;
+      }
+    
+      const ranked = courseChart.map(section => {
+              const sectionProf = profSections.find(
+                  ps => String(ps.section_id) === String(section.section)
+              );
+              const profName = sectionProf?.prof;
+    
+              const prof = profName && profMetrics.find(p =>
+                  p.lastName && profName.toLowerCase().includes(p.lastName.toLowerCase())
+              );
+    
+              return {
+                  section: section.section,
+                  prof: profName || 'TBA',
+                  seats: section.seats,
+                  waitlist: section.waitlist,
+                  rating: prof?.avgRating ?? null,
+                  difficulty: prof?.avgDifficulty ?? null,
+                  availabilityScore: (section.seats > 0 ? 3 : 0) + (section.waitlist > 0 ? 1 : 0)
+              };
+          })
+          .filter(item => item.rating !== null && item.difficulty !== null)
+          .sort((a, b) => {
+              if (b.rating !== a.rating) return b.rating - a.rating;
+              if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
+              return b.availabilityScore - a.availabilityScore;
+          });
+    
+      setRankedSections(ranked);
+    }, [courseChart, profMetrics, profSections])
 
 
     useEffect(() => {
@@ -234,6 +276,74 @@ export default function Dashboard() {
         }
     }
 
+    function CourseSummary() {
+        if (rankedSections.length === 0) {
+            return (
+                <div className="summary-container">
+                    <h3>Course Summary</h3>
+                    <p>No professor ratings available for this course.</p>
+                </div>
+            );
+        }
+
+        const bestSection = rankedSections[0];
+
+        return (
+            <div className="summary-container">
+                <h3>Best Section Recommendation</h3>
+                <div className="best-section">
+                    <div className="section-header">
+                        <span className="section-number">Section {bestSection.section}</span>
+                        <span className="prof-name">{bestSection.prof}</span>
+                    </div>
+                    <div className="metrics-row">
+                        <div className="metric">
+                            <span className="metric-label">Rating</span>
+                            <span className="metric-value">{bestSection.rating.toFixed(1)}/5.0</span>
+                        </div>
+                        <div className="metric">
+                            <span className="metric-label">Difficulty</span>
+                            <span className="metric-value">{bestSection.difficulty.toFixed(1)}/5.0</span>
+                        </div>
+                        <div className="metric">
+                            <span className="metric-label">Availability</span>
+                            <span className="metric-value">
+                                {bestSection.seats > 0
+                                    ? `${bestSection.seats} open seats`
+                                    : bestSection.waitlist > 0
+                                        ? `${bestSection.waitlist} waitlist spots`
+                                        : 'Full'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {rankedSections.length > 1 && (
+                    <div className="all-sections">
+                        <h4>All Sections Ranked</h4>
+                        {rankedSections.map((section, idx) => (
+                            <div key={section.section} className="section-row">
+                                <span className="rank">#{idx + 1}</span>
+                                <span className="section-info">
+                                    Section {section.section} - {section.prof}
+                                </span>
+                                <span className="section-stats">
+                                    ⭐ {section.rating.toFixed(1)} |
+                                    📚 {section.difficulty.toFixed(1)} |
+                                    {section.seats > 0
+                                        ? `💺 ${section.seats}`
+                                        : section.waitlist > 0
+                                            ? `⏳ ${section.waitlist}`
+                                            : '🚫'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        );
+    }
+
 
     async function handleLogOut() {
       const { error } = await supabase.auth.signOut()
@@ -276,7 +386,9 @@ export default function Dashboard() {
           <div className="chart-container">
             <ProfRatingChart chartData={profMetrics} />
           </div>
-        
+
+          <CourseSummary />
+
           <div className="btn-container">
             <button
               className="add-btn"
