@@ -23,6 +23,7 @@ router.get('/', async (req,res) => {
         
         const courseData = result2.rows.map( row => {
             return {
+                section: row.section_id,
                 seats: row.seats,
                 total_seats: row.total_seats,
                 total_waitlist: row.total_waitlist,

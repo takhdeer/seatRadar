@@ -48,3 +48,113 @@
 .left-children {
     margin-right: 15px;
 }
+
+.summary-container {
+    width: 100%;
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 0.03);
+    padding: 20px;
+    border-radius: 8px;
+    color: #ffffff;
+}
+
+.summary-container h3 {
+    margin: 0 0 15px 0;
+    font-size: 1.3rem;
+    color: #a0c4e8;
+    font-weight: 600;
+}
+
+.summary-container h4 {
+    margin: 20px 0 10px 0;
+    font-size: 1rem;
+    color: #a0c4e8;
+    font-weight: 500;
+}
+
+.best-section {
+    background: linear-gradient(135deg, #0c2340, #1a4a7a);
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #4f9dde;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.section-number {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #90EE90;
+}
+
+.prof-name {
+    font-size: 1rem;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.metrics-row {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: #a0c4e8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metric-value {
+    font-size: 0.95rem;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.all-sections {
+    margin-top: 20px;
+}
+
+.section-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    margin: 6px 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.section-row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.rank {
+    font-weight: 700;
+    color: #4f9dde;
+    min-width: 30px;
+}
+
+.section-info {
+    flex: 1;
+    font-size: 0.9rem;
+}
+
+.section-stats {
+    font-size: 0.85rem;
+    color: #a0c4e8;
+    white-space: nowrap;
+}

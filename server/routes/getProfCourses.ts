@@ -13,11 +13,14 @@ router.get('/', async (req: Request, res: Response) => {
 
     try{ 
         const result = await pool.query (
-            `SELECT * FROM professors WHERE (course_id) = $1`, [courseID]
+            `SELECT prof, section_id FROM professors WHERE (course_id) = $1`, [courseID]
         );
-        const profsArray: string[] = [];
+        const profsArray: { prof: string; section_id: string }[] = [];
         for(let i = 0; i < result.rows.length; i++) {
-            profsArray.push(result.rows[i].prof);
+            profsArray.push({
+                prof: result.rows[i].prof,
+                section_id: result.rows[i].section_id
+            });
         }
         console.log(profsArray)
         return res.status(201).json(profsArray)
