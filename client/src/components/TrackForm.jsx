@@ -136,6 +136,7 @@ export default function TrackForm() {
           console.log('Scrapping Data Failed: ', courseData.error)
           setMessage('Could not get course data from MRU')
           setShowOverlay(true)
+          setIsSubmitting(false)
           return
         }
 
@@ -156,6 +157,7 @@ export default function TrackForm() {
           console.log('Database Error: ', res4.error)
           setMessage('Database error')
           setShowOverlay(true)
+          setIsSubmitting(false)
           return
         }
 

@@ -1,6 +1,23 @@
 const express = require('express');
 const router = express.Router();
 
+const DAY_MAP = [
+    ['sunday', 'U'],
+    ['monday', 'M'],
+    ['tuesday', 'T'],
+    ['wednesday', 'W'],
+    ['thursday', 'R'],
+    ['friday', 'F'],
+    ['saturday', 'S'],
+];
+
+function getMeetingDays(meetingTime) {
+    return DAY_MAP
+        .filter(([key]) => meetingTime[key])
+        .map(([, letter]) => letter)
+        .join('');
+}
+
 async function getCourseData(subject,courseNum,termCode,cookies) {
     const url =
     `https://ban9ssb-prod.mtroyal.ca/StudentRegistrationSsb/ssb/searchResults/searchResults?txt_subject=${subject}&txt_keywordlike=${courseNum}&txt_term=${termCode}&startDatepicker=&endDatepicker=&pageOffset=0&pageMaxSize=10&sortColumn=subjectDescription&sortDirection=asc`
@@ -36,13 +53,17 @@ function parseJSON(courseData) {
     // for each shorthand instead of for loop
     // slice sets the domain for indexing
     courseData.data.slice(0, courseData.totalCount).forEach((section) => {
+        const meeting = section.meetingsFaculty?.[0]?.meetingTime
         parsedData.sections.push({
             sectionID: section.id,
             seatsAvailable: section.seatsAvailable,
             waitAvailable: section.waitAvailable,
             total_seats: section.maximumEnrollment,
             total_waitlist: section.waitCapacity,
-            prof: section.faculty[0]?.displayName || 'TBA'
+            prof: section.faculty[0]?.displayName || 'TBA',
+            days: meeting ? getMeetingDays(meeting): '',
+            start: meeting.beginTime || null,
+            end: meeting.endTime || null
         });
 
     });

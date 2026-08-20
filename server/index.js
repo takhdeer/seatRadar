@@ -15,6 +15,7 @@ const course = require('./routes/getCourse')
 const profRatings = require('./routes/getProfRating')
 const profCourses = require('./routes/getProfCourses')
 const userCourses = require('./routes/getUserCourses')
+const storedSchedule = require('./routes/getSchedule')
 
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/track', tracker);
 app.use('/api/getData', storedData);
 app.use('/api/getCourse', course);
 app.use('/api/getUserCourses', userCourses);
+app.use('/api/getSchedule', storedSchedule)
 app.use('/api/profRatings', profRatings);
 app.use('/api/profCourses', profCourses);
 

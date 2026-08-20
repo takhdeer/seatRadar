@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
 import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
@@ -15,11 +15,73 @@ export default function Dashboard() {
     const [activeCourse, setActveCourse] = useState()
     const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
     const [rankedSections, setRankedSections] = useState([])
+    const [courseSchedules, setCourseSchedules] = useState({}) // { section:,days:,start:,end:,subject:,courseNum:}
+    const scheduleCache = useRef({}) // survives re-renders
 
     const navigate = useNavigate()
 
+    // Sync schedules whenever the set of tracked courses changes
+    useEffect(() => {
+      if (trackedCourses.length === 0) return;
+
+      const currentNames = new Set(trackedCourses.map(c => c.course));
+
+      // Drop cached entries for courses the user stopped tracking
+      for (const name of Object.keys(scheduleCache.current)) {
+        if (!currentNames.has(name)) {
+          delete scheduleCache.current[name];
+        }
+      }
+
+      async function fetchMissingSchedules() {
+        const toFetch = trackedCourses.filter(c => !scheduleCache.current[c.course]);
+
+        if (toFetch.length === 0) {
+          setCourseSchedules({ ...scheduleCache.current });
+          return;
+        }
+
+        for (const c of toFetch) {
+          const [subject, number] = c.course.split(' ');
+          try {
+            const res = await fetch(
+              `http://localhost:3001/api/getSchedule?subject=${subject}&courseNum=${number}`,
+              { method: 'GET', headers: { Accept: 'application/json' } }
+            );
+            const data = await res.json();
+        
+            if (!res.ok || !Array.isArray(data.scheduleData)) {
+              console.warn(`No schedule data available for ${c.course}`, data);
+              scheduleCache.current[c.course] = [];
+              continue;
+            }
+        
+            const schedule = data.scheduleData.map(row => ({
+              section: row.section,
+              days: row.days,
+              start_time: row.start,
+              end_time: row.end
+            }));
+        
+            scheduleCache.current[c.course] = schedule;
+          } catch (err) {
+            console.error(`Failed to fetch schedule for ${c.course}`, err);
+          }
+        }
+
+        setCourseSchedules({ ...scheduleCache.current });
+      }
+
+      fetchMissingSchedules();
+    }, [trackedCourses]);
+
+    useEffect(() => {
+      console.log(courseSchedules)
+  }, [courseSchedules])
+
     useEffect(() => {
         async function fetchData() { 
+          if (!activeCourse) return;
             const split = activeCourse.split(' ')
             const subject = split[0]
             const number = split[1]
@@ -46,7 +108,6 @@ export default function Dashboard() {
 
     useEffect(() => {
         console.log(courseChart)
-
     }, [courseChart])
 
 
@@ -276,12 +337,94 @@ export default function Dashboard() {
         }
     }
 
+    function ScheduleGrid() {
+        const days = ['M', 'T', 'W', 'R', 'F'];
+        const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
+
+        // Collect all valid schedule entries across all tracked courses
+        const allSchedules = [];
+        Object.entries(courseSchedules).forEach(([courseName, sections]) => {
+            if (!Array.isArray(sections)) return;
+
+            sections.forEach(section => {
+                if (section.days && section.start_time && section.end_time) {
+                    allSchedules.push({
+                        courseName,
+                        section: section.section,
+                        days: section.days,
+                        start: section.start_time,
+                        end: section.end_time
+                    });
+                }
+            });
+        });
+
+        if (allSchedules.length === 0) {
+            return null;
+        }
+
+        // Convert time string (HH:MM) to decimal hours
+        const timeToHours = (timeStr) => {
+          const hours = parseInt(timeStr.slice(0, -2), 10);
+          const minutes = parseInt(timeStr.slice(-2), 10);
+          return hours + minutes / 60;
+      };
+
+        return (
+            <div className="schedule-grid-container">
+                <h4>Weekly Schedule</h4>
+                <div className="schedule-grid">
+                    <div className="time-labels">
+                        <div className="corner-cell"></div>
+                        {hours.map(hour => (
+                            <div key={hour} className="time-label">
+                                {hour > 12 ? `${hour - 12}pm` : `${hour}am`}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="grid-content">
+                        {days.map((day) => (
+                            <div key={day} className="day-column">
+                                <div className="day-header">{day}</div>
+                                <div className="day-cells">
+                                    {hours.map((hour, hourIdx) => (
+                                        <div key={hourIdx} className="time-cell">
+                                            {allSchedules
+                                                .filter(schedule => {
+                                                    // Check if this day is included
+                                                    if (!schedule.days.includes(day)) return false;
+
+                                                    const startHour = timeToHours(schedule.start);
+                                                    const endHour = timeToHours(schedule.end);
+
+                                                    // Check if this hour overlaps with the course time
+                                                    return hour >= startHour && hour < endHour;
+                                                })
+                                                .map((schedule, idx) => (
+                                                    <div key={idx} className="course-block">
+                                                        <span className="course-name">{schedule.courseName}</span>
+                                                        <span className="course-section">§{schedule.section}</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     function CourseSummary() {
         if (rankedSections.length === 0) {
             return (
                 <div className="summary-container">
                     <h3>Course Summary</h3>
                     <p>No professor ratings available for this course.</p>
+                    <ScheduleGrid />
                 </div>
             );
         }
@@ -340,6 +483,8 @@ export default function Dashboard() {
                         ))}
                     </div>
                 )}
+
+                <ScheduleGrid />
             </div>
         );
     }
@@ -353,60 +498,69 @@ export default function Dashboard() {
       else {
         navigate('/')
       }
-    } 
+    }
     return (
       <>
         <div className="dashboard-container">
-          <div className="chart-container">
-            <div className="chart-header">
-              <button
-                className="seat-btn"
-                name="waitlist"
-                onClick={() =>
-                  setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
-                }
-              >
-                {activeChart === "seats" ? "Waitlist" : "Seats"}
-              </button>
+          <aside className="sidebar">
+            <div className="sidebar-content">
+              <div className="sidebar-menu">
+                <button className="menu-item active">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Dashboard
+                </button>   
 
-              <div className="left-children">
-                <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
-                  {trackedCourses.map((item, index) => (
-                    <option key={index} value={item.course}>
-                      {item.course}
-                    </option>
-                  ))}
-                </select>
+                <button className="menu-item" onClick={() => navigate("/form")}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Course
+                </button>
               </div>
             </div>
 
-            {renderChart()}
-          </div>
-
-          <div className="chart-container">
-            <ProfRatingChart chartData={profMetrics} />
-          </div>
-
-          <CourseSummary />
-
-          <div className="btn-container">
-            <button
-              className="add-btn"
-              name="addCourse"
-              onClick={() => navigate("/form")}
-            >
-              Add course
-            </button>
-          </div>
-
-          <div className='btn-container'>
-            <button
-                className="add-btn"
-                name="addCourse"
-                onClick={() => handleLogOut()}
-              >
-                Log Out
+            <div className="sidebar-footer">
+              <button className="logout-btn" onClick={() => handleLogOut()}>
+                Log out
               </button>
+            </div>
+          </aside>
+
+          <div className="main-content">
+            <div className="charts-row">
+              <div className="chart-container">
+                <div className="chart-header">
+                  <button
+                    className="seat-btn"
+                    onClick={() =>
+                      setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
+                    }
+                  >
+                    {activeChart === "seats" ? "Waitlist" : "Seats"}
+                  </button>
+
+                  <div className="left-children">
+                    <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                      {trackedCourses.map((item, index) => (
+                        <option key={index} value={item.course}>
+                          {item.course}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {renderChart()}
+              </div>
+
+              <div className="chart-container">
+                <ProfRatingChart chartData={profMetrics} />
+              </div>
+            </div>
+
+            <CourseSummary />
           </div>
         </div>
       </>
