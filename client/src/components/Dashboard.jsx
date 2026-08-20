@@ -498,57 +498,70 @@ export default function Dashboard() {
       else {
         navigate('/')
       }
-    } 
+    }
     return (
       <>
         <div className="dashboard-container">
-          <div className="top-controls">
-            <button
-              className="add-btn"
-              onClick={() => navigate("/form")}
-            >
-              Add course
-            </button>
-            <button
-              className="logout-btn"
-              onClick={() => handleLogOut()}
-            >
-              Log out
-            </button>
-          </div>
+          <aside className="sidebar">
+            <div className="sidebar-content">
+              <div className="sidebar-menu">
+                <button className="menu-item active">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  Dashboard
+                </button>   
 
-          <div className="charts-row">
-            <div className="chart-container">
-              <div className="chart-header">
-                <button
-                  className="seat-btn"
-                  onClick={() =>
-                    setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
-                  }
-                >
-                  {activeChart === "seats" ? "Waitlist" : "Seats"}
+                <button className="menu-item" onClick={() => navigate("/form")}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Course
                 </button>
+              </div>
+            </div>
 
-                <div className="left-children">
-                  <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
-                    {trackedCourses.map((item, index) => (
-                      <option key={index} value={item.course}>
-                        {item.course}
-                      </option>
-                    ))}
-                  </select>
+            <div className="sidebar-footer">
+              <button className="logout-btn" onClick={() => handleLogOut()}>
+                Log out
+              </button>
+            </div>
+          </aside>
+
+          <div className="main-content">
+            <div className="charts-row">
+              <div className="chart-container">
+                <div className="chart-header">
+                  <button
+                    className="seat-btn"
+                    onClick={() =>
+                      setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
+                    }
+                  >
+                    {activeChart === "seats" ? "Waitlist" : "Seats"}
+                  </button>
+
+                  <div className="left-children">
+                    <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                      {trackedCourses.map((item, index) => (
+                        <option key={index} value={item.course}>
+                          {item.course}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+
+                {renderChart()}
               </div>
 
-              {renderChart()}
+              <div className="chart-container">
+                <ProfRatingChart chartData={profMetrics} />
+              </div>
             </div>
 
-            <div className="chart-container">
-              <ProfRatingChart chartData={profMetrics} />
-            </div>
+            <CourseSummary />
           </div>
-
-          <CourseSummary />
         </div>
       </>
     );

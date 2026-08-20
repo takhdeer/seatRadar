@@ -1,38 +1,100 @@
 .dashboard-container {
     display: flex;
-    flex-direction: column;
     min-height: 100vh;
     background-color: #0a0a0a;
-    padding: 24px;
-    position: relative;
 }
 
-.top-controls {
-    position: absolute;
-    top: 24px;
-    left: 24px;
+.sidebar {
+    width: 240px;
+    min-width: 240px;
+    background-color: #0f0f0f;
+    border-right: 1px solid #1a1a1a;
     display: flex;
-    gap: 12px;
-    z-index: 10;
+    flex-direction: column;
+    padding: 24px 0;
+    /*
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    */
 }
 
-.add-btn,
-.logout-btn {
-    padding: 8px 16px;
+.sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-menu {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 12px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
     background-color: transparent;
+    color: #a1a1a1;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    text-align: left;
+}
+
+.menu-item:hover {
+    background-color: #141414;
     color: #ffffff;
+}
+
+.menu-item.active {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+.menu-item svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.sidebar-footer {
+    padding: 12px;
+    border-top: 1px solid #1a1a1a;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: transparent;
+    color: #a1a1a1;
     border: 1px solid #292929;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease;
+    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+    text-align: left;
 }
 
-.add-btn:hover,
 .logout-btn:hover {
     background-color: #141414;
     border-color: #404040;
+    color: #ffffff;
+}
+
+.main-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
 }
 
 .charts-row {
@@ -40,7 +102,6 @@
     justify-content: center;
     align-items: center;
     gap: 24px;
-    margin-top: 80px;
     margin-bottom: 24px;
 }
 
