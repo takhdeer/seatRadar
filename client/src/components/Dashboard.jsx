@@ -357,57 +357,53 @@ export default function Dashboard() {
     return (
       <>
         <div className="dashboard-container">
-          <div className="chart-container">
-            <div className="chart-header">
-              <button
-                className="seat-btn"
-                name="waitlist"
-                onClick={() =>
-                  setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
-                }
-              >
-                {activeChart === "seats" ? "Waitlist" : "Seats"}
-              </button>
-
-              <div className="left-children">
-                <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
-                  {trackedCourses.map((item, index) => (
-                    <option key={index} value={item.course}>
-                      {item.course}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {renderChart()}
-          </div>
-
-          <div className="chart-container">
-            <ProfRatingChart chartData={profMetrics} />
-          </div>
-
-          <CourseSummary />
-
-          <div className="btn-container">
+          <div className="top-controls">
             <button
               className="add-btn"
-              name="addCourse"
               onClick={() => navigate("/form")}
             >
               Add course
             </button>
+            <button
+              className="logout-btn"
+              onClick={() => handleLogOut()}
+            >
+              Log out
+            </button>
           </div>
 
-          <div className='btn-container'>
-            <button
-                className="add-btn"
-                name="addCourse"
-                onClick={() => handleLogOut()}
-              >
-                Log Out
-              </button>
+          <div className="charts-row">
+            <div className="chart-container">
+              <div className="chart-header">
+                <button
+                  className="seat-btn"
+                  onClick={() =>
+                    setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
+                  }
+                >
+                  {activeChart === "seats" ? "Waitlist" : "Seats"}
+                </button>
+
+                <div className="left-children">
+                  <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                    {trackedCourses.map((item, index) => (
+                      <option key={index} value={item.course}>
+                        {item.course}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {renderChart()}
+            </div>
+
+            <div className="chart-container">
+              <ProfRatingChart chartData={profMetrics} />
+            </div>
           </div>
+
+          <CourseSummary />
         </div>
       </>
     );
