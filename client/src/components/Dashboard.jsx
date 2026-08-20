@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, LabelList} from 'recharts';
 import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
@@ -15,11 +15,73 @@ export default function Dashboard() {
     const [activeCourse, setActveCourse] = useState()
     const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
     const [rankedSections, setRankedSections] = useState([])
+    const [courseSchedules, setCourseSchedules] = useState({}) // { section: '307541', days: 'TR', start: '1600', end: '1720', subject: 'MATH', courseNum: '1271' }
+    const scheduleCache = useRef({}) // survives re-renders
 
     const navigate = useNavigate()
 
+    // Sync schedules whenever the set of tracked courses changes
+    useEffect(() => {
+      if (trackedCourses.length === 0) return;
+
+      const currentNames = new Set(trackedCourses.map(c => c.course));
+
+      // Drop cached entries for courses the user stopped tracking
+      for (const name of Object.keys(scheduleCache.current)) {
+        if (!currentNames.has(name)) {
+          delete scheduleCache.current[name];
+        }
+      }
+
+      async function fetchMissingSchedules() {
+        const toFetch = trackedCourses.filter(c => !scheduleCache.current[c.course]);
+
+        if (toFetch.length === 0) {
+          setCourseSchedules({ ...scheduleCache.current });
+          return;
+        }
+
+        for (const c of toFetch) {
+          const [subject, number] = c.course.split(' ');
+          try {
+            const res = await fetch(
+              `http://localhost:3001/api/getSchedule?subject=${subject}&courseNum=${number}`,
+              { method: 'GET', headers: { Accept: 'application/json' } }
+            );
+            const data = await res.json();
+        
+            if (!res.ok || !Array.isArray(data.scheduleData)) {
+              console.warn(`No schedule data available for ${c.course}`, data);
+              scheduleCache.current[c.course] = [];
+              continue;
+            }
+        
+            const schedule = data.scheduleData.map(row => ({
+              section: row.section,
+              days: row.days,
+              start_time: row.start,
+              end_time: row.end
+            }));
+        
+            scheduleCache.current[c.course] = schedule;
+          } catch (err) {
+            console.error(`Failed to fetch schedule for ${c.course}`, err);
+          }
+        }
+
+        setCourseSchedules({ ...scheduleCache.current });
+      }
+
+      fetchMissingSchedules();
+    }, [trackedCourses]);
+
+    useEffect(() => {
+      console.log(courseSchedules)
+  }, [courseSchedules])
+
     useEffect(() => {
         async function fetchData() { 
+          if (!activeCourse) return;
             const split = activeCourse.split(' ')
             const subject = split[0]
             const number = split[1]
@@ -46,7 +108,6 @@ export default function Dashboard() {
 
     useEffect(() => {
         console.log(courseChart)
-
     }, [courseChart])
 
 
