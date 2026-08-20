@@ -213,3 +213,125 @@
     color: #6b6b6b;
     white-space: nowrap;
 }
+
+.schedule-grid-container {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #1a1a1a;
+}
+
+.schedule-grid {
+    display: flex;
+    gap: 0;
+    background-color: #141414;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.time-labels {
+    display: flex;
+    flex-direction: column;
+    background-color: #0f0f0f;
+    border-right: 1px solid #1a1a1a;
+}
+
+.corner-cell {
+    height: 36px;
+    min-height: 36px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.time-label {
+    height: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    font-size: 11px;
+    color: #6b6b6b;
+    font-weight: 500;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.time-label:last-child {
+    border-bottom: none;
+}
+
+.grid-content {
+    display: flex;
+    flex: 1;
+}
+
+.day-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1a1a1a;
+}
+
+.day-column:last-child {
+    border-right: none;
+}
+
+.day-header {
+    height: 36px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #0f0f0f;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.day-cells {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.time-cell {
+    height: 48px;
+    min-height: 48px;
+    border-bottom: 1px solid #1a1a1a;
+    position: relative;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.time-cell:last-child {
+    border-bottom: none;
+}
+
+.course-block {
+    background-color: #4f9dde;
+    border-radius: 3px;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+    flex: 1;
+}
+
+.course-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.course-section {
+    font-size: 9px;
+    opacity: 0.8;
+    line-height: 1.2;
+}

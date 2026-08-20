@@ -15,7 +15,7 @@ export default function Dashboard() {
     const [activeCourse, setActveCourse] = useState()
     const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
     const [rankedSections, setRankedSections] = useState([])
-    const [courseSchedules, setCourseSchedules] = useState({}) // { section: '307541', days: 'TR', start: '1600', end: '1720', subject: 'MATH', courseNum: '1271' }
+    const [courseSchedules, setCourseSchedules] = useState({}) // { section:,days:,start:,end:,subject:,courseNum:}
     const scheduleCache = useRef({}) // survives re-renders
 
     const navigate = useNavigate()
@@ -337,12 +337,94 @@ export default function Dashboard() {
         }
     }
 
+    function ScheduleGrid() {
+        const days = ['M', 'T', 'W', 'R', 'F'];
+        const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
+
+        // Collect all valid schedule entries across all tracked courses
+        const allSchedules = [];
+        Object.entries(courseSchedules).forEach(([courseName, sections]) => {
+            if (!Array.isArray(sections)) return;
+
+            sections.forEach(section => {
+                if (section.days && section.start_time && section.end_time) {
+                    allSchedules.push({
+                        courseName,
+                        section: section.section,
+                        days: section.days,
+                        start: section.start_time,
+                        end: section.end_time
+                    });
+                }
+            });
+        });
+
+        if (allSchedules.length === 0) {
+            return null;
+        }
+
+        // Convert time string (HH:MM) to decimal hours
+        const timeToHours = (timeStr) => {
+          const hours = parseInt(timeStr.slice(0, -2), 10);
+          const minutes = parseInt(timeStr.slice(-2), 10);
+          return hours + minutes / 60;
+      };
+
+        return (
+            <div className="schedule-grid-container">
+                <h4>Weekly Schedule</h4>
+                <div className="schedule-grid">
+                    <div className="time-labels">
+                        <div className="corner-cell"></div>
+                        {hours.map(hour => (
+                            <div key={hour} className="time-label">
+                                {hour > 12 ? `${hour - 12}pm` : `${hour}am`}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="grid-content">
+                        {days.map((day) => (
+                            <div key={day} className="day-column">
+                                <div className="day-header">{day}</div>
+                                <div className="day-cells">
+                                    {hours.map((hour, hourIdx) => (
+                                        <div key={hourIdx} className="time-cell">
+                                            {allSchedules
+                                                .filter(schedule => {
+                                                    // Check if this day is included
+                                                    if (!schedule.days.includes(day)) return false;
+
+                                                    const startHour = timeToHours(schedule.start);
+                                                    const endHour = timeToHours(schedule.end);
+
+                                                    // Check if this hour overlaps with the course time
+                                                    return hour >= startHour && hour < endHour;
+                                                })
+                                                .map((schedule, idx) => (
+                                                    <div key={idx} className="course-block">
+                                                        <span className="course-name">{schedule.courseName}</span>
+                                                        <span className="course-section">§{schedule.section}</span>
+                                                    </div>
+                                                ))
+                                            }
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     function CourseSummary() {
         if (rankedSections.length === 0) {
             return (
                 <div className="summary-container">
                     <h3>Course Summary</h3>
                     <p>No professor ratings available for this course.</p>
+                    <ScheduleGrid />
                 </div>
             );
         }
@@ -401,6 +483,8 @@ export default function Dashboard() {
                         ))}
                     </div>
                 )}
+
+                <ScheduleGrid />
             </div>
         );
     }
