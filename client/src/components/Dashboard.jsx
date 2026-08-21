@@ -57,6 +57,9 @@ export default function Dashboard() {
             }
         
             const schedule = data.scheduleData.map(row => ({
+              subject: row.subject,
+              courseNum: row.courseNum,
+              term: row.term,
               section: row.section,
               days: row.days,
               start_time: row.start,
