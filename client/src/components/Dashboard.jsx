@@ -58,15 +58,27 @@ export default function Dashboard() {
               continue;
             }
         
-            const schedule = data.scheduleData.map(row => ({
-              subject: row.subject,
-              courseNum: row.courseNum,
-              term: row.term,
-              section: row.section,
-              days: row.days,
-              start_time: row.start,
-              end_time: row.end
-            }));
+            const schedule = data.scheduleData.map(row => {
+              // Shorten class_type to Lec/Lab/Tut
+              let classTypeShort = '';
+              if (row.class_type) {
+                const type = row.class_type.toLowerCase();
+                if (type.includes('lecture')) classTypeShort = 'Lec';
+                else if (type.includes('lab')) classTypeShort = 'Lab';
+                else if (type.includes('tutorial')) classTypeShort = 'Tut';
+              }
+
+              return {
+                subject: row.subject,
+                courseNum: row.courseNum,
+                term: row.term,
+                section: row.section,
+                days: row.days,
+                start_time: row.start,
+                end_time: row.end,
+                classType: classTypeShort
+              };
+            });
         
             scheduleCache.current[c.course] = schedule;
           } catch (err) {
@@ -174,6 +186,15 @@ export default function Dashboard() {
                   p.lastName && profName.toLowerCase().includes(p.lastName.toLowerCase())
               );
 
+              // Shorten class_type to Lec/Lab/Tut
+              let classTypeShort = '';
+              if (section.class_type) {
+                  const type = section.class_type.toLowerCase();
+                  if (type.includes('lecture')) classTypeShort = 'Lec';
+                  else if (type.includes('lab')) classTypeShort = 'Lab';
+                  else if (type.includes('tutorial')) classTypeShort = 'Tut';
+              }
+
               return {
                   section: section.section,
                   prof: profName || 'TBA',
@@ -181,7 +202,8 @@ export default function Dashboard() {
                   waitlist: section.waitlist,
                   rating: prof?.avgRating ?? null,
                   difficulty: prof?.avgDifficulty ?? null,
-                  availabilityScore: (section.seats > 0 ? 3 : 0) + (section.waitlist > 0 ? 1 : 0)
+                  availabilityScore: (section.seats > 0 ? 3 : 0) + (section.waitlist > 0 ? 1 : 0),
+                  classType: classTypeShort
               };
           })
           .filter(item => item.rating !== null && item.difficulty !== null)
@@ -366,7 +388,8 @@ export default function Dashboard() {
                         section: section.section,
                         days: section.days,
                         start: section.start_time,
-                        end: section.end_time
+                        end: section.end_time,
+                        classType: section.classType
                     });
                 }
             });
@@ -425,7 +448,9 @@ export default function Dashboard() {
                                                         style={{ backgroundColor: sectionColors[schedule.section] || '#4f86b8' }}
                                                     >
                                                         <span className="course-name">{schedule.courseName}</span>
-                                                        <span className="course-section">§{schedule.section}</span>
+                                                        <span className="course-section">
+                                                            §{schedule.section} {schedule.classType && `· ${schedule.classType}`}
+                                                        </span>
                                                     </div>
                                                 ))
                                             }
@@ -443,10 +468,19 @@ export default function Dashboard() {
     function CourseSummary() {
         if (rankedSections.length === 0) {
             return (
-                <div className="summary-container">
-                    <h3>Course Summary</h3>
-                    <p style={{ color: '#7a736a', fontSize: '13px' }}>No professor ratings available for this course.</p>
+              <div className='summary-container'>
+                <h3>Course Summary</h3>
+                <div className='section-title-row'>
+                  <h3>Course Summary</h3>  
+                    <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                     {trackedCourses.map((item, index) => (
+                        <option key={index} value={item.course}>
+                          {item.course}
+                        </option>
+                      ))}
+                    </select>
                 </div>
+            </div>
             );
         }
 
@@ -467,6 +501,15 @@ export default function Dashboard() {
         return (
             <div className="summary-container">
                 <h3>Best Section</h3>
+                <div className="section-title-row">
+                  <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                   {trackedCourses.map((item, index) => (
+                      <option key={index} value={item.course}>
+                        {item.course}
+                      </option>
+                    ))}
+                  </select>
+             </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
                         <span className="section-number">§{bestSection.section}</span>
@@ -510,7 +553,7 @@ export default function Dashboard() {
                             >
                                 <span className="rank">#{idx + 1}</span>
                                 <span className="section-info">
-                                    §{section.section} · {section.prof}
+                                    §{section.section} {section.classType && `· ${section.classType}`} · {section.prof}
                                 </span>
                                 <span className="section-stats">
                                     ⭐ {section.rating.toFixed(1)} · 📚 {section.difficulty.toFixed(1)}
@@ -579,16 +622,6 @@ export default function Dashboard() {
                   >
                     {activeChart === "seats" ? "Waitlist" : "Seats"}
                   </button>
-
-                  <div className="left-children">
-                    <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
-                      {trackedCourses.map((item, index) => (
-                        <option key={index} value={item.course}>
-                          {item.course}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
 
                 {renderChart()}

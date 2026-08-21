@@ -29,7 +29,8 @@ router.get('/', async (req,res) => {
                 total_waitlist: row.total_waitlist,
                 waitlist: row.waitlist,
                 checked: row.last_checked,
-                id: id
+                id: id,
+                class_type: row.class_type
             };
         });
 

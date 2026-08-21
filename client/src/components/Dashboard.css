@@ -149,7 +149,7 @@
     border-color: #d4cdc0;
 }
 
-.left-children select {
+.section-title-row select {
     padding: 6px 12px;
     background-color: #ffffff;
     color: #2e2b26;
@@ -161,7 +161,7 @@
     transition: border-color 0.15s ease;
 }
 
-.left-children select:hover {
+.section-title-row select:hover {
     border-color: #d4cdc0;
 }
 
@@ -213,6 +213,13 @@
     font-size: 15px;
     font-weight: 600;
     color: #2e2b26;
+}
+
+.section-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
 }
 
 .prof-name {
