@@ -509,7 +509,13 @@ export default function Dashboard() {
                       </option>
                     ))}
                   </select>
-             </div>
+                  <button className="menu-item" onClick={() => navigate("/form")}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add Course
+                </button>
+                 </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
                         <span className="section-number">§{bestSection.section}</span>
