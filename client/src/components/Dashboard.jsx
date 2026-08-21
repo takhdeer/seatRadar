@@ -20,6 +20,8 @@ export default function Dashboard() {
     const [sectionColors, setSectionColors] = useState({}) 
     const [selectedSections, setSelectedSections] = useState(new Set())
     const [showAllCourses, setShowAllCourses] = useState(false);
+    const [showLabTut, setShowLabTut] = useState(true)
+    const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate()
 
@@ -100,6 +102,7 @@ export default function Dashboard() {
     useEffect(() => {
         async function fetchData() { 
           if (!activeCourse) return;
+          setIsLoading(true)
             const split = activeCourse.split(' ')
             const subject = split[0]
             const number = split[1]
@@ -175,6 +178,7 @@ export default function Dashboard() {
     useEffect(() => {
       if (courseChart.length === 0 || profMetrics.length === 0 || profSections.length === 0) {
           setRankedSections([]);
+          setIsLoading(false)
           return;
       }
 
@@ -224,6 +228,7 @@ export default function Dashboard() {
           colorMap[section.section] = colors[idx % colors.length];
       });
       setSectionColors(colorMap);
+      setIsLoading(false)
     }, [courseChart, profMetrics, profSections])
 
 
@@ -363,55 +368,65 @@ export default function Dashboard() {
     }
 
     function renderChart() {
-      if (selectedSections.size === 0) {
         if (activeChart === 'seats') {
           return (
-            <SeatsChart chartData={courseChart} />
+            <SeatsChart chartData={applySectionFilter(courseChart)} />
           )
         } else {
           return (
-            <WaitlistChart chartData={courseChart} />
+            <WaitlistChart chartData={applySectionFilter(courseChart)} />
           )
         }
       }
-      else {
-        const sectionData = courseChart.filter(c => selectedSections.has(c.section))
-        if (activeChart === 'seats') {
-          return (
-            <SeatsChart chartData={sectionData} />
-          )
-        } else {
-          return (
-            <WaitlistChart chartData={sectionData} />
-          )
+
+      function renderProfChart() {
+        if (profName.length === 0) {
+            return <h3>No Prof available for this section</h3>;
         }
-      }
+    
+        const eff = getEffectiveSections();
+    
+        if (eff === null) {
+            return <ProfRatingChart chartData={profMetrics} />;
+        }
+    
+        const sectionProfs = eff.mode === 'exclude'
+            ? profSections.filter(ps => !eff.ids.has(ps.section_id))
+            : profSections.filter(ps => eff.ids.has(ps.section_id));
+    
+        const profLastNames = sectionProfs.map(sp => sp.prof);
+        const filteredMetrics = profMetrics.filter(pm =>
+            profLastNames.some(name => name.toLowerCase().includes(pm.lastName.toLowerCase()))
+        );
+    
+        return <ProfRatingChart chartData={filteredMetrics} />;
     }
 
-    function renderProfChart() {
+    function getEffectiveSections() {
+      const labTutSections = new Set(
+          rankedSections
+              .filter(s => s.classType === 'Lab' || s.classType === 'Tut')
+              .map(s => s.section)
+      );
+  
       if (selectedSections.size === 0) {
-        return (
-          <ProfRatingChart chartData={profMetrics} />
-        )
+          if (showLabTut) return null; // null = no filtering, show everything
+          return { mode: 'exclude', ids: labTutSections };
       }
-      if (profName.length === 0) {
-        return (
-          <h3>No Prof available for this section</h3>
-        )
+  
+      const ids = new Set(selectedSections);
+      if (showLabTut) {
+          labTutSections.forEach(id => ids.add(id));
       }
-      if (profName.length === 1) {
-        return (
-          <ProfRatingChart chartData={profMetrics} />
-        )
-      }
-      else {
-        const sectionProfs = profSections.filter(ps => selectedSections.has(ps.section_id));
-        const profLastNames = sectionProfs.map(sp => sp.prof);
-        const filteredMetrics = profMetrics.filter(pm => profLastNames.some(name => name.toLowerCase().includes(pm.lastName.toLowerCase())));
-        return (
-          <ProfRatingChart chartData={filteredMetrics} />
-        )
-      }
+      return { mode: 'include', ids };
+    }
+  
+    function applySectionFilter(data) {
+        const eff = getEffectiveSections();
+        if (eff === null) return data;
+        return eff.mode === 'exclude'
+            ? data.filter(d => !eff.ids.has(d.section))
+            : data.filter(d => eff.ids.has(d.section));
     }
 
     function ScheduleGrid() {
@@ -460,9 +475,7 @@ export default function Dashboard() {
         }
 
         // Filter schedules based on selectedSections
-        const filteredSchedules = selectedSections.size === 0
-            ? allSchedules
-            : allSchedules.filter(schedule => selectedSections.has(schedule.section));
+        const filteredSchedules = applySectionFilter(allSchedules)
 
         // Convert time string (HH:MM) to decimal hours
         const timeToHours = (timeStr) => {
@@ -533,23 +546,28 @@ export default function Dashboard() {
         );
     }
 
+    function handleCourseChange(e) {
+      setActiveCourse(e.target.value);
+      setSelectedSections(new Set());
+    }
+  
+    function CourseSelector() {
+      return (
+          <select value={activeCourse} onChange={handleCourseChange}>
+              {trackedCourses.map((item, index) => (
+                  <option key={index} value={item.course}>
+                      {item.course}
+                  </option>
+              ))}
+          </select>
+      );
+    }
+
     function CourseSummary() {
         if (rankedSections.length === 0) {
             return (
-              <div className='summary-container'>
-                <h3>Course Summary</h3>
-                <div className='section-title-row'>
-                  <h3>Course Summary</h3>  
-                    <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
-                     {trackedCourses.map((item, index) => (
-                        <option key={index} value={item.course}>
-                          {item.course}
-                        </option>
-                      ))}
-                    </select>
-                </div>
-            </div>
-            );
+              <CourseSelector />
+            )
         }
 
         const bestSection = rankedSections[0];
@@ -570,13 +588,7 @@ export default function Dashboard() {
             <div className="summary-container">
                 <h3>Best Section</h3>
                 <div className="section-title-row">
-                  <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
-                   {trackedCourses.map((item, index) => (
-                      <option key={index} value={item.course}>
-                        {item.course}
-                      </option>
-                    ))}
-                  </select>
+                    <CourseSelector />
                   <button className="menu-item" onClick={() => navigate("/form")}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -613,7 +625,14 @@ export default function Dashboard() {
 
                 {rankedSections.length > 1 && (
                     <div className="all-sections">
-                        <h4>All Sections</h4>
+                        <div className='Sections-toggle'>
+                          <h4>All Sections</h4>
+                          <button 
+                          className='idk-yet'
+                          onClick={() => setShowLabTut(prev => !prev)}>
+                            {showLabTut ? 'Hide Lab/Tut' : 'Show Lab/Tut'}
+                          </button>
+                        </div>
                         {rankedSections.map((section, idx) => (
                             <div
                                 key={section.section}
@@ -687,8 +706,8 @@ export default function Dashboard() {
 
           <div className="main-content">
             <div className="top-section">
-              <CourseSummary />
-              <ScheduleGrid />
+              {isLoading ? <p>Loading Summary...</p>: <CourseSummary />}
+              {isLoading ? <p>Loading schedule...</p>: <ScheduleGrid />}
             </div>
 
             <div className="charts-row">
@@ -704,11 +723,11 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {renderChart()}
+                {isLoading ? <p>Loading...</p> : renderChart()}
               </div>
 
               <div className="chart-container">
-                {renderProfChart()}
+              {isLoading ? <p>Loading...</p> : renderProfChart()}
               </div>
             </div>
           </div>
