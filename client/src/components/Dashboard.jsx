@@ -556,7 +556,13 @@ export default function Dashboard() {
                                     §{section.section} {section.classType && `· ${section.classType}`} · {section.prof}
                                 </span>
                                 <span className="section-stats">
-                                    ⭐ {section.rating.toFixed(1)} · 📚 {section.difficulty.toFixed(1)}
+                                    ⭐ {section.rating.toFixed(1)} · 
+                                    📚 {section.difficulty.toFixed(1)} · 
+                                    {section.seats > 0
+                                        ? `💺 ${section.seats}`
+                                        : section.waitlist > 0
+                                            ? `⏳ ${section.waitlist}`
+                                            : '🚫'}
                                 </span>
                             </div>
                         ))}
