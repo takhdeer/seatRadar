@@ -29,7 +29,8 @@ router.get('/', async (req, res) => {
                 section: row.section_id,
                 days: row.days,
                 start: row.start_time,
-                end: row.end_time
+                end: row.end_time,
+                class_type: row.class_type
             };
         });
         
