@@ -12,13 +12,14 @@ export default function Dashboard() {
     const [profName, setProfName] = useState([])
     const [profMetrics, setProfMetrics] = useState([])
     const [trackedCourses, setTrackedCourses] = useState([])
-    const [activeCourse, setActveCourse] = useState()
+    const [activeCourse, setActiveCourse] = useState()
     const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
     const [rankedSections, setRankedSections] = useState([])
     const [courseSchedules, setCourseSchedules] = useState({}) // { section:,days:,start:,end:,subject:,courseNum:}
     const scheduleCache = useRef({}) // survives re-renders
     const [sectionColors, setSectionColors] = useState({}) // { section_id: color }
     const [selectedSections, setSelectedSections] = useState(new Set()) // sections to show in calendar
+    const [showAllCourses, setShowAllCourses] = useState(false);
 
     const navigate = useNavigate()
 
@@ -124,8 +125,9 @@ export default function Dashboard() {
     }, [activeCourse]) // dependency array for re-fetching on change
 
     useEffect(() => {
+        console.log(`Active Course: ${activeCourse}`)
         console.log(courseChart)
-    }, [courseChart])
+    }, [courseChart, activeCourse])
 
 
     useEffect(() => {
@@ -243,7 +245,7 @@ export default function Dashboard() {
             const data = await res.json();
             setTrackedCourses(data)
             const data2 = data[0].course
-            setActveCourse(data2)
+            setActiveCourse(data2)
         }
         getUserCourses()
     }, [])
@@ -378,22 +380,40 @@ export default function Dashboard() {
 
         // Collect all valid schedule entries across all tracked courses
         const allSchedules = [];
-        Object.entries(courseSchedules).forEach(([courseName, sections]) => {
-            if (!Array.isArray(sections)) return;
-
-            sections.forEach(section => {
+        const sections = courseSchedules[activeCourse]
+        if (showAllCourses) {
+          Object.entries(courseSchedules).forEach(([courseName, sections]) => {
+            if (!Array.isArray(sections)) return
+              sections.forEach(section =>{
                 if (section.days && section.start_time && section.end_time) {
-                    allSchedules.push({
-                        courseName,
-                        section: section.section,
-                        days: section.days,
-                        start: section.start_time,
-                        end: section.end_time,
-                        classType: section.classType
-                    });
+                  allSchedules.push({
+                    courseName,
+                    section: section.section,
+                    days: section.days,
+                    start: section.start_time,
+                    end: section.end_time,
+                    classType: section.classType
+                  })
                 }
+              }) 
+          })
+        }
+        else {
+          if (Array.isArray(sections)) {
+            sections.forEach(section => {
+              if (section.days && section.start_time && section.end_time) {
+                allSchedules.push({
+                  courseName: activeCourse,
+                  section: section.section,
+                  days: section.days,
+                  start: section.start_time,
+                  end: section.end_time,
+                  classType: section.classType
+                });
+              }
             });
-        });
+          }
+        }
 
         if (allSchedules.length === 0) {
             return null;
@@ -413,7 +433,15 @@ export default function Dashboard() {
 
         return (
             <div className="schedule-grid-container">
+              <div className='toggles'>
                 <h4>Weekly Schedule</h4>
+                <div className='toggle-right'>
+                  <h5>Currently Showing:</h5> 
+                  <button className='toggle-button'
+                  onClick={() => 
+                    setShowAllCourses(prev => !prev)}>{showAllCourses === true ? "All Courses" : "Selected Course"}</button>
+                </div>
+              </div>
                 <div className="schedule-grid">
                     <div className="time-labels">
                         <div className="corner-cell"></div>
@@ -472,7 +500,7 @@ export default function Dashboard() {
                 <h3>Course Summary</h3>
                 <div className='section-title-row'>
                   <h3>Course Summary</h3>  
-                    <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                    <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
                      {trackedCourses.map((item, index) => (
                         <option key={index} value={item.course}>
                           {item.course}
@@ -502,7 +530,7 @@ export default function Dashboard() {
             <div className="summary-container">
                 <h3>Best Section</h3>
                 <div className="section-title-row">
-                  <select value={activeCourse} onChange={(e) => setActveCourse(e.target.value)}>
+                  <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
                    {trackedCourses.map((item, index) => (
                       <option key={index} value={item.course}>
                         {item.course}
