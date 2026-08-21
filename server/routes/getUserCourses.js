@@ -16,7 +16,8 @@ router.get('/', async (req, res) => {
         );
         const course = result.rows.map( row => {
             return {
-                course: `${row.subject}${' '}${row.course_num}`
+                course: `${row.subject}${' '}${row.course_num}`,
+                term: row.term
             };
         });
         

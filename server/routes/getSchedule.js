@@ -16,13 +16,16 @@ router.get('/', async (req, res) => {
             [subject,courseNum]
         );
         const id = result.rows[0].id
+        const term = result.rows[0].term
         
         const result2 = await pool.query(
             `SELECT * FROM course_data WHERE (tracked_courses_id) = ($1)`, [id]
         );
         const scheduleData = result2.rows.map( row => {
             return {
-                course: `${subject} ${courseNum}`,
+                subject: subject,
+                courseNum: courseNum,
+                term: term,
                 section: row.section_id,
                 days: row.days,
                 start: row.start_time,

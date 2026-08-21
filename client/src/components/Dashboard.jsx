@@ -17,6 +17,8 @@ export default function Dashboard() {
     const [rankedSections, setRankedSections] = useState([])
     const [courseSchedules, setCourseSchedules] = useState({}) // { section:,days:,start:,end:,subject:,courseNum:}
     const scheduleCache = useRef({}) // survives re-renders
+    const [sectionColors, setSectionColors] = useState({}) // { section_id: color }
+    const [selectedSections, setSelectedSections] = useState(new Set()) // sections to show in calendar
 
     const navigate = useNavigate()
 
@@ -57,6 +59,9 @@ export default function Dashboard() {
             }
         
             const schedule = data.scheduleData.map(row => ({
+              subject: row.subject,
+              courseNum: row.courseNum,
+              term: row.term,
               section: row.section,
               days: row.days,
               start_time: row.start,
@@ -158,17 +163,17 @@ export default function Dashboard() {
           setRankedSections([]);
           return;
       }
-    
+
       const ranked = courseChart.map(section => {
               const sectionProf = profSections.find(
                   ps => String(ps.section_id) === String(section.section)
               );
               const profName = sectionProf?.prof;
-    
+
               const prof = profName && profMetrics.find(p =>
                   p.lastName && profName.toLowerCase().includes(p.lastName.toLowerCase())
               );
-    
+
               return {
                   section: section.section,
                   prof: profName || 'TBA',
@@ -185,8 +190,16 @@ export default function Dashboard() {
               if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
               return b.availabilityScore - a.availabilityScore;
           });
-    
+
       setRankedSections(ranked);
+
+      // Assign colors: best section gets green, others get unique colors
+      const colors = ['#6f9f7e', '#4f86b8', '#c9736b', '#d4a574', '#9b8fc9', '#6fb8b8', '#c98fb8', '#b8c96f'];
+      const colorMap = {};
+      ranked.forEach((section, idx) => {
+          colorMap[section.section] = colors[idx % colors.length];
+      });
+      setSectionColors(colorMap);
     }, [courseChart, profMetrics, profSections])
 
 
@@ -221,23 +234,23 @@ export default function Dashboard() {
         return (
             <ResponsiveContainer width='100%' height='80%'>
                 <BarChart data = {chartData}>
-                    <XAxis 
-                      dataKey = 'course' 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#ffffff' }}
+                    <XAxis
+                      dataKey = 'course'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#2e2b26' }}
                      />
-                    <YAxis 
-                      dataKey = 'total_seats' 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#ffff' }} 
+                    <YAxis
+                      dataKey = 'total_seats'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#2e2b26' }}
                     />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
-                    <Legend wrapperStyle={{ color: '#ffffff' }} />
-                    <Bar dataKey = 'seats' stackId='a' fill='#90EE90' name='Available' />
-                    <Bar dataKey='seatsTaken' stackId='a' fill='#FF474C' name='Taken' />
+                    <Legend wrapperStyle={{ color: '#2e2b26' }} />
+                    <Bar dataKey = 'seats' stackId='a' fill='#6f9f7e' name='Available' />
+                    <Bar dataKey='seatsTaken' stackId='a' fill='#c9736b' name='Taken' />
                 </BarChart>
             </ResponsiveContainer>
         )
@@ -247,22 +260,22 @@ export default function Dashboard() {
         return (
             <ResponsiveContainer width='100%' height='75%'>
                 <BarChart data = {chartData}>
-                    <XAxis 
-                      dataKey = 'course' 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#ffffff' }}
+                    <XAxis
+                      dataKey = 'course'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#2e2b26' }}
                     />
-                    <YAxis 
-                      dataKey = 'waitlist' 
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#ffffff' }}
+                    <YAxis
+                      dataKey = 'waitlist'
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#2e2b26' }}
                     />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
-                    <Bar dataKey = "waitlist" stackId='a' fill='#90EE90' name='Available' />
-                    <Bar dataKey = "waitlistTaken" stackId='a' fill='#FF474C' name='Taken' />
+                    <Bar dataKey = "waitlist" stackId='a' fill='#6f9f7e' name='Available' />
+                    <Bar dataKey = "waitlistTaken" stackId='a' fill='#c9736b' name='Taken' />
                 </BarChart>
             </ResponsiveContainer>
         )
@@ -274,50 +287,50 @@ export default function Dashboard() {
             <ScatterChart 
               margin={{ top: 20, right: 30, left: 20, bottom: 20}}
             >
-              <XAxis 
-                dataKey="avgDifficulty" 
+              <XAxis
+                dataKey="avgDifficulty"
                 type='number'
                 domain={[1,5]}
                 ticks={[1,2,3,4,5]}
-                name="Difficulty" 
-                axisLine={false} 
-                tickLine={false} tick={{ fill: '#ffffff' }} 
-                label={{ 
-                  value: 'Difficulty', 
-                  position: 'insideBottom', 
-                  offset: -10, 
-                  fill: '#ffffff' 
-                }} 
+                name="Difficulty"
+                axisLine={false}
+                tickLine={false} tick={{ fill: '#2e2b26' }}
+                label={{
+                  value: 'Difficulty',
+                  position: 'insideBottom',
+                  offset: -10,
+                  fill: '#2e2b26'
+                }}
               />
 
-              <YAxis 
-                dataKey="avgRating" 
+              <YAxis
+                dataKey="avgRating"
                 type='number'
                 domain={[1,5]}
                 ticks={[1,2,3,4,5]}
                 tickMargin={12}
-                name="Rating" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: '#ffffff' }} 
-                label={{ 
-                  value: 'Rating', 
-                  angle: -90, 
-                  position: 'insideLeft', 
+                name="Rating"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: '#2e2b26' }}
+                label={{
+                  value: 'Rating',
+                  angle: -90,
+                  position: 'insideLeft',
                   offset: 10,
-                  fill: '#ffffff' 
-                }} 
+                  fill: '#2e2b26'
+                }}
               />
 
               <Tooltip cursor={{ strokeDasharray: '3 3' }} />
 
               <CartesianGrid stroke="none" />
 
-              <Scatter data={chartData} fill="#4f9dde">
-                <LabelList 
+              <Scatter data={chartData} fill="#4f86b8">
+                <LabelList
                   dataKey='lastName'
                   position='top'
-                  fill='#ffffff' 
+                  fill='#2e2b26'
                 />
               </Scatter>
             </ScatterChart>
@@ -363,6 +376,11 @@ export default function Dashboard() {
             return null;
         }
 
+        // Filter schedules based on selectedSections
+        const filteredSchedules = selectedSections.size === 0
+            ? allSchedules
+            : allSchedules.filter(schedule => selectedSections.has(schedule.section));
+
         // Convert time string (HH:MM) to decimal hours
         const timeToHours = (timeStr) => {
           const hours = parseInt(timeStr.slice(0, -2), 10);
@@ -389,7 +407,7 @@ export default function Dashboard() {
                                 <div className="day-cells">
                                     {hours.map((hour, hourIdx) => (
                                         <div key={hourIdx} className="time-cell">
-                                            {allSchedules
+                                            {filteredSchedules
                                                 .filter(schedule => {
                                                     // Check if this day is included
                                                     if (!schedule.days.includes(day)) return false;
@@ -401,7 +419,11 @@ export default function Dashboard() {
                                                     return hour >= startHour && hour < endHour;
                                                 })
                                                 .map((schedule, idx) => (
-                                                    <div key={idx} className="course-block">
+                                                    <div
+                                                        key={idx}
+                                                        className="course-block"
+                                                        style={{ backgroundColor: sectionColors[schedule.section] || '#4f86b8' }}
+                                                    >
                                                         <span className="course-name">{schedule.courseName}</span>
                                                         <span className="course-section">§{schedule.section}</span>
                                                     </div>
@@ -423,38 +445,49 @@ export default function Dashboard() {
             return (
                 <div className="summary-container">
                     <h3>Course Summary</h3>
-                    <p>No professor ratings available for this course.</p>
-                    <ScheduleGrid />
+                    <p style={{ color: '#7a736a', fontSize: '13px' }}>No professor ratings available for this course.</p>
                 </div>
             );
         }
 
         const bestSection = rankedSections[0];
 
+        const toggleSection = (sectionId) => {
+            setSelectedSections(prev => {
+                const newSet = new Set(prev);
+                if (newSet.has(sectionId)) {
+                    newSet.delete(sectionId);
+                } else {
+                    newSet.add(sectionId);
+                }
+                return newSet;
+            });
+        };
+
         return (
             <div className="summary-container">
-                <h3>Best Section Recommendation</h3>
-                <div className="best-section">
+                <h3>Best Section</h3>
+                <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
-                        <span className="section-number">Section {bestSection.section}</span>
+                        <span className="section-number">§{bestSection.section}</span>
                         <span className="prof-name">{bestSection.prof}</span>
                     </div>
                     <div className="metrics-row">
                         <div className="metric">
                             <span className="metric-label">Rating</span>
-                            <span className="metric-value">{bestSection.rating.toFixed(1)}/5.0</span>
+                            <span className="metric-value">{bestSection.rating.toFixed(1)}/5</span>
                         </div>
                         <div className="metric">
                             <span className="metric-label">Difficulty</span>
-                            <span className="metric-value">{bestSection.difficulty.toFixed(1)}/5.0</span>
+                            <span className="metric-value">{bestSection.difficulty.toFixed(1)}/5</span>
                         </div>
                         <div className="metric">
-                            <span className="metric-label">Availability</span>
+                            <span className="metric-label">Seats</span>
                             <span className="metric-value">
                                 {bestSection.seats > 0
-                                    ? `${bestSection.seats} open seats`
+                                    ? `${bestSection.seats} open`
                                     : bestSection.waitlist > 0
-                                        ? `${bestSection.waitlist} waitlist spots`
+                                        ? `${bestSection.waitlist} wait`
                                         : 'Full'}
                             </span>
                         </div>
@@ -463,28 +496,29 @@ export default function Dashboard() {
 
                 {rankedSections.length > 1 && (
                     <div className="all-sections">
-                        <h4>All Sections Ranked</h4>
+                        <h4>All Sections</h4>
                         {rankedSections.map((section, idx) => (
-                            <div key={section.section} className="section-row">
+                            <div
+                                key={section.section}
+                                className="section-row"
+                                style={{
+                                    borderLeft: `4px solid ${sectionColors[section.section] || '#6f9f7e'}`,
+                                    opacity: selectedSections.size === 0 || selectedSections.has(section.section) ? 1 : 0.4,
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => toggleSection(section.section)}
+                            >
                                 <span className="rank">#{idx + 1}</span>
                                 <span className="section-info">
-                                    Section {section.section} - {section.prof}
+                                    §{section.section} · {section.prof}
                                 </span>
                                 <span className="section-stats">
-                                    ⭐ {section.rating.toFixed(1)} |
-                                    📚 {section.difficulty.toFixed(1)} |
-                                    {section.seats > 0
-                                        ? `💺 ${section.seats}`
-                                        : section.waitlist > 0
-                                            ? `⏳ ${section.waitlist}`
-                                            : '🚫'}
+                                    ⭐ {section.rating.toFixed(1)} · 📚 {section.difficulty.toFixed(1)}
                                 </span>
                             </div>
                         ))}
                     </div>
                 )}
-
-                <ScheduleGrid />
             </div>
         );
     }
@@ -529,6 +563,11 @@ export default function Dashboard() {
           </aside>
 
           <div className="main-content">
+            <div className="top-section">
+              <CourseSummary />
+              <ScheduleGrid />
+            </div>
+
             <div className="charts-row">
               <div className="chart-container">
                 <div className="chart-header">
@@ -559,8 +598,6 @@ export default function Dashboard() {
                 <ProfRatingChart chartData={profMetrics} />
               </div>
             </div>
-
-            <CourseSummary />
           </div>
         </div>
       </>
