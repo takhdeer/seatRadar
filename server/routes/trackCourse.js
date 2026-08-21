@@ -25,8 +25,9 @@ async function insertCourseData(courseData, subject, courseNum) {
                     total_waitlist,
                     days,
                     start_time,
-                    end_time)
-                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+                    end_time,
+                    class_type)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
                     ON CONFLICT (tracked_courses_id, section_id) 
                     DO UPDATE SET 
                         total_count = EXCLUDED.total_count,
@@ -37,6 +38,7 @@ async function insertCourseData(courseData, subject, courseNum) {
                         days = EXCLUDED.days,
                         start_time = EXCLUDED.start_time,
                         end_time = EXCLUDED.end_time,
+                        class_type = EXCLUDED.class_type,
                         last_checked = now()`,
                     [
                         id,
@@ -48,7 +50,8 @@ async function insertCourseData(courseData, subject, courseNum) {
                         section.total_waitlist,
                         section.days,
                         section.start,
-                        section.end
+                        section.end,
+                        section.class_type
                     ]
             );
             console.log(`Course Saved in database`)

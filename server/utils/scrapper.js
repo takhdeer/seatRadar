@@ -63,7 +63,8 @@ function parseJSON(courseData) {
             prof: section.faculty[0]?.displayName || 'TBA',
             days: meeting ? getMeetingDays(meeting): '',
             start: meeting.beginTime || null,
-            end: meeting.endTime || null
+            end: meeting.endTime || null,
+            class_type: section.scheduleTypeDescription
         });
 
     });
