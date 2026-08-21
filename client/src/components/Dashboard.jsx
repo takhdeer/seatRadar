@@ -17,8 +17,8 @@ export default function Dashboard() {
     const [rankedSections, setRankedSections] = useState([])
     const [courseSchedules, setCourseSchedules] = useState({}) // { section:,days:,start:,end:,subject:,courseNum:}
     const scheduleCache = useRef({}) // survives re-renders
-    const [sectionColors, setSectionColors] = useState({}) // { section_id: color }
-    const [selectedSections, setSelectedSections] = useState(new Set()) // sections to show in calendar
+    const [sectionColors, setSectionColors] = useState({}) 
+    const [selectedSections, setSelectedSections] = useState(new Set())
     const [showAllCourses, setShowAllCourses] = useState(false);
 
     const navigate = useNavigate()
@@ -363,15 +363,55 @@ export default function Dashboard() {
     }
 
     function renderChart() {
+      if (selectedSections.size === 0) {
         if (activeChart === 'seats') {
-            return (
-                <SeatsChart chartData={courseChart} />
-            )
+          return (
+            <SeatsChart chartData={courseChart} />
+          )
         } else {
-            return (
-                <WaitlistChart chartData={courseChart} />
-            )
+          return (
+            <WaitlistChart chartData={courseChart} />
+          )
         }
+      }
+      else {
+        const sectionData = courseChart.filter(c => selectedSections.has(c.section))
+        if (activeChart === 'seats') {
+          return (
+            <SeatsChart chartData={sectionData} />
+          )
+        } else {
+          return (
+            <WaitlistChart chartData={sectionData} />
+          )
+        }
+      }
+    }
+
+    function renderProfChart() {
+      if (selectedSections.size === 0) {
+        return (
+          <ProfRatingChart chartData={profMetrics} />
+        )
+      }
+      if (profName.length === 0) {
+        return (
+          <h3>No Prof available for this section</h3>
+        )
+      }
+      if (profName.length === 1) {
+        return (
+          <ProfRatingChart chartData={profMetrics} />
+        )
+      }
+      else {
+        const sectionProfs = profSections.filter(ps => selectedSections.has(ps.section_id));
+        const profLastNames = sectionProfs.map(sp => sp.prof);
+        const filteredMetrics = profMetrics.filter(pm => profLastNames.some(name => name.toLowerCase().includes(pm.lastName.toLowerCase())));
+        return (
+          <ProfRatingChart chartData={filteredMetrics} />
+        )
+      }
     }
 
     function ScheduleGrid() {
@@ -668,7 +708,7 @@ export default function Dashboard() {
               </div>
 
               <div className="chart-container">
-                <ProfRatingChart chartData={profMetrics} />
+                {renderProfChart()}
               </div>
             </div>
           </div>
