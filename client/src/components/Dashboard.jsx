@@ -30,6 +30,17 @@ export default function Dashboard() {
 
     const navigate = useNavigate()
     // Sync schedules whenever the set of tracked courses changes
+
+    function assignSectionColors(sectionIds) {
+      // Assign colors: best section gets green, others get unique colors
+      const colors = ['#6f9f7e', '#4f86b8', '#c9736b', '#d4a574', '#9b8fc9', '#6fb8b8', '#c98fb8', '#b8c96f'];
+      const colorMap = {};
+      sectionIds.forEach((id, idx) => {
+        colorMap[id] = colors[idx % colors.length];
+      });
+      return colorMap
+    }
+    
     useEffect(() => {
       if (trackedCourses.length === 0) return;
 
@@ -225,16 +236,9 @@ export default function Dashboard() {
             if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
             return b.availabilityScore - a.availabilityScore;
           });
-
+      
       setRankedSections(ranked);
-
-      // Assign colors: best section gets green, others get unique colors
-      const colors = ['#6f9f7e', '#4f86b8', '#c9736b', '#d4a574', '#9b8fc9', '#6fb8b8', '#c98fb8', '#b8c96f'];
-      const colorMap = {};
-      ranked.forEach((section, idx) => {
-          colorMap[section.section] = colors[idx % colors.length];
-      });
-      setSectionColors(colorMap);
+      setSectionColors(assignSectionColors(ranked.map(s => s.section)));
       setIsLoading(false)
     }, [courseChart, profMetrics, profSections])
 
@@ -504,6 +508,12 @@ export default function Dashboard() {
         const days = ['M', 'T', 'W', 'R', 'F'];
         const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
 
+        const allCoursesColor = showAllCourses
+          ? assignSectionColors(savedSchedule.map(s => s.section))
+          : {};
+
+          const activeColorMap = showAllCourses ? allCoursesColor : sectionColors
+
         // Collect all valid schedule entries across all tracked courses
         const allSchedules = [];
         const sections = courseSchedules[activeCourse]
@@ -604,7 +614,7 @@ export default function Dashboard() {
                                                     <div
                                                         key={idx}
                                                         className="course-block"
-                                                        style={{ backgroundColor: sectionColors[schedule.section] || '#4f86b8' }}
+                                                        style={{ backgroundColor: activeColorMap[schedule.section] || '#4f86b8' }}
                                                     >
                                                         <span className="course-name">{schedule.courseName}</span>
                                                         <span className="course-section">
