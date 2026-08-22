@@ -21,7 +21,7 @@ export default function Dashboard() {
     const scheduleCache = useRef({}) // survives re-renders
     const [sectionColors, setSectionColors] = useState({}) 
     const [selectedSections, setSelectedSections] = useState(new Set())
-    const [showAllCourses, setShowAllCourses] = useState(false);
+    const [showAllCourses, setShowAllCourses] = useState(true);
     const [showLabTut, setShowLabTut] = useState(true)
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(null);
@@ -458,8 +458,34 @@ export default function Dashboard() {
       console.log(data);
       setMessage(data.message)
       setShowOverlay(true)
+
+      refreshSavedSchedule()
+
       if (!res.ok) {
         console.error('Save failed:', data.error);
+        setMessage('Save failed')
+        setShowOverlay(true)
+      }
+    }
+
+    async function deleteSavedSelection(course) {
+      const res = await fetch(`http://localhost:3001/api/delSections?userId=${userId}&course=${course}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    
+      const data = await res.json();
+      console.log(data.message)
+      setMessage(data.message)
+      setShowOverlay(true)
+
+      refreshSavedSchedule()
+    
+      if (!res.ok) {
+        console.error('Delete failed:', data.error);
+        setMessage('Delete failed')
+        setShowOverlay(true)
+        return;
       }
     }
 
@@ -593,7 +619,8 @@ export default function Dashboard() {
     const { 
       schedule: savedSchedule,
       loading: savedLoading,
-      error: savedError } = useSavedSchedule(userId);
+      error: savedError,
+      refreshSavedSchedule } = useSavedSchedule(userId);
 
     function loadSavedSchedule() {
       if (savedSchedule.length === 0) return;
@@ -671,12 +698,6 @@ export default function Dashboard() {
                     </svg>
                     Add Course
                     </button>
-                    <button className="menu-item" onClick={() => saveSelection(activeCourse)}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    Save Course
-                    </button>
                  </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
@@ -707,9 +728,21 @@ export default function Dashboard() {
 
                 {rankedSections.length > 1 && (
                     <div className="all-sections">
-                        <div className='Sections-toggle'>
-                          <h4>All Sections</h4>
-                          <button 
+                      <h4>All Sections</h4>
+                        <div className='section-title-row'>
+                          <button className="menu-item" onClick={() => saveSelection(activeCourse)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Save Section
+                         </button>
+                         <button className="menu-item" onClick={() => deleteSavedSelection(activeCourse)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Remove Section
+                         </button>
+                         <button 
                           className='idk-yet'
                           onClick={() => setShowLabTut(prev => !prev)}>
                             {showLabTut ? 'Hide Lab/Tut' : 'Show Lab/Tut'}
