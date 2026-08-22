@@ -33,8 +33,8 @@ function useSavedSchedule(userId) {
           section: entry.section_id,
           classType: entry.class_type,
           days: entry.days,
-          start: entry.start_time,
-          end: entry.end_time,
+          start_time: entry.start_time,
+          end_time: entry.end_time,
         })));
 
         setError(null);

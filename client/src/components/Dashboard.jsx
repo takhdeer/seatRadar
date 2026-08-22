@@ -217,11 +217,13 @@ export default function Dashboard() {
                   classType: classTypeShort
               };
           })
-          .filter(item => item.rating !== null && item.difficulty !== null)
           .sort((a, b) => {
-              if (b.rating !== a.rating) return b.rating - a.rating;
-              if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
-              return b.availabilityScore - a.availabilityScore;
+            if (a.rating === null && b.rating === null) return 0;
+            if (a.rating === null) return 1;
+            if (b.rating === null) return -1;
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
+            return b.availabilityScore - a.availabilityScore;
           });
 
       setRankedSections(ranked);
@@ -489,6 +491,15 @@ export default function Dashboard() {
       }
     }
 
+    function getTBASections() {
+      const knownProfSections = new Set(profSections.map(ps => String(ps.section_id)));
+      return new Set(
+          courseChart
+              .map(s => String(s.section))
+              .filter(sectionId => !knownProfSections.has(sectionId))
+      );
+  }
+
     function ScheduleGrid() {
         const days = ['M', 'T', 'W', 'R', 'F'];
         const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
@@ -502,8 +513,8 @@ export default function Dashboard() {
               courseName: section.courseName,
               section: section.section,
               days: section.days,
-              start: section.start,
-              end: section.end,
+              start: section.start_time,
+              end: section.end_time,
               classType: section.classType
             });
           });
@@ -530,7 +541,9 @@ export default function Dashboard() {
         }
 
         // Filter schedules based on selectedSections
-        const filteredSchedules = applySectionFilter(allSchedules)
+        const filteredSchedules = showAllCourses 
+        ? allSchedules
+        : applySectionFilter(allSchedules)
 
         // Convert time string (HH:MM) to decimal hours
         const timeToHours = (timeStr) => {
@@ -547,7 +560,7 @@ export default function Dashboard() {
                   <h5>Currently Showing:</h5> 
                   <button className='toggle-button'
                   onClick={() => handleScheduleViewToggle()}>
-                      {showAllCourses ? "All Courses" : "Selected Course"}
+                      {showAllCourses ? "All Courses" : "Selected Section"}
                   </button>
                 </div>
               </div>
@@ -595,7 +608,7 @@ export default function Dashboard() {
                                                     >
                                                         <span className="course-name">{schedule.courseName}</span>
                                                         <span className="course-section">
-                                                            §{schedule.section} {schedule.classType && `· ${schedule.classType}`}
+                                                            {schedule.section} {schedule.classType && `· ${schedule.classType}`}
                                                         </span>
                                                     </div>
                                                 ))
@@ -621,37 +634,18 @@ export default function Dashboard() {
       loading: savedLoading,
       error: savedError,
       refreshSavedSchedule } = useSavedSchedule(userId);
-
-    function loadSavedSchedule() {
-      if (savedSchedule.length === 0) return;
-    
-      const grouped = {};
-    
-      savedSchedule.forEach(({ courseName, ...rest }) => {
-        if (!grouped[courseName]) grouped[courseName] = [];
-        grouped[courseName].push(rest);
-      });
-    
-      scheduleCache.current = {
-        ...scheduleCache.current,
-        ...grouped
-      };
-    
-      setCourseSchedules({ ...scheduleCache.current });
-      setSelectedSections(new Set(savedSchedule.map(s => s.section)));
-    }
     
     function handleScheduleViewToggle() {
-      const willShowAllCourses = !showAllCourses;
+      setShowAllCourses(prev => {
+        const willShowAllCourses = !prev;
     
-      setShowAllCourses(willShowAllCourses);
+        // Reset section filtering only when returning to the active course.
+        if (!willShowAllCourses) {
+          setSelectedSections(new Set());
+        }
     
-      if (willShowAllCourses && !savedLoading && !savedError) {
-        loadSavedSchedule();
-      }
-      if (!savedLoading && !savedError) {
-        setSelectedSections(new Set());
-      }
+        return willShowAllCourses;
+      });
     }
   
     function CourseSelector() {
@@ -701,17 +695,18 @@ export default function Dashboard() {
                  </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
-                        <span className="section-number">§{bestSection.section}</span>
+                        <span className="section-number">{bestSection.section}</span>
                         <span className="prof-name">{bestSection.prof}</span>
                     </div>
                     <div className="metrics-row">
                         <div className="metric">
                             <span className="metric-label">Rating</span>
-                            <span className="metric-value">{bestSection.rating.toFixed(1)}/5</span>
+                            <span className="metric-value">{bestSection.rating !== null ? `${bestSection.rating.toFixed(1)}/5` : 'TBA'}</span>
                         </div>
                         <div className="metric">
                             <span className="metric-label">Difficulty</span>
-                            <span className="metric-value">{bestSection.difficulty.toFixed(1)}/5</span>
+                            <span className="metric-value">{bestSection.difficulty !== null ? `${bestSection.difficulty.toFixed(1)}/5` : 'TBA'}</span>
+
                         </div>
                         <div className="metric">
                             <span className="metric-label">Seats</span>
@@ -761,11 +756,11 @@ export default function Dashboard() {
                             >
                                 <span className="rank">#{idx + 1}</span>
                                 <span className="section-info">
-                                    §{section.section} {section.classType && `· ${section.classType}`} · {section.prof}
+                                    {section.section} {section.classType && `· ${section.classType}`} · {section.prof || 'Professor TBA'}
                                 </span>
                                 <span className="section-stats">
-                                    ⭐ {section.rating.toFixed(1)} · 
-                                    📚 {section.difficulty.toFixed(1)} · 
+                                    {section.rating !== null ? `⭐ ${section.rating.toFixed(1)} · `: `⭐ Prof TBA · `} 
+                                    {section.difficulty !== null ? `📚 ${section.difficulty.toFixed(1)} · ` : '📚 · '}
                                     {section.seats > 0
                                         ? `💺 ${section.seats}`
                                         : section.waitlist > 0
