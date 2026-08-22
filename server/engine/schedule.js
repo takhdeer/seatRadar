@@ -1,5 +1,5 @@
-import cron from "node-cron";
-const runEngineRetry = require('./runEngineRetry')
+const cron = require('node-cron');
+const { runEngineRetry } = require('./runEngineRetry');
 
 const MAX_ATTEMPTS = 3
 const BASE_DELAY = 500

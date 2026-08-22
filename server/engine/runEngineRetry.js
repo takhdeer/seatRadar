@@ -1,4 +1,4 @@
-const runCoreEngine = require('./core-engine')
+const { runCoreEngine } = require('./core-engine')
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
