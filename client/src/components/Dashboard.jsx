@@ -565,12 +565,19 @@ export default function Dashboard() {
         return (
             <div className="schedule-grid-container">
               <div className='toggles'>
-                <h4>Weekly Schedule</h4>
+                <div>
+                  <h4>Weekly Schedule</h4>
+                  <div className='btnLabel'>
+                    <h5>Viewing:</h5> 
+                    <button className='toggle-button'
+                    onClick={() => handleScheduleViewToggle()}>
+                        {showAllCourses ? "Saved Sections" : "All Sections"}
+                    </button>
+                  </div>
+                </div>
                 <div className='toggle-right'>
-                  <h5>Viewing:</h5> 
-                  <button className='toggle-button'
-                  onClick={() => handleScheduleViewToggle()}>
-                      {showAllCourses ? "Saved Sections" : "All Sections"}
+                  <button className="logout-btn" onClick={() => handleLogOut()}>
+                    Log out
                   </button>
                 </div>
               </div>
@@ -800,32 +807,6 @@ export default function Dashboard() {
     return (
       <>
         <div className="dashboard-container">
-          <aside className="sidebar">
-            <div className="sidebar-content">
-              <div className="sidebar-menu">
-                <button className="menu-item active">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Dashboard
-                </button>   
-
-                <button className="menu-item" onClick={() => navigate("/form")}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Course
-                </button>
-              </div>
-            </div>
-
-            <div className="sidebar-footer">
-              <button className="logout-btn" onClick={() => handleLogOut()}>
-                Log out
-              </button>
-            </div>
-          </aside>
-
           <div className="main-content">
             <div className="top-section">
               {isLoading ? <p>Loading Summary...</p>: <CourseSummary />}

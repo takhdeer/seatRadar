@@ -449,4 +449,11 @@
     font-weight: 500;
     cursor: pointer;
     transition: border-color 0.15s ease;
+    line-height: 1;
 }
+
+.btnLabel{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+} 
