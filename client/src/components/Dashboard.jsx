@@ -4,6 +4,7 @@ import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext';
+import useSavedSchedule from '../utils/savedSchedule';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -23,11 +24,11 @@ export default function Dashboard() {
     const [showAllCourses, setShowAllCourses] = useState(false);
     const [showLabTut, setShowLabTut] = useState(true)
     const [isLoading, setIsLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
     const { setShowOverlay, setMessage } = useOverlay()
 
 
     const navigate = useNavigate()
-
     // Sync schedules whenever the set of tracked courses changes
     useEffect(() => {
       if (trackedCourses.length === 0) return;
@@ -242,6 +243,7 @@ export default function Dashboard() {
 
             if (user) {
                 console.log('Current user Found')
+                setUserId(user.id)
             }
             else {
                 console.log('User not found')
@@ -469,21 +471,16 @@ export default function Dashboard() {
         const allSchedules = [];
         const sections = courseSchedules[activeCourse]
         if (showAllCourses) {
-          Object.entries(courseSchedules).forEach(([courseName, sections]) => {
-            if (!Array.isArray(sections)) return
-              sections.forEach(section =>{
-                if (section.days && section.start_time && section.end_time) {
-                  allSchedules.push({
-                    courseName,
-                    section: section.section,
-                    days: section.days,
-                    start: section.start_time,
-                    end: section.end_time,
-                    classType: section.classType
-                  })
-                }
-              }) 
-          })
+          savedSchedule.forEach(section => {
+            allSchedules.push({
+              courseName: section.courseName,
+              section: section.section,
+              days: section.days,
+              start: section.start,
+              end: section.end,
+              classType: section.classType
+            });
+          });
         }
         else {
           if (Array.isArray(sections)) {
@@ -523,10 +520,20 @@ export default function Dashboard() {
                 <div className='toggle-right'>
                   <h5>Currently Showing:</h5> 
                   <button className='toggle-button'
-                  onClick={() => 
-                    setShowAllCourses(prev => !prev)}>{showAllCourses === true ? "All Courses" : "Selected Course"}</button>
+                  onClick={() => handleScheduleViewToggle()}>
+                      {showAllCourses ? "All Courses" : "Selected Course"}
+                  </button>
                 </div>
               </div>
+              
+              {showAllCourses && savedLoading && (
+                <p>Loading your Saved Schedule</p>
+              )}
+
+              {showAllCourses && savedError && (
+                <p role='alert'>{savedError}</p>
+              )}
+
                 <div className="schedule-grid">
                     <div className="time-labels">
                         <div className="corner-cell"></div>
@@ -581,6 +588,43 @@ export default function Dashboard() {
     function handleCourseChange(e) {
       setActiveCourse(e.target.value);
       setSelectedSections(new Set());
+    }
+
+    const { 
+      schedule: savedSchedule,
+      loading: savedLoading,
+      error: savedError } = useSavedSchedule(userId);
+
+    function loadSavedSchedule() {
+      if (savedSchedule.length === 0) return;
+    
+      const grouped = {};
+    
+      savedSchedule.forEach(({ courseName, ...rest }) => {
+        if (!grouped[courseName]) grouped[courseName] = [];
+        grouped[courseName].push(rest);
+      });
+    
+      scheduleCache.current = {
+        ...scheduleCache.current,
+        ...grouped
+      };
+    
+      setCourseSchedules({ ...scheduleCache.current });
+      setSelectedSections(new Set(savedSchedule.map(s => s.section)));
+    }
+    
+    function handleScheduleViewToggle() {
+      const willShowAllCourses = !showAllCourses;
+    
+      setShowAllCourses(willShowAllCourses);
+    
+      if (willShowAllCourses && !savedLoading && !savedError) {
+        loadSavedSchedule();
+      }
+      if (!savedLoading && !savedError) {
+        setSelectedSections(new Set());
+      }
     }
   
     function CourseSelector() {
