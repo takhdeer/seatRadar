@@ -34,7 +34,7 @@
   :root {
     --text: #9ca3af;
     --text-h: #f3f4f6;
-    --bg: #16171d;
+    --bg: #f7f4ef;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
@@ -58,10 +58,7 @@
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(12, 35, 64, 0.9), transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(26, 74, 122, 0.4), transparent 50%),
-    #030303;
+  background: #f7f4ef;
 }
 
 .buttons{
