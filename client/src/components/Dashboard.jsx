@@ -30,6 +30,17 @@ export default function Dashboard() {
 
     const navigate = useNavigate()
     // Sync schedules whenever the set of tracked courses changes
+
+    function assignSectionColors(sectionIds) {
+      // Assign colors: best section gets green, others get unique colors
+      const colors = ['#6f9f7e', '#4f86b8', '#c9736b', '#d4a574', '#9b8fc9', '#6fb8b8', '#c98fb8', '#b8c96f'];
+      const colorMap = {};
+      sectionIds.forEach((id, idx) => {
+        colorMap[id] = colors[idx % colors.length];
+      });
+      return colorMap
+    }
+
     useEffect(() => {
       if (trackedCourses.length === 0) return;
 
@@ -217,22 +228,17 @@ export default function Dashboard() {
                   classType: classTypeShort
               };
           })
-          .filter(item => item.rating !== null && item.difficulty !== null)
           .sort((a, b) => {
-              if (b.rating !== a.rating) return b.rating - a.rating;
-              if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
-              return b.availabilityScore - a.availabilityScore;
+            if (a.rating === null && b.rating === null) return 0;
+            if (a.rating === null) return 1;
+            if (b.rating === null) return -1;
+            if (b.rating !== a.rating) return b.rating - a.rating;
+            if (a.difficulty !== b.difficulty) return a.difficulty - b.difficulty;
+            return b.availabilityScore - a.availabilityScore;
           });
-
+      
       setRankedSections(ranked);
-
-      // Assign colors: best section gets green, others get unique colors
-      const colors = ['#6f9f7e', '#4f86b8', '#c9736b', '#d4a574', '#9b8fc9', '#6fb8b8', '#c98fb8', '#b8c96f'];
-      const colorMap = {};
-      ranked.forEach((section, idx) => {
-          colorMap[section.section] = colors[idx % colors.length];
-      });
-      setSectionColors(colorMap);
+      setSectionColors(assignSectionColors(ranked.map(s => s.section)));
       setIsLoading(false)
     }, [courseChart, profMetrics, profSections])
 
@@ -489,9 +495,24 @@ export default function Dashboard() {
       }
     }
 
+    function getTBASections() {
+      const knownProfSections = new Set(profSections.map(ps => String(ps.section_id)));
+      return new Set(
+          courseChart
+              .map(s => String(s.section))
+              .filter(sectionId => !knownProfSections.has(sectionId))
+      );
+  }
+
     function ScheduleGrid() {
         const days = ['M', 'T', 'W', 'R', 'F'];
         const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
+
+        const allCoursesColor = showAllCourses
+          ? assignSectionColors(savedSchedule.map(s => s.section))
+          : {};
+
+          const activeColorMap = showAllCourses ? allCoursesColor : sectionColors
 
         // Collect all valid schedule entries across all tracked courses
         const allSchedules = [];
@@ -502,8 +523,8 @@ export default function Dashboard() {
               courseName: section.courseName,
               section: section.section,
               days: section.days,
-              start: section.start,
-              end: section.end,
+              start: section.start_time,
+              end: section.end_time,
               classType: section.classType
             });
           });
@@ -530,7 +551,9 @@ export default function Dashboard() {
         }
 
         // Filter schedules based on selectedSections
-        const filteredSchedules = applySectionFilter(allSchedules)
+        const filteredSchedules = showAllCourses 
+        ? allSchedules
+        : applySectionFilter(allSchedules)
 
         // Convert time string (HH:MM) to decimal hours
         const timeToHours = (timeStr) => {
@@ -542,12 +565,19 @@ export default function Dashboard() {
         return (
             <div className="schedule-grid-container">
               <div className='toggles'>
-                <h4>Weekly Schedule</h4>
+                <div>
+                  <h4>Weekly Schedule</h4>
+                  <div className='btnLabel'>
+                    <h5>Viewing:</h5> 
+                    <button className='toggle-button'
+                    onClick={() => handleScheduleViewToggle()}>
+                        {showAllCourses ? "Saved Sections" : "All Sections"}
+                    </button>
+                  </div>
+                </div>
                 <div className='toggle-right'>
-                  <h5>Currently Showing:</h5> 
-                  <button className='toggle-button'
-                  onClick={() => handleScheduleViewToggle()}>
-                      {showAllCourses ? "All Courses" : "Selected Course"}
+                  <button className="logout-btn" onClick={() => handleLogOut()}>
+                    Log out
                   </button>
                 </div>
               </div>
@@ -591,11 +621,11 @@ export default function Dashboard() {
                                                     <div
                                                         key={idx}
                                                         className="course-block"
-                                                        style={{ backgroundColor: sectionColors[schedule.section] || '#4f86b8' }}
+                                                        style={{ backgroundColor: activeColorMap[schedule.section] || '#4f86b8' }}
                                                     >
                                                         <span className="course-name">{schedule.courseName}</span>
                                                         <span className="course-section">
-                                                            §{schedule.section} {schedule.classType && `· ${schedule.classType}`}
+                                                            {schedule.section} {schedule.classType && `· ${schedule.classType}`}
                                                         </span>
                                                     </div>
                                                 ))
@@ -621,37 +651,18 @@ export default function Dashboard() {
       loading: savedLoading,
       error: savedError,
       refreshSavedSchedule } = useSavedSchedule(userId);
-
-    function loadSavedSchedule() {
-      if (savedSchedule.length === 0) return;
-    
-      const grouped = {};
-    
-      savedSchedule.forEach(({ courseName, ...rest }) => {
-        if (!grouped[courseName]) grouped[courseName] = [];
-        grouped[courseName].push(rest);
-      });
-    
-      scheduleCache.current = {
-        ...scheduleCache.current,
-        ...grouped
-      };
-    
-      setCourseSchedules({ ...scheduleCache.current });
-      setSelectedSections(new Set(savedSchedule.map(s => s.section)));
-    }
     
     function handleScheduleViewToggle() {
-      const willShowAllCourses = !showAllCourses;
+      setShowAllCourses(prev => {
+        const willShowAllCourses = !prev;
     
-      setShowAllCourses(willShowAllCourses);
+        // Reset section filtering only when returning to the active course.
+        if (!willShowAllCourses) {
+          setSelectedSections(new Set());
+        }
     
-      if (willShowAllCourses && !savedLoading && !savedError) {
-        loadSavedSchedule();
-      }
-      if (!savedLoading && !savedError) {
-        setSelectedSections(new Set());
-      }
+        return willShowAllCourses;
+      });
     }
   
     function CourseSelector() {
@@ -701,17 +712,18 @@ export default function Dashboard() {
                  </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
-                        <span className="section-number">§{bestSection.section}</span>
+                        <span className="section-number">{bestSection.section}</span>
                         <span className="prof-name">{bestSection.prof}</span>
                     </div>
                     <div className="metrics-row">
                         <div className="metric">
                             <span className="metric-label">Rating</span>
-                            <span className="metric-value">{bestSection.rating.toFixed(1)}/5</span>
+                            <span className="metric-value">{bestSection.rating !== null ? `${bestSection.rating.toFixed(1)}/5` : 'TBA'}</span>
                         </div>
                         <div className="metric">
                             <span className="metric-label">Difficulty</span>
-                            <span className="metric-value">{bestSection.difficulty.toFixed(1)}/5</span>
+                            <span className="metric-value">{bestSection.difficulty !== null ? `${bestSection.difficulty.toFixed(1)}/5` : 'TBA'}</span>
+
                         </div>
                         <div className="metric">
                             <span className="metric-label">Seats</span>
@@ -732,21 +744,23 @@ export default function Dashboard() {
                         <div className='section-title-row'>
                           <button className="menu-item" onClick={() => saveSelection(activeCourse)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z" />
                             </svg>
                             Save Section
                          </button>
                          <button className="menu-item" onClick={() => deleteSavedSelection(activeCourse)}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                             </svg>
                             Remove Section
                          </button>
-                         <button 
-                          className='idk-yet'
-                          onClick={() => setShowLabTut(prev => !prev)}>
-                            {showLabTut ? 'Hide Lab/Tut' : 'Show Lab/Tut'}
-                          </button>
+                         {!showAllCourses && (
+                            <button 
+                            className='idk-yet'
+                            onClick={() => setShowLabTut(prev => !prev)}>
+                              {showLabTut ? 'Hide Lab/Tut' : 'Show Lab/Tut'}
+                            </button>
+                          )}
                         </div>
                         {rankedSections.map((section, idx) => (
                             <div
@@ -761,11 +775,11 @@ export default function Dashboard() {
                             >
                                 <span className="rank">#{idx + 1}</span>
                                 <span className="section-info">
-                                    §{section.section} {section.classType && `· ${section.classType}`} · {section.prof}
+                                    {section.section} {section.classType && `· ${section.classType}`} · {section.prof || 'Professor TBA'}
                                 </span>
                                 <span className="section-stats">
-                                    ⭐ {section.rating.toFixed(1)} · 
-                                    📚 {section.difficulty.toFixed(1)} · 
+                                    {section.rating !== null ? `⭐ ${section.rating.toFixed(1)} · `: `⭐ Prof TBA · `} 
+                                    {section.difficulty !== null ? `📚 ${section.difficulty.toFixed(1)} · ` : '📚 · '}
                                     {section.seats > 0
                                         ? `💺 ${section.seats}`
                                         : section.waitlist > 0
@@ -793,32 +807,6 @@ export default function Dashboard() {
     return (
       <>
         <div className="dashboard-container">
-          <aside className="sidebar">
-            <div className="sidebar-content">
-              <div className="sidebar-menu">
-                <button className="menu-item active">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  Dashboard
-                </button>   
-
-                <button className="menu-item" onClick={() => navigate("/form")}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Course
-                </button>
-              </div>
-            </div>
-
-            <div className="sidebar-footer">
-              <button className="logout-btn" onClick={() => handleLogOut()}>
-                Log out
-              </button>
-            </div>
-          </aside>
-
           <div className="main-content">
             <div className="top-section">
               {isLoading ? <p>Loading Summary...</p>: <CourseSummary />}
