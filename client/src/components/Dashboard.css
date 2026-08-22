@@ -1,37 +1,14 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
 .dashboard-container {
     display: flex;
-    min-height: 100vh;
+    min-height: 0;
     background-color: #f7f4ef;
-}
-
-.sidebar {
-    width: 160px;
-    min-width: 160px;
-    background-color: #ffffff;
-    border-right: 1px solid #e6e0d6;
-    display: flex;
-    flex-direction: column;
-    padding: 24px 0;
-    /*
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    */
-}
-
-.sidebar-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-menu {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 0 12px;
+    overflow: hidden;
+    min-height: 0;
 }
 
 .menu-item {
@@ -66,10 +43,6 @@
     flex-shrink: 0;
 }
 
-.sidebar-footer {
-    padding: 12px;
-    border-top: 1px solid #e6e0d6;
-}
 
 .logout-btn {
     width: 100%;
@@ -96,7 +69,9 @@
     padding: 24px;
     overflow-y: auto;
     display: flex;
+    min-height: 0;
     flex-direction: column;
+    min-width: 0;
 }
 
 .top-section {
@@ -104,7 +79,9 @@
     gap: 24px;
     margin-bottom: 32px;
     align-items: flex-start;
-    min-height: calc(100vh - 48px);
+    flex-wrap: wrap;
+    min-width: 0;
+    min-height: 0;
 }
 
 .charts-row {
@@ -167,6 +144,7 @@
 
 .summary-container {
     width: 380px;
+    max-width: 100%;
     min-width: 380px;
     background-color: #ffffff;
     border: 1px solid #e6e0d6;
@@ -299,6 +277,7 @@
     display: flex;
     flex-direction: column;
     max-height: calc(100vh - 48px);
+    min-width: 0;
 }
 
 .schedule-grid-container h4 {
@@ -456,4 +435,5 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-bottom: 10px;
 } 
