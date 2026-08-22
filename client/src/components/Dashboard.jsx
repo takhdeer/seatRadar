@@ -3,6 +3,8 @@ import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
+import { useOverlay } from '../context/OverlayContext';
+import useSavedSchedule from '../utils/savedSchedule';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -19,10 +21,14 @@ export default function Dashboard() {
     const scheduleCache = useRef({}) // survives re-renders
     const [sectionColors, setSectionColors] = useState({}) 
     const [selectedSections, setSelectedSections] = useState(new Set())
-    const [showAllCourses, setShowAllCourses] = useState(false);
+    const [showAllCourses, setShowAllCourses] = useState(true);
+    const [showLabTut, setShowLabTut] = useState(true)
+    const [isLoading, setIsLoading] = useState(true);
+    const [userId, setUserId] = useState(null);
+    const { setShowOverlay, setMessage } = useOverlay()
+
 
     const navigate = useNavigate()
-
     // Sync schedules whenever the set of tracked courses changes
     useEffect(() => {
       if (trackedCourses.length === 0) return;
@@ -100,6 +106,7 @@ export default function Dashboard() {
     useEffect(() => {
         async function fetchData() { 
           if (!activeCourse) return;
+          setIsLoading(true)
             const split = activeCourse.split(' ')
             const subject = split[0]
             const number = split[1]
@@ -173,8 +180,10 @@ export default function Dashboard() {
     }, [profMetrics])
 
     useEffect(() => {
+      if (!activeCourse) return
       if (courseChart.length === 0 || profMetrics.length === 0 || profSections.length === 0) {
           setRankedSections([]);
+          setIsLoading(false)
           return;
       }
 
@@ -224,6 +233,7 @@ export default function Dashboard() {
           colorMap[section.section] = colors[idx % colors.length];
       });
       setSectionColors(colorMap);
+      setIsLoading(false)
     }, [courseChart, profMetrics, profSections])
 
 
@@ -233,9 +243,11 @@ export default function Dashboard() {
 
             if (user) {
                 console.log('Current user Found')
+                setUserId(user.id)
             }
             else {
                 console.log('User not found')
+                return
             }
 
             const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=${user.id}`, {
@@ -363,54 +375,117 @@ export default function Dashboard() {
     }
 
     function renderChart() {
-      if (selectedSections.size === 0) {
         if (activeChart === 'seats') {
           return (
-            <SeatsChart chartData={courseChart} />
+            <SeatsChart chartData={applySectionFilter(courseChart)} />
           )
         } else {
           return (
-            <WaitlistChart chartData={courseChart} />
+            <WaitlistChart chartData={applySectionFilter(courseChart)} />
           )
         }
       }
-      else {
-        const sectionData = courseChart.filter(c => selectedSections.has(c.section))
-        if (activeChart === 'seats') {
-          return (
-            <SeatsChart chartData={sectionData} />
-          )
-        } else {
-          return (
-            <WaitlistChart chartData={sectionData} />
-          )
+
+      function renderProfChart() {
+        if (profName.length === 0) {
+            return <h3>No Prof available for this section</h3>;
         }
+    
+        const eff = getEffectiveSections();
+    
+        if (eff === null) {
+            return <ProfRatingChart chartData={profMetrics} />;
+        }
+    
+        const sectionProfs = eff.mode === 'exclude'
+            ? profSections.filter(ps => !eff.ids.has(ps.section_id))
+            : profSections.filter(ps => eff.ids.has(ps.section_id));
+    
+        const profLastNames = sectionProfs.map(sp => sp.prof);
+        const filteredMetrics = profMetrics.filter(pm =>
+            profLastNames.some(name => name.toLowerCase().includes(pm.lastName.toLowerCase()))
+        );
+    
+        return <ProfRatingChart chartData={filteredMetrics} />;
+    }
+
+    function getEffectiveSections() {
+      const labTutSections = new Set(
+          rankedSections
+              .filter(s => s.classType === 'Lab' || s.classType === 'Tut')
+              .map(s => s.section)
+      );
+  
+      if (selectedSections.size === 0) {
+          if (showLabTut) return null; // null = no filtering, show everything
+          return { mode: 'exclude', ids: labTutSections };
+      }
+  
+      const ids = new Set(selectedSections);
+      if (showLabTut) {
+          labTutSections.forEach(id => ids.add(id));
+      }
+      return { mode: 'include', ids };
+    }
+  
+    function applySectionFilter(data) {
+        const eff = getEffectiveSections();
+        if (eff === null) return data;
+        return eff.mode === 'exclude'
+            ? data.filter(d => !eff.ids.has(d.section))
+            : data.filter(d => eff.ids.has(d.section));
+    }
+
+    async function saveSelection(course) {
+      const eff = getEffectiveSections();
+      const idsToSave = eff === null
+          ? []
+          : eff.mode === 'exclude'
+              ? rankedSections.filter(s => !eff.ids.has(s.section)).map(s => s.section)
+              : Array.from(eff.ids);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const res = await fetch('http://localhost:3001/api/selectedSections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          course,
+          sectionIds: idsToSave
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      setMessage(data.message)
+      setShowOverlay(true)
+
+      refreshSavedSchedule()
+
+      if (!res.ok) {
+        console.error('Save failed:', data.error);
+        setMessage('Save failed')
+        setShowOverlay(true)
       }
     }
 
-    function renderProfChart() {
-      if (selectedSections.size === 0) {
-        return (
-          <ProfRatingChart chartData={profMetrics} />
-        )
-      }
-      if (profName.length === 0) {
-        return (
-          <h3>No Prof available for this section</h3>
-        )
-      }
-      if (profName.length === 1) {
-        return (
-          <ProfRatingChart chartData={profMetrics} />
-        )
-      }
-      else {
-        const sectionProfs = profSections.filter(ps => selectedSections.has(ps.section_id));
-        const profLastNames = sectionProfs.map(sp => sp.prof);
-        const filteredMetrics = profMetrics.filter(pm => profLastNames.some(name => name.toLowerCase().includes(pm.lastName.toLowerCase())));
-        return (
-          <ProfRatingChart chartData={filteredMetrics} />
-        )
+    async function deleteSavedSelection(course) {
+      const res = await fetch(`http://localhost:3001/api/delSections?userId=${userId}&course=${course}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    
+      const data = await res.json();
+      console.log(data.message)
+      setMessage(data.message)
+      setShowOverlay(true)
+
+      refreshSavedSchedule()
+    
+      if (!res.ok) {
+        console.error('Delete failed:', data.error);
+        setMessage('Delete failed')
+        setShowOverlay(true)
+        return;
       }
     }
 
@@ -422,21 +497,16 @@ export default function Dashboard() {
         const allSchedules = [];
         const sections = courseSchedules[activeCourse]
         if (showAllCourses) {
-          Object.entries(courseSchedules).forEach(([courseName, sections]) => {
-            if (!Array.isArray(sections)) return
-              sections.forEach(section =>{
-                if (section.days && section.start_time && section.end_time) {
-                  allSchedules.push({
-                    courseName,
-                    section: section.section,
-                    days: section.days,
-                    start: section.start_time,
-                    end: section.end_time,
-                    classType: section.classType
-                  })
-                }
-              }) 
-          })
+          savedSchedule.forEach(section => {
+            allSchedules.push({
+              courseName: section.courseName,
+              section: section.section,
+              days: section.days,
+              start: section.start,
+              end: section.end,
+              classType: section.classType
+            });
+          });
         }
         else {
           if (Array.isArray(sections)) {
@@ -460,9 +530,7 @@ export default function Dashboard() {
         }
 
         // Filter schedules based on selectedSections
-        const filteredSchedules = selectedSections.size === 0
-            ? allSchedules
-            : allSchedules.filter(schedule => selectedSections.has(schedule.section));
+        const filteredSchedules = applySectionFilter(allSchedules)
 
         // Convert time string (HH:MM) to decimal hours
         const timeToHours = (timeStr) => {
@@ -478,10 +546,20 @@ export default function Dashboard() {
                 <div className='toggle-right'>
                   <h5>Currently Showing:</h5> 
                   <button className='toggle-button'
-                  onClick={() => 
-                    setShowAllCourses(prev => !prev)}>{showAllCourses === true ? "All Courses" : "Selected Course"}</button>
+                  onClick={() => handleScheduleViewToggle()}>
+                      {showAllCourses ? "All Courses" : "Selected Course"}
+                  </button>
                 </div>
               </div>
+              
+              {showAllCourses && savedLoading && (
+                <p>Loading your Saved Schedule</p>
+              )}
+
+              {showAllCourses && savedError && (
+                <p role='alert'>{savedError}</p>
+              )}
+
                 <div className="schedule-grid">
                     <div className="time-labels">
                         <div className="corner-cell"></div>
@@ -533,23 +611,66 @@ export default function Dashboard() {
         );
     }
 
+    function handleCourseChange(e) {
+      setActiveCourse(e.target.value);
+      setSelectedSections(new Set());
+    }
+
+    const { 
+      schedule: savedSchedule,
+      loading: savedLoading,
+      error: savedError,
+      refreshSavedSchedule } = useSavedSchedule(userId);
+
+    function loadSavedSchedule() {
+      if (savedSchedule.length === 0) return;
+    
+      const grouped = {};
+    
+      savedSchedule.forEach(({ courseName, ...rest }) => {
+        if (!grouped[courseName]) grouped[courseName] = [];
+        grouped[courseName].push(rest);
+      });
+    
+      scheduleCache.current = {
+        ...scheduleCache.current,
+        ...grouped
+      };
+    
+      setCourseSchedules({ ...scheduleCache.current });
+      setSelectedSections(new Set(savedSchedule.map(s => s.section)));
+    }
+    
+    function handleScheduleViewToggle() {
+      const willShowAllCourses = !showAllCourses;
+    
+      setShowAllCourses(willShowAllCourses);
+    
+      if (willShowAllCourses && !savedLoading && !savedError) {
+        loadSavedSchedule();
+      }
+      if (!savedLoading && !savedError) {
+        setSelectedSections(new Set());
+      }
+    }
+  
+    function CourseSelector() {
+      return (
+          <select value={activeCourse} onChange={handleCourseChange}>
+              {trackedCourses.map((item, index) => (
+                  <option key={index} value={item.course}>
+                      {item.course}
+                  </option>
+              ))}
+          </select>
+      );
+    }
+
     function CourseSummary() {
         if (rankedSections.length === 0) {
             return (
-              <div className='summary-container'>
-                <h3>Course Summary</h3>
-                <div className='section-title-row'>
-                  <h3>Course Summary</h3>  
-                    <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
-                     {trackedCourses.map((item, index) => (
-                        <option key={index} value={item.course}>
-                          {item.course}
-                        </option>
-                      ))}
-                    </select>
-                </div>
-            </div>
-            );
+              <CourseSelector />
+            )
         }
 
         const bestSection = rankedSections[0];
@@ -570,19 +691,13 @@ export default function Dashboard() {
             <div className="summary-container">
                 <h3>Best Section</h3>
                 <div className="section-title-row">
-                  <select value={activeCourse} onChange={(e) => setActiveCourse(e.target.value)}>
-                   {trackedCourses.map((item, index) => (
-                      <option key={index} value={item.course}>
-                        {item.course}
-                      </option>
-                    ))}
-                  </select>
-                  <button className="menu-item" onClick={() => navigate("/form")}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Course
-                </button>
+                    <CourseSelector />
+                    <button className="menu-item" onClick={() => navigate("/form")}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Course
+                    </button>
                  </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
@@ -613,7 +728,26 @@ export default function Dashboard() {
 
                 {rankedSections.length > 1 && (
                     <div className="all-sections">
-                        <h4>All Sections</h4>
+                      <h4>All Sections</h4>
+                        <div className='section-title-row'>
+                          <button className="menu-item" onClick={() => saveSelection(activeCourse)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Save Section
+                         </button>
+                         <button className="menu-item" onClick={() => deleteSavedSelection(activeCourse)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Remove Section
+                         </button>
+                         <button 
+                          className='idk-yet'
+                          onClick={() => setShowLabTut(prev => !prev)}>
+                            {showLabTut ? 'Hide Lab/Tut' : 'Show Lab/Tut'}
+                          </button>
+                        </div>
                         {rankedSections.map((section, idx) => (
                             <div
                                 key={section.section}
@@ -687,8 +821,8 @@ export default function Dashboard() {
 
           <div className="main-content">
             <div className="top-section">
-              <CourseSummary />
-              <ScheduleGrid />
+              {isLoading ? <p>Loading Summary...</p>: <CourseSummary />}
+              {isLoading ? <p>Loading schedule...</p>: <ScheduleGrid />}
             </div>
 
             <div className="charts-row">
@@ -704,11 +838,11 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {renderChart()}
+                {isLoading ? <p>Loading...</p> : renderChart()}
               </div>
 
               <div className="chart-container">
-                {renderProfChart()}
+              {isLoading ? <p>Loading...</p> : renderProfChart()}
               </div>
             </div>
           </div>
