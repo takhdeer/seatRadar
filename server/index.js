@@ -17,7 +17,7 @@ const profCourses = require('./routes/getProfCourses')
 const userCourses = require('./routes/getUserCourses')
 const storedSchedule = require('./routes/getSchedule')
 const delCourse = require('./routes/delUserCourses')
-
+const saveSection = require('./routes/saveSection')
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -40,6 +40,7 @@ app.use('/api/getCourse', course);
 app.use('/api/getUserCourses', userCourses);
 app.use('/api/getSchedule', storedSchedule)
 app.use('/api/delCourse', delCourse)
+app.use('/api/selectedSections', saveSection)
 app.use('/api/profRatings', profRatings);
 app.use('/api/profCourses', profCourses);
 

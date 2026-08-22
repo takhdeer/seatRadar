@@ -3,6 +3,7 @@ import {BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
 import { ScatterChart, Scatter, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
+import { useOverlay } from '../context/OverlayContext';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -22,6 +23,8 @@ export default function Dashboard() {
     const [showAllCourses, setShowAllCourses] = useState(false);
     const [showLabTut, setShowLabTut] = useState(true)
     const [isLoading, setIsLoading] = useState(true);
+    const { setShowOverlay, setMessage } = useOverlay()
+
 
     const navigate = useNavigate()
 
@@ -176,6 +179,7 @@ export default function Dashboard() {
     }, [profMetrics])
 
     useEffect(() => {
+      if (!activeCourse) return
       if (courseChart.length === 0 || profMetrics.length === 0 || profSections.length === 0) {
           setRankedSections([]);
           setIsLoading(false)
@@ -241,6 +245,7 @@ export default function Dashboard() {
             }
             else {
                 console.log('User not found')
+                return
             }
 
             const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=${user.id}`, {
@@ -429,6 +434,33 @@ export default function Dashboard() {
             : data.filter(d => eff.ids.has(d.section));
     }
 
+    async function saveSelection(course) {
+      const eff = getEffectiveSections();
+      const idsToSave = eff === null
+          ? []
+          : eff.mode === 'exclude'
+              ? rankedSections.filter(s => !eff.ids.has(s.section)).map(s => s.section)
+              : Array.from(eff.ids);
+
+      const { data: { user } } = await supabase.auth.getUser();
+      const res = await fetch('http://localhost:3001/api/selectedSections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user.id,
+          course,
+          sectionIds: idsToSave
+        })
+      });
+      const data = await res.json();
+      console.log(data);
+      setMessage(data.message)
+      setShowOverlay(true)
+      if (!res.ok) {
+        console.error('Save failed:', data.error);
+      }
+    }
+
     function ScheduleGrid() {
         const days = ['M', 'T', 'W', 'R', 'F'];
         const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
@@ -589,12 +621,18 @@ export default function Dashboard() {
                 <h3>Best Section</h3>
                 <div className="section-title-row">
                     <CourseSelector />
-                  <button className="menu-item" onClick={() => navigate("/form")}>
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  Add Course
-                </button>
+                    <button className="menu-item" onClick={() => navigate("/form")}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add Course
+                    </button>
+                    <button className="menu-item" onClick={() => saveSelection(activeCourse)}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Save Course
+                    </button>
                  </div>
                 <div className="best-section" style={{ borderLeft: `4px solid ${sectionColors[bestSection.section] || '#6f9f7e'}` }}>
                     <div className="section-header">
