@@ -16,8 +16,7 @@ cron.schedule('* * * * *', async () => {
     try {
         await runEngineRetry(MAX_ATTEMPTS, BASE_DELAY)
     } catch (err) {
-        console.log(err)
-        throw new Error ('Scheduler Failure', err)
+        console.log('Schedule failure', err)
     }
     finally {
         isRunning = false

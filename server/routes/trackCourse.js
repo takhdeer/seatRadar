@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router();
 const pool = require('../db')
 
-async function insertCourseData(courseData, subject, courseNum) {
+async function insertCourseData(courseData, subject, courseNum, term) {
     const result = await pool.query(
-        'SELECT * FROM tracked_courses WHERE (subject, course_num) = ($1,$2)', [subject,courseNum]
+        'SELECT * FROM tracked_courses WHERE (subject, course_num, term) = ($1,$2,$3)', [subject,courseNum, term]
     );
     const id = result.rows[0].id
     console.log(`Course ID: ${id}`)

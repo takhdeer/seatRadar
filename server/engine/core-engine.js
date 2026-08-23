@@ -90,7 +90,7 @@ async function runCoreEngine() {
         });
         
         const mapedNotifyCourses = [...grouped2.values()];
-        console.log('------ Maped Notify Courses ------')
+        console.log('------ Maped Available Courses ------')
         console.log(mapedNotifyCourses)
         
         for (let i = 0; i < mapedNotifyCourses.length; i++) {
@@ -119,7 +119,7 @@ async function runCoreEngine() {
             console.log(status)
         }
     } catch(err) {
-        throw new Error ('Core-Engine Failure: ', err)
+        throw new Error ('Core-Engine Failure: ', {cause: err })
     }
 
     return ('Engine ran successfully')

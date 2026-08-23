@@ -21,7 +21,8 @@ async function getUserEmails(courseInfo) {
 
         const result = res2.rows.map(row => ({
             email: row.user_email,
-            notified: row.notified
+            notified: row.notified,
+            courseId: courseId,
         }));
         emails.push(...result)
     } catch (err) {

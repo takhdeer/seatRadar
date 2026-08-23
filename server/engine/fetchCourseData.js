@@ -13,8 +13,8 @@ async function fetchCourseData(courses) {
     // get tc_ID from subject and courseNum
     const queryPromises = courses.map(async (course) => {
         const res = await pool.query(
-            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2', 
-            [course.subject, course.courseNum]
+            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2 AND term = $3', 
+            [course.subject, course.courseNum, course.term]
         );
         return res.rows[0]
     });
@@ -96,7 +96,8 @@ async function fetchCourseData(courses) {
                 const { id, err } = await insertCourseData(
                     filteredData,
                     oldCourseData[i].subject,
-                    oldCourseData[i].courseNum
+                    oldCourseData[i].courseNum,
+                    oldCourseData[i].term
                 )
 
                 if (err){
