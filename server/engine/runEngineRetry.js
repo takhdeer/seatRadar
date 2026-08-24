@@ -1,4 +1,4 @@
-const runCoreEngine = require('./core-engine')
+const { runCoreEngine } = require('./core-engine')
 
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
@@ -18,8 +18,8 @@ async function runEngineRetry(MAX_ATTEMPTS, BASE_DELAY) {
             return status
         } catch (err) {
             if (attempt === MAX_ATTEMPTS) {
-                console.log(err)
-                return 'Failed'
+                console.log(`Engine failed after ${MAX_ATTEMPTS} attempts: `, err)
+                throw err
             }
         }
         const delay = BASE_DELAY * 2**(attempt - 1) //exponential backoff

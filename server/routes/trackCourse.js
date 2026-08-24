@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router();
 const pool = require('../db')
 
-async function insertCourseData(courseData, subject, courseNum) {
+async function insertCourseData(courseData, subject, courseNum, term) {
     const result = await pool.query(
-        'SELECT * FROM tracked_courses WHERE (subject, course_num) = ($1,$2)', [subject,courseNum]
+        'SELECT * FROM tracked_courses WHERE (subject, course_num, term) = ($1,$2,$3)', [subject,courseNum, term]
     );
     const id = result.rows[0].id
     console.log(`Course ID: ${id}`)
@@ -26,8 +26,9 @@ async function insertCourseData(courseData, subject, courseNum) {
                     days,
                     start_time,
                     end_time,
-                    class_type)
-                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+                    class_type,
+                    term)
+                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11, $12)
                     ON CONFLICT (tracked_courses_id, section_id) 
                     DO UPDATE SET 
                         total_count = EXCLUDED.total_count,
@@ -39,6 +40,7 @@ async function insertCourseData(courseData, subject, courseNum) {
                         start_time = EXCLUDED.start_time,
                         end_time = EXCLUDED.end_time,
                         class_type = EXCLUDED.class_type,
+                        term = EXCLUDED.term,
                         last_checked = now()`,
                     [
                         id,
@@ -51,7 +53,8 @@ async function insertCourseData(courseData, subject, courseNum) {
                         section.days,
                         section.start,
                         section.end,
-                        section.class_type
+                        section.class_type,
+                        term
                     ]
             );
             console.log(`Course Saved in database`)

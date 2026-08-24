@@ -9,13 +9,12 @@ const pool = require('../db')
 async function fetchCourseData(courses) {
 
     const THRESHOLD_MINS = 15
-    let dataDeleted = 0
 
     // get tc_ID from subject and courseNum
     const queryPromises = courses.map(async (course) => {
         const res = await pool.query(
-            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2', 
-            [course.subject, course.courseNum]
+            'SELECT id,term FROM tracked_courses WHERE subject = $1 AND course_num = $2 AND term = $3', 
+            [course.subject, course.courseNum, course.term]
         );
         return res.rows[0]
     });
@@ -52,15 +51,16 @@ async function fetchCourseData(courses) {
     console.log('---- Fetching New Course Data ----')
     const data = []
     for (let i = 0; i < oldCourseData.length; i++) {
+
+        const hasStoredData = oldCourseData[i].data.length > 0
         // Check if data exists before accessing it
         const shouldFetch = oldCourseData[i].data.length === 0 ||
                            (now - oldCourseData[i].data[0].last_checked) / 1000 / 60 > THRESHOLD_MINS ||
                            oldCourseData[i].data.length === 1;
 
         if(shouldFetch) {
-            if (oldCourseData[i].data.length === 0){
+            if (!hasStoredData) {
                 console.log(`No course data Available for ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`)
-                dataDeleted = 1
             }
             else {
                 console.log(`Refreshing ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}: `)
@@ -77,63 +77,57 @@ async function fetchCourseData(courses) {
             )
 
             // Validate courseData before parsing
-            if (!courseData || !courseData.data) {
+            if (!courseData?.data) {
                 console.error(`Failed to fetch valid course data for ${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`);
-                console.error('Response received:', courseData);
                 continue; // Skip to next course
             }
 
             const filteredData = parseJSON(courseData);
-            console.log(filteredData)
-
             const isReset = await resetBanner(cookies)
-            if (isReset === true) {
-                if (dataDeleted === 0) {
-                    await pool.query(
-                        'DELETE FROM course_data WHERE tracked_courses_id = $1', 
-                        [oldCourseData[i].data[0].tracked_courses_id]
-                    )
-                }
 
+            if (!isReset) continue
+
+            if (hasStoredData) {
+                await pool.query(
+                    'DELETE FROM course_data WHERE tracked_courses_id = $1',
+                    [oldCourseData[i].id]
+                );
+            }
                 const { id, err } = await insertCourseData(
                     filteredData,
                     oldCourseData[i].subject,
-                    oldCourseData[i].courseNum
+                    oldCourseData[i].courseNum,
+                    oldCourseData[i].term
                 )
+
                 if (err){
                     console.log(err)
                 }
-                else {
-                    filteredData.sections.map(section => {
-                        data.push({
-                            course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
-                            courseId: id,
-                            seats: section.seatsAvailable,
-                            waitlist: section.waitAvailable
-                        })
-                    })
 
-                }
-            }
-            else {
-                continue
-            }
+                filteredData.sections.map(section => {
+                    data.push({
+                        course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                        courseId: id,
+                        seats: section.seatsAvailable,
+                        waitlist: section.waitAvailable
+                    })
+                })
+
         }
         else {
             console.log('Course Data is up to date')
-            if (dataDeleted === 0) {
-                oldCourseData[i].data.forEach(section => {
-                    data.push({
-                        course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
-                        courseId: section.tracked_courses_id,
-                        seats: section.seats,
-                        waitlist: section.waitlist
-                    })
-                });
-            }
-            dataDeleted = 0
+            
+            oldCourseData[i].data.forEach(section => {
+                data.push({
+                    course: `${oldCourseData[i].subject} ${oldCourseData[i].courseNum}`,
+                    courseId: section.tracked_courses_id,
+                    seats: section.seats,
+                    waitlist: section.waitlist
+                })
+            });
         }
-    };
+    }
+    
     return data
 }
 

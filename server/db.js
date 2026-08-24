@@ -6,5 +6,4 @@ const pool = new Pool ({
     ssl : { rejectUnauthorized: false }     // turn off cert verification
 });
 
-console.log(process.env.DATABASE_URL);
 module.exports = pool;

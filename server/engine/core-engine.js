@@ -9,7 +9,6 @@ require('dotenv').config({ path: `server/` + '/.env' });
 async function runCoreEngine() {
     const notifyCourses = []
     const checkNotified = []
-    let userEmails = []
     let resetCourses = []
 
     try {
@@ -81,21 +80,29 @@ async function runCoreEngine() {
             }
             const entry2 = grouped2.get(item.courseId);
             if (item.seats !== undefined) entry2.seats += item.seats;
-            if (item.wait !== undefined) entry2.waitlist += item.wait;
+        });
+
+        notifyCourses.forEach(item => {
+            const entry2 = grouped2.get(item.courseId);
+            if (item.wait !== undefined && entry2.seats === 0) {
+                entry2.waitlist += item.wait
+            }
         });
         
         const mapedNotifyCourses = [...grouped2.values()];
-        console.log('------ Maped Notify Courses ------')
+        console.log('------ Maped Available Courses ------')
         console.log(mapedNotifyCourses)
         
         for (let i = 0; i < mapedNotifyCourses.length; i++) {
             const res = await getUserEmails(mapedNotifyCourses[i])
             const emails = res.filter(user => user.notified === false)
+            const emailAddresses = emails.map(user => user.email);
             console.log(emails)
-            if (emails.length > 0) {
-                const status = await setNotifiedFlag(emails, 1) // set notified = true
-                console.log(status)
-                // const {response} = await sendEmail(emails, mapedNotifyCourses[i])
+            if (emailAddresses.length > 0) { 
+                // const status = await setNotifiedFlag(emails, 1) // set notified = true
+                // console.log(status)
+                const result = await sendEmail(emails, mapedNotifyCourses[i])
+                console.log(result)
             }
         }
         
@@ -112,10 +119,10 @@ async function runCoreEngine() {
             console.log(status)
         }
     } catch(err) {
-        throw new Error ('Core-Engine Failure: ', err)
+        throw new Error ('Core-Engine Failure: ', {cause: err })
     }
 
     return ('Engine ran successfully')
 }
     
-    module.exports = { runCoreEngine }
+module.exports = { runCoreEngine }
