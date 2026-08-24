@@ -76,7 +76,7 @@ async function sendEmail(recipients, courseInfo) {
     });
 
     return {
-        success: requestFailures === 0,
+        success: requestFailures === 0 && failedCount === 0,
         totalRecipients: recipients.length,
         sent: sentCount,
         failed: failedCount,
