@@ -1,19 +1,29 @@
 .overlay {
     position: fixed;
-    top: 0;
+    top: 25px;
     right: 0;
-    width: 200px;
-    height: 100%;
+    margin-right: 9px;
+    width: 280px;
+    height: 7%;
     z-index: 9999;  /* above everything */
+    background-color: blanchedalmond;
+    border-radius: 8px;
 }
 
 .overlayCard {
-    position: fixed;
+    display: grid;
     top: 20px;
-    right: 20px;
+    margin-left: 8px;
+    margin-bottom: 11px;
+    align-items: center;
+}
+
+.overlayMessage {
+    font-family: sans-serif;
+    color: black;
 }
 
 .closeBtn {
     display: block;
-    margin-left: auto;
+    margin-left: auto; /* rounded corners will fix margins*/
 }

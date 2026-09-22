@@ -8,7 +8,8 @@ export function OverlayProvider({ children }) {
   const [error, setError] = useState(null)
 
   return (
-    <OverlayContext.Provider value={{ showOverlay, setShowOverlay, message, setMessage, error, setError }}>
+    <OverlayContext.Provider value={
+      { showOverlay, setShowOverlay, message, setMessage, error, setError }}>
       {children}
     </OverlayContext.Provider>
   )
