@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext';
 import useSavedSchedule from '../utils/savedSchedule';
+import LoadingSpinner from './loadingSpinner';
 
 import './Dashboard.css'
 export default function Dashboard() {
@@ -583,7 +584,7 @@ export default function Dashboard() {
               </div>
               
               {showAllCourses && savedLoading && (
-                <p>Loading your Saved Schedule</p>
+                <LoadingSpinner />
               )}
 
               {showAllCourses && savedError && (
@@ -809,8 +810,8 @@ export default function Dashboard() {
         <div className="dashboard-container">
           <div className="main-content">
             <div className="top-section">
-              {isLoading ? <p>Loading Summary...</p>: <CourseSummary />}
-              {isLoading ? <p>Loading schedule...</p>: <ScheduleGrid />}
+              {isLoading ? <LoadingSpinner />: <CourseSummary />}
+              {isLoading ? <LoadingSpinner />: <ScheduleGrid />}
             </div>
 
             <div className="charts-row">
@@ -826,11 +827,11 @@ export default function Dashboard() {
                   </button>
                 </div>
 
-                {isLoading ? <p>Loading...</p> : renderChart()}
+                {isLoading ? <LoadingSpinner /> : renderChart()}
               </div>
 
               <div className="chart-container">
-              {isLoading ? <p>Loading...</p> : renderProfChart()}
+              {isLoading ? <LoadingSpinner /> : renderProfChart()}
               </div>
             </div>
           </div>
