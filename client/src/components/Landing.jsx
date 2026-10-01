@@ -64,7 +64,7 @@ export default function LandingPage() {
     return (
         <>
         <div className='page-login'>
-            <div className='form-container'>
+            <div className='form-login'>
                 <h2>Login to your SeatRadar Account</h2>
                 <form>
                     <label className='form-label'>Email</label>
@@ -84,6 +84,7 @@ export default function LandingPage() {
                     className='form-input password'
                     id='password'
                     value={password}
+                    placeholder='Type password here...'
                     type={showPassword ? 'text' : 'password'}
                     onChange={(e) => setPassword(e.target.value)}
                     />
@@ -98,7 +99,7 @@ export default function LandingPage() {
 
                     <div className='buttons'>
                         <button 
-                        className='main-btn'
+                        className='show-password'
                         disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >LogIn</button>
@@ -106,7 +107,7 @@ export default function LandingPage() {
 
                         <button
                         type='button'
-                        className='main-btn'
+                        className='show-password'
                         disabled={isSubmitting}
                         onClick={() => navigate('/signup')}
                         >SignUp</button>
