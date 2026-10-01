@@ -12,3 +12,9 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# React Component Preview
+previewConfig.json
+
+#vscode files
+.vscode

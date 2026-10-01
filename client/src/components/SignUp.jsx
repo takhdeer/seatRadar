@@ -79,7 +79,7 @@ export default function SignUpPage(){
     return (
         <>
         <div className='page-login'>
-            <div className="form-container">
+            <div className="form-login">
                 <h2>Create your SeatRadar Account</h2>
                 <form>
                     <label className='form-label'>Email</label>
@@ -137,12 +137,12 @@ export default function SignUpPage(){
 
                 <div className='buttons'>
                         <button 
-                        className='main-btn'
+                        className='show-password'
                         disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >Create Account</button>
                         <button 
-                        className='main-btn'
+                        className='show-password'
                         disabled={isSubmitting}
                         onClick={() => navigate('/')}
                         >Log in</button>
