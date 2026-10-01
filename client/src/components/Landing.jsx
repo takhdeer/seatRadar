@@ -69,7 +69,7 @@ export default function LandingPage() {
                 <form>
                     <label className='form-label'>Email</label>
                     <input
-                    className='form-input'
+                    className='login-input'
                     id='email'
                     value={email}
                     type='text'
@@ -81,7 +81,7 @@ export default function LandingPage() {
                     <label className='form-label'>Password</label>
                     <div className='password-wrapper'>
                     <input
-                    className='form-input password'
+                    className='login-input password'
                     id='password'
                     value={password}
                     placeholder='Type password here...'
