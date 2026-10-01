@@ -624,7 +624,7 @@ export default function Dashboard() {
                                                         className="course-block"
                                                         style={{ backgroundColor: activeColorMap[schedule.section] || '#4f86b8' }}
                                                     >
-                                                        <span className="course-name">{schedule.courseName}</span>
+                                                        <span className="course-title">{schedule.courseName}</span>
                                                         <span className="course-section">
                                                             {schedule.section} {schedule.classType && `· ${schedule.classType}`}
                                                         </span>

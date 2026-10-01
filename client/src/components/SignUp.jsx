@@ -84,7 +84,7 @@ export default function SignUpPage(){
                 <form>
                     <label className='form-label'>Email</label>
                     <input
-                    className='form-input'
+                    className='login-input'
                     id='email'
                     value={email}
                     type='text'
@@ -96,10 +96,11 @@ export default function SignUpPage(){
                     <label className='form-label'>Password</label>
                     <div className='password-wrapper'>
                         <input
-                        className='form-input password'
+                        className='login-input password'
                         id='password'
                         value={password}
                         type={showPassword ? 'text' : 'password'}
+                        placeholder='Type password here...'
                         onChange={(e) => setPassword(e.target.value)}
                         />
 
@@ -114,10 +115,11 @@ export default function SignUpPage(){
                     <label className='form-label'>Confirm Password</label>
                     <div className='password-wrapper'>
                         <input
-                        className='form-input password'
+                        className='login-input password'
                         id='confirmPassword'
                         value={confirmPassword}
                         type={showPassword ? 'text' : 'password'}
+                        placeholder='Confirm password...'
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         />
                     </div>
@@ -126,10 +128,11 @@ export default function SignUpPage(){
                     <label className='form-label'>Username</label>
                     <div>
                         <input
-                        className='form-input'
+                        className='login-input'
                         id='username'
                         value={username}
                         type='text'
+                        placeholder='Username'
                         onChange={(e) => setusername(e.target.value)}
                         />
                     </div>
