@@ -283,7 +283,7 @@ export default function TrackForm() {
 
                         <div className="buttons">
                             <button
-                            className="main-btn"
+                            className="track-btn"
                             name="submit"
                             disabled={isSubmitting}
                             onClick={(e) => handleSubmit(e)}>
@@ -291,7 +291,7 @@ export default function TrackForm() {
                             </button>
 
                             <button
-                            className="main-btn"
+                            className="track-btn"
                             name="dashboard"
                             disabled={isSubmitting}
                             onClick={() => navigate("/dashboard")}>

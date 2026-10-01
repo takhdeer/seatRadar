@@ -5,7 +5,7 @@
 }
 
 .form-container {
-    background-color: #0f0f0f;
+    background-color: #ffffff;
     border: 1px solid #1a1a1a;
     border-radius: 8px;
     max-width: 400px;
@@ -21,7 +21,7 @@
 }
 
 .form-Header h2 {
-    color: #ffffff;
+    color: #0f0f0f;
     font-size: 20px;
     font-weight: 600;
     text-align: center;
@@ -46,8 +46,8 @@ form {
     height: 40px;
     border-radius: 6px;
     border: 1px solid #292929;
-    background-color: #0a0a0a;
-    color: #ffffff;
+    background-color: #f2f0ef;
+    color: #0f0f0f;
     padding: 0 12px;
     font-size: 14px;
     transition: border-color 0.15s ease;
@@ -71,8 +71,8 @@ form {
     height: 40px;
     border-radius: 6px;
     border: 1px solid #292929;
-    background-color: #0a0a0a;
-    color: #ffffff;
+    background-color: #f2f0ef;
+    color: #0f0f0f;
     padding: 0 12px;
     font-size: 14px;
     cursor: pointer;
@@ -97,24 +97,24 @@ form {
     margin-top: 8px;
 }
 
-.main-btn {
-    width: 100%;
-    padding: 12px;
+.track-btn {
+    padding: 10px 16px;
     border-radius: 6px;
-    border: none;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
+    border: 1px solid #292929;
+    background-color: transparent;
+    color: #a1a1a1;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
 }
 
-.main-btn:hover {
+.track-btn:hover {
     background-color: #292929;
 }
 
-.main-btn:disabled {
+.track-btn:disabled {
     cursor: not-allowed;
     opacity: 0.5;
     background-color: #1a1a1a;
@@ -128,11 +128,10 @@ form {
 
 /* Tracked Courses Card */
 .tracked-courses-container {
-    background-color: #0f0f0f;
+    background-color: #ffffff;
     border: 1px solid #1a1a1a;
     border-radius: 8px;
-    max-width: 400px;
-    width: 100%;
+    width: 500px;
     padding: 32px;
     display: flex;
     flex-direction: column;
@@ -147,7 +146,7 @@ form {
 }
 
 .tracked-header h2 {
-    color: #ffffff;
+    color: #0f0f0f;
     font-size: 20px;
     font-weight: 600;
     margin: 0;
@@ -171,7 +170,7 @@ form {
     justify-content: space-between;
     align-items: center;
     padding: 14px 16px;
-    background-color: #141414;
+    background-color: #f2f0ef;
     border: 1px solid #1a1a1a;
     border-radius: 6px;
     transition: background-color 0.15s ease, border-color 0.15s ease;
@@ -189,7 +188,7 @@ form {
 }
 
 .course-code {
-    color: #ffffff;
+    color: #0f0f0f;
     font-size: 15px;
     font-weight: 600;
 }
