@@ -80,7 +80,16 @@ export default function SignUpPage(){
         <>
         <div className='page-login'>
             <div className="form-login">
-                <h2>Create your SeatRadar Account</h2>
+                <div className="signup-heading">
+                    <h2>Create your SeatRadar Account</h2>
+                    <button
+                        type="button"
+                        id='back-btn'
+                        className="show-password"
+                        aria-label="Go back"
+                        onClick={() => navigate(-1)}
+                    >&lt;</button>
+                </div>
                 <form>
                     <label className='form-label'>Email</label>
                     <input
