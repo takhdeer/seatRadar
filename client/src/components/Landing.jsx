@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { validateForm } from '../utils/validation';
 import { supabase } from '../utils/supabaseClient';
 import './Landing.css'
@@ -10,18 +10,43 @@ export default function LandingPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [step, setStep] = useState(0)
 
     const navigate = useNavigate();
 
-    async function handleSubmit(e) {
+
+    async function handleEmailSubmit(e) {
+        e.preventDefault()
+        const validateErrors = validateForm({email: email, requireMRU: true})
+        if (Object.keys(validateErrors).length >0) {
+            setErrors(validateErrors)
+            return
+        }
+        setIsSubmitting(true)
+
+        const {data, error} = await supabase
+        .from('users')
+        .select('user_email')
+        .eq('user_email', email)
+        .single()
+
+        setIsSubmitting(false)
+
+        if (error || !data) {
+            setErrors('No account found with that email')
+            return
+        }
+
+        setStep(1)
+    }
+    async function handlePasswordSubmit(e) {
 
         e.preventDefault();
-        const validErrors = validateForm({email: email, password: password,requireMRU: true});
+        const validErrors = validateForm({password: password});
         if (Object.keys(validErrors).length >0) {
             setErrors(validErrors)
             return
         }
-
         setIsSubmitting(true)
 
         //timeout logic
@@ -61,12 +86,20 @@ export default function LandingPage() {
         setIsSubmitting(false)
     }
 
+    useEffect(() => {
+        if (step == 1) {
+            // fetch dashboard data 
+            // save dashboard data
+        }
+    }, [step])
+
     return (
         <>
         <div className='page-login'>
             <div className='form-login'>
-                <h2>Login to your SeatRadar Account</h2>
-                <form>
+            <h2>Login to your SeatRadar Account</h2>
+            {step === 0 && (
+                <form onSubmit={handleEmailSubmit}>
                     <label className='form-label'>Email</label>
                     <input
                     className='login-input'
@@ -78,6 +111,25 @@ export default function LandingPage() {
                     />
                     {errors.email && <p className="error">{errors.email}</p>}
 
+                    <div className='buttons'>
+                        <button
+                        type='submit' 
+                        className='show-password'
+                        disabled={isSubmitting}
+                        >Continue</button>
+                        {errors.server && <p className='error'>{errors.server}</p>}
+
+                        <button
+                        type='button'
+                        className='show-password'
+                        disabled={isSubmitting}
+                        onClick={() => navigate('/signup')}
+                        >SignUp</button>
+                    </div>
+                </form>
+            )}
+            {step === 1 && (
+                <form>
                     <label className='form-label'>Password</label>
                     <div className='password-wrapper'>
                     <input
@@ -96,23 +148,16 @@ export default function LandingPage() {
                     </div>  
                     {errors.password && <p className="error">{errors.password}</p>}
 
-
                     <div className='buttons'>
                         <button 
                         className='show-password'
                         disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >LogIn</button>
-                    {errors.server && <p className='error'>{errors.server}</p>}
-
-                        <button
-                        type='button'
-                        className='show-password'
-                        disabled={isSubmitting}
-                        onClick={() => navigate('/signup')}
-                        >SignUp</button>
-                    </div> 
+                        {errors.server && <p className='error'>{errors.server}</p>}
+                    </div>
                 </form>
+            )}
             </div>
         </div>
         </>
