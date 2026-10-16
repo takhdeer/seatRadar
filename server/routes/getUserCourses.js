@@ -3,16 +3,18 @@ const router = express.Router();
 const pool = require('../db');
 
 router.get('/', async (req, res) => {
-    const {userID} = req.query
+    const {userEmail} = req.query
 
-    if (!userID) {
+    if (!userEmail) {
         console.log('User not found')
         return res.status(404).json({ error: 'User not found'} )
     }
 
     try{
         const result = await pool.query(
-            `SELECT * FROM user_courses WHERE (user_id) = ($1)`, [userID]
+            `SELECT uc.* FROM users u 
+            JOIN user_courses uc ON u.id = uc.user_id 
+            WHERE u.user_email = $1`, [userEmail]
         );
         const course = result.rows.map( row => {
             return {
