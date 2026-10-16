@@ -19,6 +19,7 @@ const storedSchedule = require('./routes/getSchedule')
 const delCourse = require('./routes/delUserCourses')
 const delSection = require('./routes/delSection')
 const saveSection = require('./routes/saveSection')
+const checkEmail = require('./routes/checkEmail')
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -43,6 +44,9 @@ app.use('/api/getSchedule', storedSchedule)
 app.use('/api/delCourse', delCourse)
 app.use('/api/selectedSections', saveSection)
 app.use('/api/delSections', delSection)
+app.use('/api/checkEmail', checkEmail)
+
+
 app.use('/api/profRatings', profRatings);
 app.use('/api/profCourses', profCourses);
 
