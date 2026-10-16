@@ -19,7 +19,7 @@ export default function LandingPage() {
 
     useEffect(() => {
         if (step !== 1) return
-        fetch ('http://localhost:3001/api/getData')
+        fetch (`http://localhost:3001/api/getUserCourses?userEmail=${email}`)
             .then(r => r.json())
             .then(data => setDashboardData(data))
             .catch(() => {})
@@ -72,8 +72,7 @@ export default function LandingPage() {
                 return
             }
             
-            // navigate('/dashboard', {state: { prefetched: dashbaordData} })
-            navigate('/dashboard')
+            navigate('/dashboard', {state: {email, prefetched: dashbaordData} })
             setStep(0)
         }
 
@@ -81,8 +80,11 @@ export default function LandingPage() {
             setErrors({server: 'User Does Not Exist'})
             setIsSubmitting(false)
         }
-        setMessage('Invalid Password')
-        setShowOverlay(true)
+
+        if (res.status === 401) {
+            setMessage('Invalid Email or Password')
+            setShowOverlay(true)
+        }
         setIsSubmitting(false)
     }
 

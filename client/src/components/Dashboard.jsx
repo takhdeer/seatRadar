@@ -6,15 +6,18 @@ import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext';
 import useSavedSchedule from '../utils/savedSchedule';
 import LoadingSpinner from './loadingSpinner';
+import { useLocation } from 'react-router-dom';
 
 import './Dashboard.css'
 export default function Dashboard() {
+
+    const location = useLocation()
 
     const [courseChart, setCourseChart] = useState([])
     const [activeChart, setActiveChart] = useState('seats')
     const [profName, setProfName] = useState([])
     const [profMetrics, setProfMetrics] = useState([])
-    const [trackedCourses, setTrackedCourses] = useState([])
+    const [trackedCourses, setTrackedCourses] = useState(location.state?.prefetched ?? [])
     const [activeCourse, setActiveCourse] = useState()
     const [profSections, setProfSections] = useState([]) // [{ prof, section_id }]
     const [rankedSections, setRankedSections] = useState([])
@@ -27,7 +30,6 @@ export default function Dashboard() {
     const [isLoading, setIsLoading] = useState(true);
     const [userId, setUserId] = useState(null);
     const { setShowOverlay, setMessage } = useOverlay()
-
 
     const navigate = useNavigate()
     // Sync schedules whenever the set of tracked courses changes
@@ -152,7 +154,7 @@ export default function Dashboard() {
     useEffect(() => {
       async function getProfs() {
           const res = await fetch(`http://localhost:3001/api/profCourses?courseID=${courseChart[0].id}`, {
-              method: 'GET',
+              method: 'GET', // returns prof and section_id
               headers: {'Accept': 'application/json'}
           });
           const data = await res.json();
@@ -177,7 +179,7 @@ export default function Dashboard() {
           setProfMetrics([]) 
             for(let i = 0; i < profName.length; i++){
                 const res = await fetch(`http://localhost:3001/api/profRatings?profs=${profName[i]}`, {
-                    method: 'GET',
+                    method: 'GET', // returns RMP Ratings for profs 
                     headers: {'Accept': 'application/json'}
                 });
                 const data = await res.json();
@@ -247,7 +249,6 @@ export default function Dashboard() {
     useEffect(() => {
         async function getUserCourses() {
             const { data: { user } } = await supabase.auth.getUser();
-
             if (user) {
                 console.log('Current user Found')
                 setUserId(user.id)
@@ -257,17 +258,23 @@ export default function Dashboard() {
                 return
             }
 
-            const res = await fetch(`http://localhost:3001/api/getUserCourses?userID=${user.id}`, {
-                method: 'GET',
+            if (trackedCourses.length > 0) return
+
+            const res = await fetch(`http://localhost:3001/api/getUserCourses?userEmail=${user.email}`, {
+                method: 'GET', // returns courses tracked by user
                 headers: {'Accept': 'application/json'}
             });
             const data = await res.json();
             setTrackedCourses(data)
-            const data2 = data[0].course
-            setActiveCourse(data2)
         }
         getUserCourses()
     }, [])
+
+    useEffect(() => {
+      if (!activeCourse && trackedCourses.length > 0) {
+        setActiveCourse(trackedCourses[0].course)
+      }
+    }, [trackedCourses, activeCourse]);
 
     useEffect(() => {
         console.log(trackedCourses)

@@ -82,7 +82,6 @@ form {
     color: #a1a1a1;
     font-size: 13px;
     font-weight: 500;
-    cursor: pointer;
     box-shadow:
         0 1px 2px rgba(0, 0, 0, 0.06),
         0 4px 12px rgba(0, 0, 0, 0.04);
@@ -91,6 +90,7 @@ form {
 }
 
 .show-password:hover {
+    cursor: pointer;
     background-color: #141414;
     border-color: #404040;
     color: #ffffff;
@@ -103,24 +103,6 @@ form {
     margin-top: 8px;
 }
 
-.login-btn {
-    width: 100%;
-    padding: 10px 12px;
-    background-color: transparent;
-    color: #7a736a;
-    border: 1px solid #e6e0d6;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
-}
-
-.login-btn:hover {
-    background-color: #f7f4ef;
-    border-color: #d4cdc0;
-    color: #2e2b26;
-}
 
 .main-btn:disabled {
     cursor: not-allowed;
