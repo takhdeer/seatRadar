@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react';
 import { validateForm } from '../utils/validation';
 import { supabase } from '../utils/supabaseClient';
+import { useOverlay } from '../context/OverlayContext';
 import './Landing.css'
 
 export default function LandingPage() {
@@ -11,29 +12,24 @@ export default function LandingPage() {
     const [errors, setErrors] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [step, setStep] = useState(0)
+    const [dashbaordData, setDashboardData] = useState(null)
+    const { setShowOverlay, setMessage } = useOverlay()
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (step !== 1) return
+        fetch ('http://localhost:3001/api/getData')
+            .then(r => r.json())
+            .then(data => setDashboardData(data))
+            .catch(() => {})
+    }, [step])
 
     async function handleEmailSubmit(e) {
         e.preventDefault()
         const validateErrors = validateForm({email: email, requireMRU: true})
         if (Object.keys(validateErrors).length >0) {
             setErrors(validateErrors)
-            return
-        }
-        setIsSubmitting(true)
-
-        const {data, error} = await supabase
-        .from('users')
-        .select('user_email')
-        .eq('user_email', email)
-        .single()
-
-        setIsSubmitting(false)
-
-        if (error || !data) {
-            setErrors('No account found with that email')
             return
         }
 
@@ -76,13 +72,17 @@ export default function LandingPage() {
                 return
             }
             
+            // navigate('/dashboard', {state: { prefetched: dashbaordData} })
             navigate('/dashboard')
+            setStep(0)
         }
 
         else if (res.status === 400) {
             setErrors({server: 'User Does Not Exist'})
             setIsSubmitting(false)
         }
+        setMessage('Invalid Password')
+        setShowOverlay(true)
         setIsSubmitting(false)
     }
 
@@ -152,7 +152,7 @@ export default function LandingPage() {
                         <button 
                         className='show-password'
                         disabled={isSubmitting}
-                        onClick={(e) => handleSubmit(e)}
+                        onClick={(e) => handlePasswordSubmit(e)}
                         >LogIn</button>
                         {errors.server && <p className='error'>{errors.server}</p>}
                     </div>

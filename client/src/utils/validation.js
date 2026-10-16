@@ -4,7 +4,9 @@ let mailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 let numRegex = /^\d{4}$/;
 
 export const validateEmail = (email, requireMRU) => {
+    const localPart = email.split('@')[0]
     if (!email) return 'Email is requried'
+    if (localPart.length < 7) return 'Email is not long enough'
     const syntaxvalid = mailRegex.test(email)
     if (!syntaxvalid) return 'Email syntax is not valid'
     if (requireMRU) {
