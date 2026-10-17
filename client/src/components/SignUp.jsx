@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { validateForm } from '../utils/validation';
 import './Landing.css'
-import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext';
 
 export default function SignUpPage(){
@@ -15,7 +14,6 @@ export default function SignUpPage(){
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { setShowOverlay, setMessage } = useOverlay()
     const [step, setStep] = useState(0)
-    const [dashbaordData, setDashboardData] = useState(null)
 
     const navigate = useNavigate();
 
@@ -83,29 +81,20 @@ export default function SignUpPage(){
         if (res.status === 409) {
             setErrors({server: 'User Already Exists'})
             setIsSubmitting(false)
-        }
-        if (res.status === 400) {
-            setMessage('Please confirm email, check your inbox')
-            setShowOverlay(true)
-            setIsSubmitting(false)
         } 
         if (res.status === 500) {
-            setMessage('Can not send Confirmation Email')
+            setMessage('Password is not secure')
             setShowOverlay(true)
             setIsSubmitting(false)
         }
         if (res.status === 201) {
-            const { error } = await supabase.auth.setSession({
-                access_token: data.access_token,
-                refresh_token: data.refresh_token
-            });
-
-            if (error) {
-                console.log('Could not set session', error)
-                setIsSubmitting(false)
-                return
-            }
-            setStep(2)
+            setMessage('Confirm email, check your inbox')
+            setShowOverlay(true)
+            navigate('/')
+        }
+        if (res.status === 503) {
+            setMessage(`Database Error: ${data.detail}`)
+            setShowOverlay(true)
         }
         setIsSubmitting(false)
     }

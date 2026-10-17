@@ -18,6 +18,10 @@ router.post('/', async (req, res) => {
         });
 
         if (error) {
+            if (error.status === 400 || error.code === 'email_not_confirmed') {
+                console.log('Email not confirmed')
+                return res.status(403).json({ error: 'Email not confirmed'})
+            }
             console.log(error)
             return res.status(401).json({ message: 'Invalid Credentials'})
         }

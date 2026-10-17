@@ -60,6 +60,12 @@ export default function LandingPage() {
 
         const data = await res.json();
 
+        if (res.status === 403) {
+            setMessage('Confirm email, please check inbox')
+            setShowOverlay(true)
+            setIsSubmitting(false)
+            return
+        }
         if (res.status === 200) {
             const { error } = await supabase.auth.setSession({
                 access_token: data.access_token,
