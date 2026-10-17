@@ -105,7 +105,8 @@ export default function LandingPage() {
         <>
         <div className='page-login'>
             <div className='form-login'>
-            <h2>Login to your SeatRadar Account</h2>
+            <h2>Registration Simplified</h2>
+            <h2 id='grey-h2'>Login to your SeatRadar Account</h2>
             {step === 0 && (
                 <form onSubmit={handleEmailSubmit}>
                     <label className='form-label'>Email</label>
@@ -130,6 +131,9 @@ export default function LandingPage() {
                     <div className='new-user'>
                         <p>New User?</p>
                         <a href='/signup'>SignUp</a>
+                    </div>
+                    <div className='new-user policy'>
+                        <p>By continuing, you acknowledge that you understand and agree to the <a href='#'>Terms & Conditions</a> and <a href='#'>Privacy Policy</a></p>
                     </div>
                 </form>
             )}
