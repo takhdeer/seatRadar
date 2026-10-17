@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 import { validateForm } from '../utils/validation';
 import './Landing.css'
-import { supabase } from '../utils/supabaseClient';
 import { useOverlay } from '../context/OverlayContext';
 
 export default function SignUpPage(){
@@ -14,21 +13,56 @@ export default function SignUpPage(){
     const [username, setusername] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const { setShowOverlay, setMessage } = useOverlay()
+    const [step, setStep] = useState(0)
 
     const navigate = useNavigate();
+
+
+    async function handleEmailSubmit(e) {
+        e.preventDefault()
+        const validateErrors = validateForm({email: email, requireMRU: true})
+        if (Object.keys(validateErrors).length >0) {
+            setErrors(validateErrors)
+            return
+        }
+
+        setIsSubmitting(true)
+
+        const res = await fetch(`http://localhost:3001/api/checkEmail?email=${email}`, {
+            method: 'GET',
+            headers: {'Content-Type': 'application/json'},
+        });
+
+        const data = await res.json();
+        if (res.status !==201) {
+            setErrors({server: data.message})
+            setIsSubmitting(false)
+            return
+        }
+
+        setIsSubmitting(false)
+        setStep(1)
+    }
+
+    async function handlePasswordSubmit(e) {
+        e.preventDefault();
+        setIsSubmitting(true)
+        const validErrors = validateForm({password: password, confirmPassword: confirmPassword});
+        if (Object.keys(validErrors).length >0) {
+            setErrors(validErrors)
+            setIsSubmitting(false)
+            return
+        }
+
+        setIsSubmitting(false)
+        setStep(2)
+    }
 
     async function handleSubmit(e) {
 
         //timeout logic
         const controller = new AbortController()
         const timeout = setTimeout(() => controller.abort(), 30000)
-
-        e.preventDefault();
-        const validErrors = validateForm({email: email, password: password, confirmPassword: confirmPassword,requireMRU: true});
-        if (Object.keys(validErrors).length >0) {
-            setErrors(validErrors)
-            return
-        }
 
         setIsSubmitting(true)
 
@@ -47,31 +81,20 @@ export default function SignUpPage(){
         if (res.status === 409) {
             setErrors({server: 'User Already Exists'})
             setIsSubmitting(false)
-        }
-        if (res.status === 400) {
-            setMessage('Please confirm email sent to inbox')
-            setShowOverlay(true)
-            setIsSubmitting(false)
         } 
         if (res.status === 500) {
-            setMessage('Can not send Confirmation Email')
+            setMessage('Password is not secure')
             setShowOverlay(true)
             setIsSubmitting(false)
         }
         if (res.status === 201) {
-            const { error } = await supabase.auth.setSession({
-                access_token: data.access_token,
-                refresh_token: data.refresh_token
-            });
-
-            if (error) {
-                console.log('Could not set session', error)
-                setIsSubmitting(false)
-                return
-            }
-            setTimeout(() => {
-                navigate('/')
-            }, 3000);
+            setMessage('Confirm email, check your inbox')
+            setShowOverlay(true)
+            navigate('/')
+        }
+        if (res.status === 503) {
+            setMessage(`Database Error: ${data.detail}`)
+            setShowOverlay(true)
         }
         setIsSubmitting(false)
     }
@@ -90,18 +113,29 @@ export default function SignUpPage(){
                         onClick={() => navigate(-1)}
                     >&lt;</button>
                 </div>
-                <form>
-                    <label className='form-label'>Email</label>
-                    <input
-                    className='login-input'
-                    id='email'
-                    value={email}
-                    type='text'
-                    placeholder='example@mtroyal.ca'
-                    onChange={(e) => setMRUEmail(e.target.value)}
-                    />
-                    {errors.email && <p className="error">{errors.email}</p>}
+                {step === 0 && (
+                    <form onSubmit={handleEmailSubmit}>
+                        <label className='form-label'>Email</label>
+                        <input
+                        className='login-input'
+                        id='email'
+                        value={email}
+                        type='text'
+                        placeholder='example@mtroyal.ca'
+                        onChange={(e) => setMRUEmail(e.target.value)}
+                        />
+                        {errors.email && <p className="error">{errors.email}</p>}
 
+                        <button
+                            type='submit' 
+                            className='show-password'
+                            disabled={isSubmitting}
+                            >Continue</button>
+                        {errors.server && <p className='error'>{errors.server}</p>}
+                    </form>
+                )}
+                {step === 1 && (
+                <form onSubmit={handlePasswordSubmit}>
                     <label className='form-label'>Password</label>
                     <div className='password-wrapper'>
                         <input
@@ -133,7 +167,15 @@ export default function SignUpPage(){
                         />
                     </div>
                     {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
-
+                    <button
+                        type='submit' 
+                        className='show-password'
+                        disabled={isSubmitting}
+                        >Continue</button>
+                </form>
+                )}
+                {step === 2 && (
+                <form>
                     <label className='form-label'>Username</label>
                     <div>
                         <input
@@ -145,7 +187,6 @@ export default function SignUpPage(){
                         onChange={(e) => setusername(e.target.value)}
                         />
                     </div>
-                    {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
 
                 <div className='buttons'>
                         <button 
@@ -153,14 +194,9 @@ export default function SignUpPage(){
                         disabled={isSubmitting}
                         onClick={(e) => handleSubmit(e)}
                         >Create Account</button>
-                        <button 
-                        className='show-password'
-                        disabled={isSubmitting}
-                        onClick={() => navigate('/')}
-                        >Log in</button>
                     </div>
                 </form>
-
+                )}
             </div>
         </div>
 

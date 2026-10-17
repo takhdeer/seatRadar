@@ -7,7 +7,7 @@ router.post('/', async (req, res) => {
     console.log(req.body)
     const { email, password, username} = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !username) {
         console.log('Missing Credentials')
         return res.status(400).json({error: "Missing Credentials"})
     }
@@ -26,13 +26,8 @@ router.post('/', async (req, res) => {
                 console.log('Password is not secure')
                 return res.status(500).json({ error: 'Password error', detail: error.message})
             }
-
-            if (error.status === 400 || error.code === 'email_not_confirmed') {
-                console.log('Email not confirmed')
-                return res.status(400).json({ error: 'Email not confirmed'})
-            }
             console.log(error);
-            return res.status(500).json({ error: 'Auth error', detail: error.message})
+            return res.status(503).json({ error: 'Auth error', detail: error.message})
         }
 
         if (data.user.identities.length === 0) {
