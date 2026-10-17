@@ -127,3 +127,21 @@ p {
     display: flex;
     align-items: center;
 }
+
+.new-user {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 15px;
+    gap: 7px;
+    color: #777;
+    font-weight: 400;
+    a {
+        font: inherit;
+        color: #777;
+        cursor: pointer;
+    }
+    :hover{
+        color: #2783DE;
+    }
+}
