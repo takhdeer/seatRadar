@@ -126,13 +126,10 @@ export default function LandingPage() {
                         disabled={isSubmitting}
                         >Continue</button>
                         {errors.server && <p className='error'>{errors.server}</p>}
-
-                        <button
-                        type='button'
-                        className='show-password'
-                        disabled={isSubmitting}
-                        onClick={() => navigate('/signup')}
-                        >SignUp</button>
+                    </div>
+                    <div className='new-user'>
+                        <p>New User?</p>
+                        <a href='/signup'>SignUp</a>
                     </div>
                 </form>
             )}
