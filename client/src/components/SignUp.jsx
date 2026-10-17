@@ -110,7 +110,7 @@ export default function SignUpPage(){
                         id='back-btn'
                         className="show-password"
                         aria-label="Go back"
-                        onClick={() => navigate(-1)}
+                        onClick={() => setStep(step - 1)}
                     >&lt;</button>
                 </div>
                 {step === 0 && (
