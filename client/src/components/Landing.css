@@ -20,7 +20,7 @@ h2 {
     font-size: 20px;
     font-weight: 600;
     text-align: center;
-    margin: 0 0 28px 0;
+    margin: 0 0 8px 0;
     letter-spacing: -0.3px;
 }
 
@@ -141,7 +141,20 @@ p {
         color: #777;
         cursor: pointer;
     }
-    :hover{
+    a:hover{
         color: #2783DE;
     }
+}
+
+#grey-h2 {
+    color: #8d8a86;
+    margin-bottom: 24px;
+}
+
+.policy {
+    color: #777;
+    font-weight: 400;
+    font-size: 12px;
+    padding-left: 2rem;
+    padding-right: 2rem;
 }
