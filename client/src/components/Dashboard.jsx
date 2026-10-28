@@ -25,6 +25,7 @@ export default function Dashboard() {
     const scheduleCache = useRef({}) // survives re-renders
     const [sectionColors, setSectionColors] = useState({}) 
     const [selectedSections, setSelectedSections] = useState(new Set())
+    const [hoveredSection, setHoveredSection] = useState(null) // previews one section in the charts
     const [showAllCourses, setShowAllCourses] = useState(true);
     const [showLabTut, setShowLabTut] = useState(true)
     const [isLoading, setIsLoading] = useState(true);
@@ -405,7 +406,7 @@ export default function Dashboard() {
             return <h3>No Prof available for this section</h3>;
         }
     
-        const eff = getEffectiveSections();
+        const eff = getChartSections();
     
         if (eff === null) {
             return <ProfRatingChart chartData={profMetrics} />;
@@ -442,8 +443,14 @@ export default function Dashboard() {
       return { mode: 'include', ids };
     }
   
+    // Hovered row overrides the selection for charts only (not for saving)
+    function getChartSections() {
+      if (hoveredSection) return { mode: 'include', ids: new Set([hoveredSection]) };
+      return getEffectiveSections();
+    }
+
     function applySectionFilter(data) {
-        const eff = getEffectiveSections();
+        const eff = getChartSections();
         if (eff === null) return data;
         return eff.mode === 'exclude'
             ? data.filter(d => !eff.ids.has(d.section))
@@ -770,6 +777,7 @@ export default function Dashboard() {
                             </button>
                           )}
                         </div>
+                        <div onMouseLeave={() => setHoveredSection(null)}>
                         {rankedSections.map((section, idx) => (
                             <div
                                 key={section.section}
@@ -780,6 +788,7 @@ export default function Dashboard() {
                                     cursor: 'pointer'
                                 }}
                                 onClick={() => toggleSection(section.section)}
+                                onMouseEnter={() => setHoveredSection(section.section)}
                             >
                                 <span className="rank">#{idx + 1}</span>
                                 <span className="section-info">
@@ -796,6 +805,7 @@ export default function Dashboard() {
                                 </span>
                             </div>
                         ))}
+                        </div>
                     </div>
                 )}
             </div>
