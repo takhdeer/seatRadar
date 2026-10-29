@@ -48,7 +48,11 @@ router.get('/', async (req, res) => {
            cd.days,
            cd.start_time,
            cd.end_time,
-           cd.class_type
+           cd.class_type,
+           (SELECT string_agg(p.prof, ', ')
+              FROM professors p
+             WHERE p.course_id = tc.id
+               AND p.section_id = uss.section_id) AS prof
          FROM user_selected_sections uss
          JOIN tracked_courses tc
            ON tc.subject = split_part(uss.course, ' ', 1)

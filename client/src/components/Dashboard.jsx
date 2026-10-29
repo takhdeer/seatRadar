@@ -486,7 +486,8 @@ export default function Dashboard() {
               days: section.days,
               start: section.start_time,
               end: section.end_time,
-              classType: section.classType
+              classType: section.classType,
+              prof: section.prof
             });
           });
         }
@@ -500,7 +501,8 @@ export default function Dashboard() {
                   days: section.days,
                   start: section.start_time,
                   end: section.end_time,
-                  classType: section.classType
+                  classType: section.classType,
+                  prof: profSections.find(ps => String(ps.section_id) === String(section.section))?.prof
                 });
               }
             });
@@ -586,7 +588,7 @@ export default function Dashboard() {
                                                     >
                                                         <span className="course-title">{schedule.courseName}</span>
                                                         <span className="course-section">
-                                                            {schedule.section} {schedule.classType && `· ${schedule.classType}`}
+                                                            {schedule.prof || 'Prof TBA'} {schedule.classType && `· ${schedule.classType}`}
                                                         </span>
                                                     </div>
                                                 ))
