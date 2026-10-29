@@ -17,7 +17,8 @@ export function CourseSummary({
     getEffectiveSections,
     userId,
     refreshSavedSchedule,
-    activeChart
+    activeChart,
+    profRatingChart
 }) {
     const { setShowOverlay, setMessage } = useOverlay()
     const navigate = useNavigate()

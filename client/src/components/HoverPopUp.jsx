@@ -22,7 +22,7 @@ export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave }) {
       {isVisible && content && (
         <div className='chart-hover'
           style={{
-            height: '250px',
+            height: '300px',
             width: '200px',
             position: 'absolute',
             top: '100%',
@@ -35,7 +35,7 @@ export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave }) {
             padding: '8px 12px',
             fontSize: 13,
             boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
           }}
         >
           {content}
