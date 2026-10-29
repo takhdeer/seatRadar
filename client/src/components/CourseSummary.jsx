@@ -16,7 +16,8 @@ export function CourseSummary({
     setShowLabTut,
     getEffectiveSections,
     userId,
-    refreshSavedSchedule
+    refreshSavedSchedule,
+    activeChart
 }) {
     const { setShowOverlay, setMessage } = useOverlay()
     const navigate = useNavigate()
@@ -179,7 +180,7 @@ export function CourseSummary({
                             onClick={() => toggleSection(section.section)}
                             onMouseEnter={() => setHoveredSection(section.section)}
                             content={
-                              <strong> CHART GOES HERE</strong>
+                                activeChart
                             }
                         >
                         <div className='section-row'
