@@ -657,7 +657,8 @@ export default function Dashboard() {
                   getEffectiveSections={getEffectiveSections}
                   userId={userId}
                   refreshSavedSchedule={refreshSavedSchedule}
-                  activeChart={renderProfChart()}
+                  activeChart={renderChart()}
+                  profRatingChart={renderProfChart()}
                 />
               )}
               {isLoading ? <LoadingSpinner />: <ScheduleGrid />}

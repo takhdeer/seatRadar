@@ -181,7 +181,11 @@ export function CourseSummary({
                             onClick={() => toggleSection(section.section)}
                             onMouseEnter={() => setHoveredSection(section.section)}
                             content={
-                                activeChart
+                                <div style={{ display: 'flex', gap: 12, height: '100%' }}>
+                                    {/* minWidth: 0 lets ResponsiveContainer shrink inside a flex item */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>{activeChart}</div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>{profRatingChart}</div>
+                                </div>
                             }
                         >
                         <div className='section-row'
