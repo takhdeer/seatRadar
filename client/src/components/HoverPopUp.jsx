@@ -22,8 +22,8 @@ export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave }) {
       {isVisible && content && (
         <div className='chart-hover'
           style={{
-            height: '300px',
-            width: '200px',
+            height: '400px',
+            width: '400px',
             position: 'absolute',
             top: '100%',
             right: 0,
