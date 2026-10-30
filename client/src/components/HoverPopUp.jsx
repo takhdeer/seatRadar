@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 
 // Reusable wrapper: wraps any children, shows `content` on hover,
 // and chains optional onMouseEnter/onMouseLeave so parent logic (e.g. setHoveredSection) still runs
-export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave }) {
+export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave, onClick }) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
     <div
       style={{ position: 'relative' }}
+      onClick={onClick}
       onMouseEnter={(e) => {
         setIsVisible(true);
         onMouseEnter?.(e);

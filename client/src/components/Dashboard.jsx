@@ -659,6 +659,7 @@ export default function Dashboard() {
                   refreshSavedSchedule={refreshSavedSchedule}
                   activeChart={renderChart()}
                   profRatingChart={renderProfChart()}
+                  selectedSections={selectedSections}
                 />
               )}
               {isLoading ? <LoadingSpinner />: <ScheduleGrid />}
