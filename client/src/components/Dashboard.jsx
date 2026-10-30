@@ -456,15 +456,6 @@ export default function Dashboard() {
             : data.filter(d => eff.ids.has(d.section));
     }
 
-    function getTBASections() {
-      const knownProfSections = new Set(profSections.map(ps => String(ps.section_id)));
-      return new Set(
-          courseChart
-              .map(s => String(s.section))
-              .filter(sectionId => !knownProfSections.has(sectionId))
-      );
-  }
-
     function ScheduleGrid() {
         const days = ['M', 'T', 'W', 'R', 'F'];
         const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8am to 9pm
