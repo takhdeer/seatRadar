@@ -25,8 +25,8 @@ export function HoverPopUp({ children, content, onMouseEnter, onMouseLeave }) {
             height: '300px',
             width: '700px',
             position: 'absolute',
-            top: '100%',
-            right: 0,
+            top: 0,
+            left: 'calc(100% + 21px)', // row width + summary-container padding (20px) + border (1px)
             zIndex: 10,
             pointerEvents: 'none', // wont cause conflicts because of nesting
             background: '#fff',
