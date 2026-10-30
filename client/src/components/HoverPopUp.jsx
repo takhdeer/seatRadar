@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Reusable wrapper: wraps any children, shows `content` on hover,
 // and chains optional onMouseEnter/onMouseLeave so parent logic (e.g. setHoveredSection) still runs
