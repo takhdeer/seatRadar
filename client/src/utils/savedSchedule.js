@@ -35,6 +35,7 @@ function useSavedSchedule(userId) {
           days: entry.days,
           start_time: entry.start_time,
           end_time: entry.end_time,
+          prof: entry.prof,
         })));
 
         setError(null);
