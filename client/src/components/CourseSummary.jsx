@@ -18,7 +18,8 @@ export function CourseSummary({
     userId,
     refreshSavedSchedule,
     activeChart,
-    profRatingChart
+    profRatingChart,
+    selectedSections
 }) {
     const { setShowOverlay, setMessage } = useOverlay()
     const navigate = useNavigate()
@@ -189,7 +190,8 @@ export function CourseSummary({
                             }
                         >
                         <div className='section-row'
-                          style={{ borderLeft: `4px solid ${sectionColors[section.section]}`, cursor: 'pointer' }}
+                          style={{ borderLeft: `4px solid ${sectionColors[section.section]}`, cursor: 'pointer', 
+                                   opacity: selectedSections.size === 0 || selectedSections.has(section.section) ? 1 : 0.4 }}
                         >
                             <span className="rank">#{idx + 1}</span>
                             <span className="section-info">
