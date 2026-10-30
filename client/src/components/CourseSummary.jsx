@@ -189,7 +189,7 @@ export function CourseSummary({
                             }
                         >
                         <div className='section-row'
-                          style={{cursor: 'pointer' }}
+                          style={{ borderLeft: `4px solid ${sectionColors[section.section]}`, cursor: 'pointer' }}
                         >
                             <span className="rank">#{idx + 1}</span>
                             <span className="section-info">
