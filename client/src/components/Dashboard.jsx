@@ -663,27 +663,6 @@ export default function Dashboard() {
               )}
               {isLoading ? <LoadingSpinner />: <ScheduleGrid />}
             </div>
-
-            <div className="charts-row">
-              <div className="chart-container">
-                <div className="chart-header">
-                  <button
-                    className="seat-btn"
-                    onClick={() =>
-                      setActiveChart(activeChart === "seats" ? "waitlist" : "seats")
-                    }
-                  >
-                    {activeChart === "seats" ? "Waitlist" : "Seats"}
-                  </button>
-                </div>
-
-                {isLoading ? <LoadingSpinner /> : renderChart()}
-              </div>
-
-              <div className="chart-container">
-              {isLoading ? <LoadingSpinner /> : renderProfChart()}
-              </div>
-            </div>
           </div>
         </div>
       </>

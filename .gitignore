@@ -17,3 +17,4 @@ node_modules/
 previewConfig.json
 
 #vscode files
+.vscode/
