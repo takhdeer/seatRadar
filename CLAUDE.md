@@ -23,11 +23,12 @@ Confirmation of which Express routes (profRatings, profCourses, getData, getCour
 
 Key learnings & principles
 
-Critical Banner debugging note: The "stuck on first result" symptom from Banner's searchResults endpoint is not caused by JSESSIONID session locking, MRU cookie rotation (MRUB9SSBPRODREGHA rotates per-request as anti-replay), or X-Synchronizer-Token chaining. The actual fix is a POST to the resetDataForm endpoint (empty body, same cookies) before every new searchResults call. Do not re-chase cookie/token rotation theories for this class of symptom.
 Supabase Auth: adminClient.createUser() does not trigger confirmation emails regardless of project settings — the mailer only fires on the anonClient.auth.signUp() path. Supabase returns a decoy user object with identities: [] for duplicate email signups (enumeration protection), which can cause FK violations downstream if not handled.
 Recurring bug patterns to watch: CommonJS/ESM mixing; destructuring mismatches across return branches; const scoping inside try blocks; missing await producing Promise {pending}; forEach not supporting async/await (use Promise.all + .map()); || vs && in multi-condition exclusion checks; useEffect hooks called conditionally or after early returns; navigate() in render body instead of inside useEffect; useEffect cleanup returned from nested inner function instead of top-level callback
 ^ vs **: Bitwise XOR is not exponentiation in JavaScript — a bug caught in the retry logic
-node-cron dead code path: When runEngineRetry returns 'Failed' instead of throwing, the catch block in the scheduler never fires for retry exhaustion — handle the return value explicitly
+rate-my-professor-api-ts is patched (patches/) for a missing .js extension bug
+TypeScript must stay on 5.x — 7.x (Go-based compiler) is incompatible with ts-node
+Server-specific gotchas (Banner, node-cron) live in server/CLAUDE.md
 
 Approach & patterns
 
@@ -36,58 +37,3 @@ y/n: prefixed prompts: answer strictly yes/no ("Yes" with no explanation; "No" w
 Skip basic CS explanations (syntax, loops, installs) unless a deep dive is explicitly requested
 Never repeat previously stated instructions back to takh — just say "see above" to save tokens
 Prefers short, direct answers for simple questions; and "why" explanations before implementation details
-
-Tools & resources
-
-Backend: Node.js/Express, pg (raw driver), node-cron, Playwright, Postmark, rate-my-professor-api-ts (patched for missing .js extension bug)
-Frontend: React/Vite, React Router, Recharts, Supabase JS client
-Database: Supabase (PostgreSQL, port 6543 connection string)
-Dev tooling: concurrently, nodemon, bun, ts-node, TypeScript 5.x (not 7.x — incompatible with ts-node due to Go-based compiler)
-Target system: MRU Banner 9 SSB (ban9ssb-prod.mtroyal.ca), Ellucian Banner
-
-
-Project Structure: 
-client/
-    node_modules/
-    public/
-    src/
-        components/
-            Dashboard.css
-            Dashbaord.jsx
-            Landing.css 
-            Landing.jsx (login page)
-            ProtectedRoute.jsx
-            PublicRoute.jsx
-            SignUp.jsx
-            tracked.jsx
-            TrackForm.css
-            TrackForm.jsx
-        tests/
-        utils/
-            supabaseClient.js
-            validation.js
-    .env
-    .gitignore
-node_modules/
-server/
-    engine/
-        cookieExpiration.js
-        core-engine.js
-        fetchCourseData.js
-        fetchTrackedCourses.js
-        getUserEmails.js
-        runEngineRetry.js
-        schedule.js
-        setNotifiedFlag.js
-    middleware/
-    node_modules/
-    patches/
-    routes/
-    utils/
-        anonClient.js
-        cookieExtract.js
-        resetBanner.js
-        scrapper.js
-        sendEmail.js
-        serviceRoleClient.js
-        .env
