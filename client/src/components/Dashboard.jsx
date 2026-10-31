@@ -15,7 +15,6 @@ export default function Dashboard() {
     const location = useLocation()
 
     const [courseChart, setCourseChart] = useState([])
-    const [activeChart, setActiveChart] = useState('seats')
     const [profName, setProfName] = useState([])
     const [profMetrics, setProfMetrics] = useState([])
     const [trackedCourses, setTrackedCourses] = useState(location.state?.prefetched ?? [])
@@ -309,7 +308,7 @@ export default function Dashboard() {
 
     function WaitlistChart( {chartData} ) {
         return (
-            <ResponsiveContainer width='100%' height='75%'>
+            <ResponsiveContainer width='100%' height='80%'>
                 <BarChart data = {chartData}>
                     <XAxis
                       dataKey = 'course'
@@ -318,13 +317,14 @@ export default function Dashboard() {
                       tick={{ fill: '#2e2b26' }}
                     />
                     <YAxis
-                      dataKey = 'waitlist'
+                      dataKey = 'total_waitlist'
                       axisLine={false}
                       tickLine={false}
                       tick={{ fill: '#2e2b26' }}
                     />
                     <Tooltip />
                     <CartesianGrid stroke='none'/>
+                    <Legend wrapperStyle={{ color: '#2e2b26' }} />
                     <Bar dataKey = "waitlist" stackId='a' fill='#6f9f7e' name='Available' />
                     <Bar dataKey = "waitlistTaken" stackId='a' fill='#c9736b' name='Taken' />
                 </BarChart>
@@ -390,15 +390,12 @@ export default function Dashboard() {
     }
 
     function renderChart() {
-        if (activeChart === 'seats') {
-          return (
-            <SeatsChart chartData={applySectionFilter(courseChart)} />
-          )
-        } else {
-          return (
-            <WaitlistChart chartData={applySectionFilter(courseChart)} />
-          )
-        }
+        const chartData = applySectionFilter(courseChart)
+        const showWaitlist = chartData.length > 0 && chartData.every(s => s.seats === 0 && s.total_waitlist > 0)
+
+        return showWaitlist
+          ? <WaitlistChart chartData={chartData} />
+          : <SeatsChart chartData={chartData} />
       }
 
       function renderProfChart() {
